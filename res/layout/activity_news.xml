@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/main_color_grey_dark">
+	<RelativeLayout
+	    android:id="@+id/rlayout"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:background="@color/main_color_grey_dark"
+	    android:layout_above="@+id/ad_layout">
+	    <include android:id="@+id/topbar" layout="@layout/topbar" 
+	            android:layout_alignParentTop="true"/>
+	    <com.handmark.pulltorefresh.library.PullToRefreshListView
+	        android:id="@+id/listview_news"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_below="@+id/topbar"
+	        android:layout_above="@+id/progressBar_pull_more"
+	        android:divider="@color/background"
+	        android:dividerHeight="1dp"
+	        android:background="@color/main_color_grey_dark" />
+	    <ImageButton android:id="@+id/refresh"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_below="@+id/topbar"
+	        android:scaleType="fitCenter"
+	        android:visibility="gone"
+	        android:background="@drawable/button_background"
+	        android:src="@drawable/renew"/>
+	    <LinearLayout android:id="@+id/progressBar_pull_more"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_alignParentBottom="true"
+	        android:scaleType="fitCenter"
+	        android:visibility="gone">
+	        <ProgressBar  
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_margin="2dp" />
+	    </LinearLayout>
+	
+	</RelativeLayout>
+	<RelativeLayout
+            android:id="@+id/ad_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/background"
+            android:gravity="center_horizontal" 
+            android:layout_gravity="center_horizontal"/>
+</RelativeLayout>

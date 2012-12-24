@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="58dp"
+    android:background="@color/transparent100"
+    android:orientation="vertical" >
+	<RelativeLayout
+	    android:layout_width="wrap_content"
+	    android:layout_height="62dp"
+	    android:layout_marginTop="1dp"
+	    android:background="@drawable/tab_background" >
+        <View 
+	        android:layout_width="0.1dp"
+	        android:layout_height="50dp"
+	        android:layout_centerVertical="true"
+	        android:layout_alignParentLeft="true"
+	        android:background="@drawable/tab_linecolor" />
+	    <ImageView android:id="@+id/imageview_tabicon"
+	        android:layout_width="30dp"
+	        android:layout_height="30dp"
+	        android:layout_centerHorizontal="true"
+	        android:layout_alignParentTop="true"
+	        android:layout_marginTop="5dp"
+	        android:scaleType="fitCenter"
+	        />
+	    <TextView android:id="@+id/textview_tabicon"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_alignParentBottom="true"
+	        android:layout_marginTop="1dp"
+	        android:layout_marginBottom="5dp"
+            android:layout_below="@+id/imageview_tabicon"
+            android:gravity="center"
+	        android:textSize="15dp"
+	        android:textColor="@drawable/tab_textcolor" />
+	    <View 
+            android:layout_width="0.1dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/tab_linecolor" />
+	</RelativeLayout>
+</LinearLayout>

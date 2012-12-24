@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout
+	 xmlns:android="http://schemas.android.com/apk/res/android"
+	 android:layout_height="match_parent" 
+	 android:layout_width="fill_parent" 
+	 android:padding="10dp"
+	 android:background="@drawable/button_background"
+	 >
+	 <ImageView android:id="@+id/news_image"
+		android:layout_width="64dp"
+		android:layout_height="64dp" 
+		android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/textcolor_grey"
+        android:scaleType="center"
+		android:layout_margin="5dp"
+		android:src="@drawable/stub"
+		/>
+
+	 <TextView
+	     android:id="@+id/textview_title"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignTop="@+id/news_image"
+	     android:layout_marginLeft="10dp"
+	     android:layout_toRightOf="@+id/news_image"
+	     android:layout_toLeftOf="@+id/imageView_next"
+	     android:layout_marginRight="10dp"
+	     android:textSize="20dp"
+	     android:textColor="@color/textcolor_grey"
+	     android:text="標題" />
+	 
+	 <TextView
+         android:id="@+id/textviewofreleasedate"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/textview_title"
+         android:layout_marginTop="5dp"
+         android:textSize="10dp"
+         android:textColor="@color/textcolor_grey"
+         android:layout_alignLeft="@+id/textview_title"
+         android:text="發文日期" />
+
+	 <ImageView
+	     android:id="@+id/imageView_next"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignParentRight="true"
+	     android:layout_alignParentTop="true"
+	     android:layout_marginRight="5dp"
+	     android:layout_marginTop="20dp"
+	     android:src="@drawable/navigation_next" />
+
+	 
+
+</RelativeLayout>

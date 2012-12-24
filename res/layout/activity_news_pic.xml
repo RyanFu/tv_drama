@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" 
+        android:background="@color/background">
+
+        <TextView
+            android:id="@+id/textview_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="10dp"
+            android:textSize="20dp"
+            android:textColor="@color/black"
+            android:text="圖片介紹" />
+
+        <WebView
+            android:id="@+id/webview_pic"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/textview_content"
+            
+            android:layout_alignLeft="@id/textview_content"
+            android:layout_alignRight="@id/textview_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/background" />
+        
+    </RelativeLayout>

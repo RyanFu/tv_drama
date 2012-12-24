@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content"
+    android:background="@drawable/grid_item_dramachapter_bg"
+    android:layout_margin="5dp"
+	>
+	<TextView android:id="@+id/chapter_no" 
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp"
+        android:textColor="@drawable/grid_item_dramachapter_textcolor"
+        android:textSize="15dp" />
+    <ImageView android:id="@+id/mark" 
+        android:layout_width="20dp" 
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/mark"
+        android:visibility="gone" />    
+</RelativeLayout>
