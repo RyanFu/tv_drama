@@ -195,7 +195,8 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
   
         @Override  
         protected void onPostExecute(String result) {
-        	if(progressdialogInit != null && progressdialogInit.isShowing())
+        	if(NewsActivity.this != null && !NewsActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
         	if(newsList != null && newsList.size() > 0){
         		Log.d(TAG, "List Size: " + newsList.size());

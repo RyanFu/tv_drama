@@ -7,6 +7,7 @@ import com.jumplife.sectionlistview.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.entity.Drama;
+import com.jumplife.tvdrama.promote.PromoteAPP;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -72,12 +73,18 @@ public class MyFavoriteWaterFallActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            new AlertDialog.Builder(this).setTitle("- 離開程式? -").setPositiveButton("是", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                    MyFavoriteWaterFallActivity.this.finish();
-                }
-            }).setNegativeButton("否", null).show();
+        	PromoteAPP promoteAPP = new PromoteAPP(MyFavoriteWaterFallActivity.this);
+        	if(!promoteAPP.isPromote) {
+	        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
+	            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
+	                // do something when the button is clicked
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	MyFavoriteWaterFallActivity.this.finish();
+	                }
+	            }).setNegativeButton(getResources().getString(R.string.cancel), null)
+	            .show();
+		    } else
+		    	promoteAPP.promoteAPPExe();
 
             return true;
         } else
@@ -204,7 +211,9 @@ public class MyFavoriteWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            progressdialogInit.dismiss();
+        	if(MyFavoriteWaterFallActivity.this != null && !MyFavoriteWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
 
             if (dramaList == null) {
             	rlWaterfall.setVisibility(View.GONE);
@@ -230,19 +239,17 @@ public class MyFavoriteWaterFallActivity extends Activity {
     public void showReloadDialog(final Context context) {
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(context);
 
-        alt_bld.setMessage("是否重新載入資料？").setCancelable(true).setPositiveButton("確定", new DialogInterface.OnClickListener() {
+        alt_bld.setMessage(getResources().getString(R.string.reload_or_not))
+        .setCancelable(true).setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 loadTask = new LoadDataTask();
-                if(Build.VERSION.SDK_INT < 11)
-                	loadTask.execute();
-                else
-                	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+                loadTask.execute();
                 dialog.dismiss();
             }
         });
 
         AlertDialog alert = alt_bld.create();
-        alert.setTitle("讀取錯誤");
+        alert.setTitle(getResources().getString(R.string.load_error));
         alert.setCancelable(false);
         alert.show();
 

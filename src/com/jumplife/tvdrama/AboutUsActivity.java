@@ -1,6 +1,8 @@
 package com.jumplife.tvdrama;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.jumplife.tvdrama.promote.PromoteAPP;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -82,7 +84,7 @@ public class AboutUsActivity extends Activity {
 				EasyTracker.getTracker().trackEvent("關於我們", "免責聲明", "", (long)0);
 				// TODO Auto-generated method stub
 				AlertDialog dialog = new AlertDialog.Builder(AboutUsActivity.this).create();
-		        dialog.setTitle("免責聲明");
+		        dialog.setTitle(AboutUsActivity.this.getResources().getString(R.string.liability_disclaimer));
 		        dialog.setMessage(Html.fromHtml("<b>電視連續劇為JumpLife所開發之第三方影音共享播放清單彙整軟體，作為影音內容" +
 		        							"的索引和影視庫的發現，影片來源取自於網路上之Youtube、DailyMotion、WatTV等網站" +
 					        				"網址。電視連續劇僅提供搜尋結果，不會上傳任何影片，也不提供任何影片下載，更不會" +
@@ -93,7 +95,7 @@ public class AboutUsActivity extends Activity {
 							        		"<br/><br/>本APP所有文章、影片、圖片之著作權皆為原創作人所擁有請勿複製使用，" +
 							        		"以免侵犯第三人權益，內容若有不妥，或是部分內容侵犯了您的合法權益，請洽上述節目" +
 							        		"來源網站或聯繫本站，Jumplife僅持有軟體本身著作權。"));
-		        dialog.setButton("確定", new DialogInterface.OnClickListener() {
+		        dialog.setButton(AboutUsActivity.this.getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int which) {
 		                // TODO Auto-generated method stub
 		            }
@@ -163,12 +165,18 @@ public class AboutUsActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            new AlertDialog.Builder(this).setTitle("- 離開程式? -").setPositiveButton("是", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                	AboutUsActivity.this.finish();
-                }
-            }).setNegativeButton("否", null).show();
+        	PromoteAPP promoteAPP = new PromoteAPP(AboutUsActivity.this);
+        	if(!promoteAPP.isPromote) {
+	        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
+	            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
+	                // do something when the button is clicked
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	AboutUsActivity.this.finish();
+	                }
+	            }).setNegativeButton(getResources().getString(R.string.cancel), null)
+	            .show();
+		    } else
+		    	promoteAPP.promoteAPPExe();
 
             return true;
         } else

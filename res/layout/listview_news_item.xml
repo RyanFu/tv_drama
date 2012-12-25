@@ -28,7 +28,7 @@
 	     android:layout_marginRight="10dp"
 	     android:textSize="20dp"
 	     android:textColor="@color/textcolor_grey"
-	     android:text="標題" />
+	     android:text="@string/title" />
 	 
 	 <TextView
          android:id="@+id/textviewofreleasedate"
@@ -38,8 +38,7 @@
          android:layout_marginTop="5dp"
          android:textSize="10dp"
          android:textColor="@color/textcolor_grey"
-         android:layout_alignLeft="@+id/textview_title"
-         android:text="發文日期" />
+         android:layout_alignLeft="@+id/textview_title" />
 
 	 <ImageView
 	     android:id="@+id/imageView_next"

@@ -6,6 +6,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.SearchListAdapter;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.entity.Drama;
+import com.jumplife.tvdrama.promote.PromoteAPP;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -108,12 +109,18 @@ public class SearchDramaActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            new AlertDialog.Builder(this).setTitle("- 離開程式? -").setPositiveButton("是", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                	SearchDramaActivity.this.finish();
-                }
-            }).setNegativeButton("否", null).show();
+        	PromoteAPP promoteAPP = new PromoteAPP(SearchDramaActivity.this);
+        	if(!promoteAPP.isPromote) {
+	        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
+	            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
+	                // do something when the button is clicked
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	SearchDramaActivity.this.finish();
+	                }
+	            }).setNegativeButton(getResources().getString(R.string.cancel), null)
+	            .show();
+		    } else
+		    	promoteAPP.promoteAPPExe();
 
             return true;
         } else

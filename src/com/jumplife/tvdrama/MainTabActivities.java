@@ -307,7 +307,9 @@ public void setAd() {
   
         @Override  
         protected void onPostExecute(String result) {
-        	progressdialogInit.dismiss();
+        	if(MainTabActivities.this != null && !MainTabActivities.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
         	if(promotion != null && !promotion[1].equals("null") && Integer.valueOf(promotion[4]) > version) {
 	        	View viewPromotion;
 	            LayoutInflater factory = LayoutInflater.from(MainTabActivities.this);

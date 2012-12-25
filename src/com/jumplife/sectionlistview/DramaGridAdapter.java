@@ -76,7 +76,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		itemView.poster.getLayoutParams().height = height;
 		itemView.poster.getLayoutParams().width = width;
 		itemView.name.setText(dramas.get(position).getChineseName());
-		itemView.view.setText("播放次數 : " + dramas.get(position).getViews());
+		itemView.view.setText(mContext.getResources().getString(R.string.play_time) + dramas.get(position).getViews());
 		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), itemView.poster, width);
 		
 		return convertView;

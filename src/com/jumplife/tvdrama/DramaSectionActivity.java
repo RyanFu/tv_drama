@@ -199,9 +199,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
             			sectionList.get(position).getUrl().contains("maplestage")) {
             		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
-    		        dialog.setTitle("連結未提供");
-    		        dialog.setMessage("使用Google搜尋");
-    		        dialog.setPositiveButton("搜尋", new DialogInterface.OnClickListener() {
+    		        dialog.setTitle(getResources().getString(R.string.no_link));
+    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
     		            public void onClick(DialogInterface dialog, int which) {
     		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
     	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
@@ -302,7 +302,8 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 
         @Override
         protected void onPostExecute(String result) {
-        	if(progressdialogInit != null && progressdialogInit.isShowing())
+        	if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
 
             if (sectionList == null) {

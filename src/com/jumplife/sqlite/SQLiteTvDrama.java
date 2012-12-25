@@ -155,13 +155,16 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
 
     public static long insertDrama(Drama drama) {
         openDataBase();
-        Cursor cursor = db.rawQuery(
-                "INSERT INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-                new String[] {0+"", -1+"", -1+"", drama.getId() + "", drama.getChineseName(), drama.getAreId() + "",
-                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps() + "",	drama.getReleaseDate(), "'f'"});
-		
-        cursor.moveToFirst();
-        cursor.close();
+        if(!drama.getChineseName().equals("") && !drama.getIntroduction().equals("") && 
+        		!drama.getPosterUrl().equals("") && !drama.getEps().equals("") && !drama.getReleaseDate().equals("")) {
+	        Cursor cursor = db.rawQuery(
+	                "INSERT INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+	                new String[] {0+"", -1+"", -1+"", drama.getId()+"", drama.getChineseName(), drama.getAreId()+"",
+	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "'f'"});
+			
+	        cursor.moveToFirst();
+	        cursor.close();
+        }
         return 0;
     }
 

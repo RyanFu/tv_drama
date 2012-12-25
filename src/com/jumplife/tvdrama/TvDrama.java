@@ -30,6 +30,7 @@ public class TvDrama extends Activity {
 	private AnimationDrawable animationDrawable;
 	public static String TAG = "TvDrama";
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

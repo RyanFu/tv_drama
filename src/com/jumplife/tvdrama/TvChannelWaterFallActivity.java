@@ -9,6 +9,8 @@ import com.jumplife.sectionlistview.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.entity.Drama;
+import com.jumplife.tvdrama.promote.PromoteAPP;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -79,12 +81,18 @@ public class TvChannelWaterFallActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            new AlertDialog.Builder(this).setTitle("- 離開程式? -").setPositiveButton("是", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                    TvChannelWaterFallActivity.this.finish();
-                }
-            }).setNegativeButton("否", null).show();
+        	PromoteAPP promoteAPP = new PromoteAPP(TvChannelWaterFallActivity.this);
+        	if(!promoteAPP.isPromote) {
+	        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
+	            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
+	                // do something when the button is clicked
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	TvChannelWaterFallActivity.this.finish();
+	                }
+	            }).setNegativeButton(getResources().getString(R.string.cancel), null)
+	            .show();
+		    } else
+		    	promoteAPP.promoteAPPExe();
 
             return true;
         } else
@@ -302,7 +310,8 @@ public class TvChannelWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-        	if(progressdialogInit != null && progressdialogInit.isShowing())
+        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
 
             if (dramaList == null) {
@@ -355,7 +364,9 @@ public class TvChannelWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            progressdialogInit.dismiss();
+        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
 
             if (dramaList == null) {
             	dramaGridView.setVisibility(View.GONE);
@@ -374,7 +385,8 @@ public class TvChannelWaterFallActivity extends Activity {
     public void showReloadDialog(final Context context) {
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(context);
 
-        alt_bld.setMessage("是否重新載入資料？").setCancelable(true).setPositiveButton("確定", new DialogInterface.OnClickListener() {
+        alt_bld.setMessage(getResources().getString(R.string.reload_or_not))
+        .setCancelable(true).setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 loadTask = new LoadDataTask();
                 loadTask.execute();
@@ -383,7 +395,7 @@ public class TvChannelWaterFallActivity extends Activity {
         });
 
         AlertDialog alert = alt_bld.create();
-        alert.setTitle("讀取錯誤");
+        alert.setTitle(getResources().getString(R.string.load_error));
         alert.setCancelable(false);
         alert.show();
 

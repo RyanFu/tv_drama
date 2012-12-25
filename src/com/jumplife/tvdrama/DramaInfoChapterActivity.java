@@ -244,7 +244,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 							tmpLikeDramas = tmpLikeDramas + likeDramas[i] + ",";
 					shIO.SharePreferenceI("like_drama", tmpLikeDramas);
 					likeDrama = false;
-					Toast.makeText(DramaInfoChapterActivity.this, "已移除於《我的收藏》", Toast.LENGTH_LONG).show();					
+					Toast.makeText(DramaInfoChapterActivity.this, 
+							DramaInfoChapterActivity.this.getResources().getString(R.string.remove_favorite), Toast.LENGTH_LONG)
+							.show();					
 				} else {
 					EasyTracker.getTracker().trackEvent("我的收藏", "加入", dramaName, (long)0);
 					for(int i=0; i<likeDramas.length; i++)
@@ -252,7 +254,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 					tmpLikeDramas = tmpLikeDramas + dramaId;
 					shIO.SharePreferenceI("like_drama", tmpLikeDramas);
 					likeDrama = true;
-					Toast.makeText(DramaInfoChapterActivity.this, "已加入至《我的收藏》", Toast.LENGTH_LONG).show();
+					Toast.makeText(DramaInfoChapterActivity.this, 
+							DramaInfoChapterActivity.this.getResources().getString(R.string.add_favorite), Toast.LENGTH_LONG)
+							.show();
 				}
 				setLike();
 			}			
@@ -424,7 +428,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
   
         @Override  
         protected void onPostExecute(String result) {
-        	progressdialogInit.dismiss();
+        	if(DramaInfoChapterActivity.this != null && !DramaInfoChapterActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
         	setView();
 
 	        super.onPostExecute(result);  

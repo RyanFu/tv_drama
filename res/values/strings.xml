@@ -10,16 +10,20 @@
     <string name="favorite">Favorite</string>
     <string name="search">Search</string>
     <string name="about_us">About US</string>
+    
     <string name="taiwan">Taiwan</string>
     <string name="koera">Koera</string>
     <string name="japan">Japan</string>
     <string name="china">China</string>
+    
     <string name="favorite_title">You have not added any drama to your favorite.</string>
     <string name="favorite_content">Click the “Collect” button at the top right side of the episodes page, and you can add your favorite dramas for future watching.</string>
-    <string name="icon_illustration">Icon Illustration</string>
+    <string name="icon_illustration">Icon Illustration : </string>
     <string name="add_favorite">Add to my favorite</string>
     <string name="remove_favorite">Remove from my favorite</string>
+    
     <string name="search_key_in">Key in the title of the drama</string>
+    
     <string name="advice_and_feedback">Advice and Feedback</string>
     <string name="facebook">Our Fans Club</string>
     <string name="liability_disclaimer">Liability Disclaimer</string>
@@ -29,9 +33,35 @@
     <string name="tv_entertainment">TV Entertainment</string>
     <string name="chapter_listing">Chapter Listing</string>
     <string name="drama_introduction">Drama Introduction</string>
+    
     <string name="report">Report</string>
+    <string name="need_flash_player">以下部分影片須為Android4.0以上且安裝Flash Player原生瀏覽器方能觀看</string>
+    
     <string name="episode">Episode</string>
     <string name="no"></string>
+
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="go">前 往</string>
+    <string name="program_name">戲劇名稱</string>
+    <string name="play_time">播放次數 : </string>
+    
+    <string name="leave_app">- Leaving App? -</string>
+    <string name="leave">Leave</string>
+    <string name="cancel">Cancel</string>
+    <string name="download">Download</string>
+    <string name="thanks">No, Thanks</string>
+    
+   <string name="no_link">連結未提供</string>
+   <string name="use_google_search">使用Google搜尋</string>
+   <string name="google_search">Search</string>
+   
+   <string name="reload_or_not">是否重新載入資料？</string>   
+   <string name="load_error">讀取錯誤</string>
+   <string name="confirm">Confirm</string>
+   
+   <string name="content_source">　　文章來源：</string>
+   <string name="no_provide">(未提供)</string>
     
     <!--<string name="admob_key">fad0a7a7089a4630</string>   admob mediation 
     <string name="vpon_key">8a8081823b4b3e98013b4ff173a702ad</string> -->

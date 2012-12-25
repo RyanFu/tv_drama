@@ -58,7 +58,7 @@ public class NewsAdapter extends BaseAdapter{
 		DateFormat releaseFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 		if(newsList.get(position).getSource() != null) 
 			textViewRealeaseDate.setText(releaseFormatter.format(newsList.get(position).getReleaseDate()) + 
-					"　　文章來源：" + newsList.get(position).getSource());
+					mContext.getResources().getString(R.string.content_source) + newsList.get(position).getSource());
 		else
 			textViewRealeaseDate.setText(releaseFormatter.format(newsList.get(position).getReleaseDate()));
 		

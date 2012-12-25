@@ -21,7 +21,7 @@
 		android:textColor="#2a2a2a"
         android:textStyle="bold"
         android:textSize="15dp"
-		android:text="戲劇名稱" />
+		android:text="@string/drama_name" />
 	<TextView android:id="@+id/drama_view" 
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content"
@@ -31,5 +31,5 @@
         android:lines="1"
         android:textColor="#9a9a9a"
         android:textSize="13dp"
-        android:text="播放次數 : 0" />
+        android:text="@string/play_time" />
 </RelativeLayout>

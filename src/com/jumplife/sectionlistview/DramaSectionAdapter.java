@@ -114,7 +114,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 		if(sectionList.get(position).getUrl() == null ||
     			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
     			sectionList.get(position).getUrl().contains("maplestage"))
-			itemView.name.setText("Part" + (position+1) + "(未提供)");
+			itemView.name.setText("Part" + (position+1) + mContext.getResources().getString(R.string.no_provide));
 		else
 			itemView.name.setText("Part" + (position+1));
 		
