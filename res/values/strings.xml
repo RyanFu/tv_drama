@@ -43,7 +43,7 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="go">前 往</string>
-    <string name="program_name">戲劇名稱</string>
+    <string name="drama_name">戲劇名稱</string>
     <string name="play_time">播放次數 : </string>
     
     <string name="leave_app">- Leaving App? -</string>
