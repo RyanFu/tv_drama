@@ -35,16 +35,28 @@
     <string name="drama_introduction">Drama Introduction</string>
     
     <string name="report">Report</string>
-    <string name="need_flash_player">以下部分影片須為Android4.0以上且安裝Flash Player原生瀏覽器方能觀看</string>
+    <string name="need_flash_player">The following videos have to be more than Android 4.0 version and Flash Player installed native browser in order to view.</string>
+    <string name="report_title">回報須知</string>
+    <string name="report_description">電視綜藝的使用者你好，下列我們將會列出經常性問題的Q＆A，提供參考</string>
+    <string name="report_descriptionQ1">1. 開啟影片很久，影片仍未撥放？(Youtube、DailyMotion)</string>
+    <string name="report_descriptionA1">Q:目前電視綜藝使用的連結多半來自於Youtube及DailyMotion，皆需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試離開目前位置調整網路連線後再做使用。</string>
+    <string name="report_descriptionQ2">2. 開啟影片很久，影片仍未撥放？(Flash Player)</string>
+    <string name="report_descriptionA2">Q:部分電視綜藝節目來源來自於LETV或是SoHu等網路影音平台，這些平台僅支援Flash Player+手機內建瀏覽器，請參照下列步驟:</string>
+    <string name="report_descriptionA21">a.安裝Flash Player : http://goo.gl/ymsaz</string>
+    <string name="report_descriptionA22">b. 設定 -> 應用程式 -> 選瀏覽器app(ex chrome) -> 按下"清除預設值"</string>
+    <string name="report_descriptionA23">c. 觀看時選擇內建的瀏覽器</string>
+    <string name="report_descriptionQ3">3. 為什麼常常出影片失效？</string>
+    <string name="report_descriptionA3">Q:由於部分影片侵犯著作權，所以電視台將會提出要求予以下架，此時請回報給JumpLife團隊，若有搜尋正常連結，將會盡速更新。</string>
+    <string name="report_descriptionfinal">若依舊無法解決你的問題，請使用回報按鈕，電視綜藝感謝你的使用</string>
     
     <string name="episode">Episode</string>
     <string name="no"></string>
 
     <string name="title">Title</string>
     <string name="description">Description</string>
-    <string name="go">前 往</string>
-    <string name="drama_name">戲劇名稱</string>
-    <string name="play_time">播放次數 : </string>
+    <string name="go">Go</string>
+    <string name="drama_name">Drama Name</string>
+    <string name="play_time">Viewed : </string>
     
     <string name="leave_app">- Leaving App? -</string>
     <string name="leave">Leave</string>
@@ -52,16 +64,16 @@
     <string name="download">Download</string>
     <string name="thanks">No, Thanks</string>
     
-   <string name="no_link">連結未提供</string>
-   <string name="use_google_search">使用Google搜尋</string>
+   <string name="no_link">The Link does not provide.</string>
+   <string name="use_google_search">Using Google Search</string>
    <string name="google_search">Search</string>
    
-   <string name="reload_or_not">是否重新載入資料？</string>   
-   <string name="load_error">讀取錯誤</string>
+   <string name="reload_or_not">Reloading？</string>   
+   <string name="load_error">Loading Error</string>
    <string name="confirm">Confirm</string>
    
-   <string name="content_source">　　文章來源：</string>
-   <string name="no_provide">(未提供)</string>
+   <string name="content_source">　　Source：</string>
+   <string name="no_provide">(No Provided)</string>
     
     <!--<string name="admob_key">fad0a7a7089a4630</string>   admob mediation 
     <string name="vpon_key">8a8081823b4b3e98013b4ff173a702ad</string> -->
@@ -70,6 +82,7 @@
     <string name="kuad_key">000000G0c</string>
     <string name="adwhirl_key">e08cc3d67c8b414ea0d7bb81e86bb530</string>
     
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
     
     <bool name="ga_auto_activity_tracking">true</bool>
     <bool name="ga_debug">true</bool>

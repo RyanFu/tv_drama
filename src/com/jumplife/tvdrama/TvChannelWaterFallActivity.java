@@ -310,9 +310,7 @@ public class TvChannelWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
-        			&& progressdialogInit != null && progressdialogInit.isShowing())
-        		progressdialogInit.dismiss();
+        	closeProgressDilog();
 
             if (dramaList == null) {
             	dramaGridView.setVisibility(View.GONE);
@@ -324,6 +322,12 @@ public class TvChannelWaterFallActivity extends Activity {
             }
 
             super.onPostExecute(result);
+        }
+        
+        public void closeProgressDilog() {
+        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
         }
 
     }
@@ -364,9 +368,7 @@ public class TvChannelWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
-        			&& progressdialogInit != null && progressdialogInit.isShowing())
-        		progressdialogInit.dismiss();
+        	closeProgressDilog();
 
             if (dramaList == null) {
             	dramaGridView.setVisibility(View.GONE);
@@ -380,6 +382,11 @@ public class TvChannelWaterFallActivity extends Activity {
             super.onPostExecute(result);
         }
 
+        public void closeProgressDilog() {
+        	if(TvChannelWaterFallActivity.this != null && !TvChannelWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
+        }
     }
     
     public void showReloadDialog(final Context context) {
@@ -410,10 +417,14 @@ public class TvChannelWaterFallActivity extends Activity {
     @Override
     public void onDestroy() {
       super.onDestroy();
-      if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED)
+      if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
+    	  loadTask.closeProgressDilog();
     	  loadTask.cancel(true);
-      if (updatetask!= null && updatetask.getStatus() != AsyncTask.Status.FINISHED)
+      }
+      if (updatetask!= null && updatetask.getStatus() != AsyncTask.Status.FINISHED) {
+    	  updatetask.closeProgressDilog();
     	  updatetask.cancel(true);
+      }
     }
     
     @Override

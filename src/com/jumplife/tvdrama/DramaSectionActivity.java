@@ -12,6 +12,7 @@ import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Section;
+import com.jumplife.youtubeapi.PlayerControlsActivity;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
 
@@ -23,6 +24,7 @@ import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,10 +34,12 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -49,9 +53,11 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     private TextView 		tvNotify;
     private String currentSection = "";
     private int screenWidth;
+    private int screenHeight;
     private LoadDataTask    loadTask;
     private TextView topbar_text;
 	private ArrayList<Section> sectionList;
+	private String youtubeIds = null;
 
 	private int dramaId = 0;
 	private String dramaName = "";
@@ -169,13 +175,24 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     	
     	textViewFeedback.setOnClickListener(new OnClickListener(){
 			public void onClick(View arg0) {
-				Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
-				String[] ccs={"abooyaya@gmail.com, chunyuko85@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
-				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
-				it.putExtra(Intent.EXTRA_CC, ccs); 
-				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋(" + dramaName + "第" + chapterNo + "集)"); 
-				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集");      
-				startActivity(it);  
+				LayoutInflater factory = LayoutInflater.from(DramaSectionActivity.this);
+	            View viewFeedBack = factory.inflate(R.layout.dialog_feedback,null);
+	            AlertDialog dialogFeedBack = new AlertDialog.Builder(DramaSectionActivity.this).create();
+	            dialogFeedBack.setView(viewFeedBack);
+	            ((Button)viewFeedBack.findViewById(R.id.dialog_button_feedback)).setOnClickListener(
+	                new OnClickListener(){
+	                    public void onClick(View v) {
+	                    	Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
+	        				String[] ccs={"abooyaya@gmail.com, chunyuko85@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
+	        				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+	        				it.putExtra(Intent.EXTRA_CC, ccs); 
+	        				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋(" + dramaName + "第" + chapterNo + "集)"); 
+	        				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集<br> 發生於 Part___ <br>請詳述發生情況 : ");      
+	        				startActivity(it);  
+	                    }
+	                }
+	            );
+	            dialogFeedBack.show();				
 			}			
 		});
     	imageButtonRefresh.setOnClickListener(new OnClickListener() {
@@ -215,7 +232,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     		        });
     		        dialog.show();            		 
             	} else {
-            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            		/*if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
             			String url = sectionList.get(position).getUrl();
             			url = url.substring(39);
             			String[] tmpUrls = url.split("\\?");
@@ -228,7 +245,32 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             			
             		uri = Uri.parse(sectionList.get(position).getUrl());
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
-            		startActivity(it);
+            		startActivity(it);*/
+            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            			String url = sectionList.get(position).getUrl();
+            			url = url.substring(39);
+            			String[] tmpUrls = url.split("\\?");
+            			String tmpId = null;
+            			if(tmpUrls.length > 0)
+            				tmpId = tmpUrls[0];
+            			if(tmpId != null)
+            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+            		} else if(youtubeIds != null) {
+            			Intent newAct = new Intent();
+    					newAct.putExtra("youtube_ids", youtubeIds);
+    					newAct.putExtra("youtube_index", position);
+    					newAct.putExtra("youtube_link", sectionList.get(position).getUrl());
+    	                newAct.setClass(DramaSectionActivity.this, PlayerControlsActivity.class);
+    					//newAct.setClass(VarietySectionActivity.this, YouTubePlayerActivity.class);
+    	                startActivity(newAct);
+        			} else {	            			
+	            		uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+        			}
             	}
             	new UpdateDramaSectionRecordTask().execute();
             }
@@ -237,8 +279,8 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     	DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         screenWidth = displayMetrics.widthPixels;
-        dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, (int) ((screenWidth / 2)),
-        		(int) (((screenWidth / 2)) * 0.6), currentSection, chapterNo);
+        dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
+        		screenHeight, currentSection, chapterNo);
         sectioGridView.setAdapter(dramaSectionAdapter);
         
         Boolean notify = false;
@@ -254,6 +296,37 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         	tvNotify.setVisibility(View.GONE);
     }
 
+    private void checkYoutubeId() {
+    	String youtubeIdstmp = "";
+    	Boolean isAllYoutube = true;
+    	for(int i=0; i<sectionList.size(); i++) {
+    		if(sectionList.get(i).getUrl().contains("youtube")) {
+    			String[] youtubeId = new String[2];
+    			if(sectionList.get(i).getUrl().contains("=")) {
+    				youtubeId = sectionList.get(i).getUrl().split("\\=");
+    				if(youtubeId.length > 1)
+    					youtubeIdstmp = youtubeIdstmp + youtubeId[1] + ",";
+    				else 
+    					isAllYoutube = false;
+    			} else if(sectionList.get(i).getUrl().contains("embed")) {
+    				String[] tmp = sectionList.get(i).getUrl().split("embed");
+    				if(tmp.length > 1) {
+    					youtubeId = tmp[1].split("\\/");
+    					if(youtubeId.length > 1)
+        					youtubeIdstmp = youtubeIdstmp + youtubeId[1] + ",";
+    					else 
+        					isAllYoutube = false;
+    				}
+    			}
+    		}else
+    			isAllYoutube = false;
+    	}
+    	if(isAllYoutube && youtubeIdstmp.length()>1)
+    		youtubeIds = youtubeIdstmp.substring(0, youtubeIdstmp.length()-1);
+    	else
+    		youtubeIds = null;
+    }
+    
     private void fetchData() {
     	Log.d(TAG, "load data API begin");
     	DramaAPI dramaAPI = new DramaAPI(this);
@@ -312,6 +385,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             } else {
             	sectioGridView.setVisibility(View.VISIBLE);
                 imageButtonRefresh.setVisibility(View.GONE);
+                checkYoutubeId();
                 setViews();
             }
             Log.d(TAG, "load data onPostExecute");
@@ -416,6 +490,16 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     @Override
     protected void onResume() {
         super.onResume();
+        
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+	        screenWidth = displayMetrics.widthPixels / 2;
+	        screenHeight = (int)(screenWidth * 0.6);
+        }else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        	screenWidth = displayMetrics.widthPixels / 4;
+	        screenHeight = (int)(screenWidth * 0.6);
+        }
     }
     
     class AdTask extends AsyncTask<Integer, Integer, String> {

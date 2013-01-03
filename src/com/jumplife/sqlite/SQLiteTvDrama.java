@@ -158,7 +158,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         if(!drama.getChineseName().equals("") && !drama.getIntroduction().equals("") && 
         		!drama.getPosterUrl().equals("") && !drama.getEps().equals("") && !drama.getReleaseDate().equals("")) {
 	        Cursor cursor = db.rawQuery(
-	                "INSERT INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+	                "INSERT OR IGNORE INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
 	                new String[] {0+"", -1+"", -1+"", drama.getId()+"", drama.getChineseName(), drama.getAreId()+"",
 	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "'f'"});
 			

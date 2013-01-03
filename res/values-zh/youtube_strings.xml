@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="msginit">Initializing</string>
+  <string name="msgdetect">Detecting Bandwidth</string>
+  <string name="msgplaylist">Determining Latest Video in YouTube Playlist</string>
+  <string name="msgtoken">Retrieving YouTube Video Token</string>
+  <string name="msglowband">Buffering Low-bandwidth Video</string>
+  <string name="msghiband">Buffering High-bandwidth Video</string>
+  <string name="msgerrortitle">Communications Error</string>
+  <string name="msgerror">An error occurred during the retrieval of the video.  This could be due to network issues or YouTube protocols.  Please try again later.</string>
+  <string name="msgchange">Next Part</string>
+  
+  <string name="openyoutube">Open by Youtube.</string>
+</resources>

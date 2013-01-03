@@ -125,9 +125,9 @@ public class DramaAPI {
 		return dramasId;
 	}
 	
-	public ArrayList<Drama> getDramasIdwithViews(){
+	public ArrayList<Drama> getDramasIdViewsEpsV2(){
 		ArrayList<Drama> dramas = new ArrayList<Drama>(100);
-		String message = getMessageFromServer("GET", "api/v1/dramas/dramas_with_views.json", null);
+		String message = getMessageFromServer("GET", "api/v1/dramas/dramas_with_views_v2.json", null);
 		if(message == null) {
 			return null;
 		}
@@ -139,6 +139,7 @@ public class DramaAPI {
 					Drama tmp = new Drama();
 					tmp.setId(dramaObject.getInt("id"));
 					tmp.setViews(dramaObject.getInt("views"));
+					tmp.setEps(dramaObject.getString("eps_num_str"));
 					dramas.add(tmp);
 				}
 			} catch (JSONException e) {

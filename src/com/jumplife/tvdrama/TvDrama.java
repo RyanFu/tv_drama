@@ -68,7 +68,7 @@ public class TvDrama extends Activity {
 		long startTime = System.currentTimeMillis();
 		DramaAPI api = new DramaAPI(this);
         SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
-        ArrayList<Drama> dramas = api.getDramasIdViewsEps();
+        ArrayList<Drama> dramas = api.getDramasIdViewsEpsV2();
         if(dramas != null) {
         	ArrayList<Integer> a = new ArrayList<Integer>(100);
         	for(int i=0; i<dramas.size(); i++)

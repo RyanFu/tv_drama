@@ -86,7 +86,6 @@ public class ImageLoader {
         	queuePhoto(url, imageView, width);
             imageView.setImageResource(stub_id);
         }
-		
     }
         
     private void queuePhoto(String url, ImageView imageView)
@@ -106,13 +105,13 @@ public class ImageLoader {
         File f=fileCache.getFile(url);
         
         //from SD cache
-        Bitmap b = decodeFile(f);
-        if(b!=null)
-            return b;
+        Bitmap bitmap = decodeFile(f);
+        if(bitmap!=null)
+            return bitmap;
         
         //from web
         try {
-            Bitmap bitmap=null;
+        	bitmap = null;
             URL imageUrl = new URL(url);
             HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
             conn.setConnectTimeout(30000);
@@ -206,11 +205,11 @@ public class ImageLoader {
         public void run() {
             if(imageViewReused(photoToLoad))
                 return;
-            Bitmap bmp=getBitmap(photoToLoad.url);
-            memoryCache.put(photoToLoad.url, bmp);
+            Bitmap bitmap = getBitmap(photoToLoad.url);
+            memoryCache.put(photoToLoad.url, bitmap);
             if(imageViewReused(photoToLoad))
                 return;
-            BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
+            BitmapDisplayer bd=new BitmapDisplayer(bitmap, photoToLoad);
             Activity a=(Activity)photoToLoad.imageView.getContext();
             a.runOnUiThread(bd);
         }
@@ -225,16 +224,16 @@ public class ImageLoader {
         public void run() {
             if(imageViewReused(photoToLoad))
                 return;
-            Bitmap bmp=getBitmap(photoToLoad.url);
+            Bitmap bitmap = getBitmap(photoToLoad.url);
             
-            double height = (double)(width * ((double)bmp.getHeight() / (double)bmp.getWidth()));
+            double height = (double)(width * ((double)bitmap.getHeight() / (double)bitmap.getWidth()));
             
         	
             
-            memoryCache.put(photoToLoad.url, bmp);
+            memoryCache.put(photoToLoad.url, bitmap);
             if(imageViewReused(photoToLoad))
                 return;
-            FillBitmapDisplayer bd=new FillBitmapDisplayer(bmp, photoToLoad, width, (int)height);
+            FillBitmapDisplayer bd=new FillBitmapDisplayer(bitmap, photoToLoad, width, (int)height);
             Activity a=(Activity)photoToLoad.imageView.getContext();
             a.runOnUiThread(bd);
         }
@@ -259,9 +258,11 @@ public class ImageLoader {
     {
         Bitmap bitmap;
         PhotoToLoad photoToLoad;
-        public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
-        public void run()
-        {
+        public BitmapDisplayer(Bitmap b, PhotoToLoad p) {
+        	bitmap = b;
+        	photoToLoad = p;
+        }
+        public void run() {
             if(imageViewReused(photoToLoad))
                 return;
             

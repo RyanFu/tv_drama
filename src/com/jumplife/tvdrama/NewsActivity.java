@@ -228,9 +228,9 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 		protected void onPostExecute(String result) {
 			setView();		
 			if(newsList != null && newsList.size() > 0){
-				newsAdapter.notifyDataSetChanged();
-				page += 1;
-    			// Call onRefreshComplete when the list has been refreshed.
+        		setListAdatper();
+            	setListener();
+            	page += 1;
         	}
 			newsListView.onRefreshComplete();
         	super.onPostExecute(result);
