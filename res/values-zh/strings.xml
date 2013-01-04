@@ -73,8 +73,9 @@
    
    <string name="content_source">　　文章來源：</string>
    <string name="no_provide">(未提供)</string>
-   
-   <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+       
+    <string name="error_player">YouTube撥放器初始化錯誤 (%1$s)</string>
+    <string name="error_player_other">Youtube內嵌錯誤，自動導至Youtube APP，請稍後</string>
     
     <string name="admob_key">fad0a7a7089a4630</string>  <!-- admob mediation -->
     <string name="kuad_key">000000G0c</string>

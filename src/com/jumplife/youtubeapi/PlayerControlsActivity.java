@@ -44,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple YouTube Android API demo application demonstrating the use of {@link YouTubePlayer}
@@ -339,8 +340,8 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
         		Intent it = new Intent(Intent.ACTION_VIEW, uri);
         		startActivity(it);
 	    	}*/
-	    	player = null;
-    		setControlsEnabled(false);
+	    	Toast.makeText(PlayerControlsActivity.this, getResources().getString(R.string.error_player_other), Toast.LENGTH_LONG).show();
+	    	setControlsEnabled(false);
     		PlayerControlsActivity.this.finish();
     		Uri uri = Uri.parse(
     				"http://www.youtube.com/watch?v=" + ENTRIES[currentlySelectedPosition]);
