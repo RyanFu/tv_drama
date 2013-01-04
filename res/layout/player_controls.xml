@@ -58,6 +58,7 @@
         android:padding="5dp"
         android:background="@drawable/player_controller_background"
         android:orientation="horizontal"
+        android:layout_above="@+id/ad_layout"
         android:gravity="center" >
 	    <ImageButton
 	        android:id="@+id/pre_button"
@@ -77,4 +78,13 @@
 	        android:layout_height="58dp"
 	        android:background="@drawable/next_normal" />
 	</LinearLayout>
+	
+    <RelativeLayout
+        android:id="@+id/ad_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background"
+        android:gravity="center_horizontal" 
+        android:layout_gravity="center_horizontal"/>
 </LinearLayout>
