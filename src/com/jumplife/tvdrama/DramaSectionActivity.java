@@ -187,7 +187,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	        				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
 	        				it.putExtra(Intent.EXTRA_CC, ccs); 
 	        				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋(" + dramaName + "第" + chapterNo + "集)"); 
-	        				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集<br> 發生於 Part___ <br>請詳述發生情況 : ");      
+	        				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集 \n\n發生於 Part___ \n\n請詳述發生情況 : ");      
 	        				startActivity(it);  
 	                    }
 	                }
@@ -406,8 +406,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         protected String doInBackground(Integer... params) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         	if(shIO.SharePreferenceO("views", false)) {
-        		DramaAPI dramaAPI = new DramaAPI();
-        		dramaAPI.updateViews(dramaId);
+        		DramaAPI dramaAPI = new DramaAPI(DramaSectionActivity.this);
+        		//dramaAPI.updateViews(dramaId);
+        		dramaAPI.updateViewsWithDevice(dramaId, chapterNo);
         		shIO.SharePreferenceI("views", false);
         	}
             return "progress end";

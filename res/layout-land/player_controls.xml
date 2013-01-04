@@ -25,10 +25,19 @@
         android:id="@+id/youtube_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/ll_info"
+        android:layout_above="@+id/state_text"
         android:layout_centerHorizontal="true"
         android:background="@color/background" />
-
+    
+    <TextView
+      android:id="@+id/state_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_above="@+id/ll_info"
+      android:gravity="center_horizontal"
+      android:singleLine="true"
+      android:visibility="gone" />
+    
     <LinearLayout android:id="@+id/ll_info"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
