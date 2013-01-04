@@ -63,7 +63,18 @@
 	        layout="@layout/player_controls_container"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" />
+	    
+	    <RelativeLayout
+	        android:id="@+id/ad_layout"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:background="@color/background"
+	        android:gravity="center_horizontal" 
+	        android:layout_gravity="center_horizontal"/>
 
     </LinearLayout>
+    
+    
     
 </RelativeLayout>
