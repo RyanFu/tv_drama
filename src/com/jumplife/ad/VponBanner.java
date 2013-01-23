@@ -2,6 +2,7 @@ package com.jumplife.ad;
 
 import android.app.Activity;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -42,12 +43,13 @@ public class VponBanner implements CustomEventBanner {
 		if (dm.widthPixels <= 320) {
 			adView = new AdView(activity, 320, 48);
 		}
-		else if(dm.widthPixels <= 480) {
+		else if(dm.widthPixels < 720) {
 			adView = new AdView(activity, 480, 72);
 		}
 		else {
 			adView = new AdView(activity, 720, 108);
 		}
+		
 		
 		//windowManager.getDefaultDisplay().;
 		  

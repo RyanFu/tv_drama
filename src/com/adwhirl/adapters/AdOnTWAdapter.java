@@ -50,7 +50,7 @@ public class AdOnTWAdapter extends AdWhirlAdapter implements AdListener {
 			if (dm.widthPixels <= 320) {
 				adView = new AdView(activity, 320, 48);
 			}
-			else if(dm.widthPixels <= 480) {
+			else if(dm.widthPixels < 720) {
 				adView = new AdView(activity, 480, 72);
 			}
 			else {
