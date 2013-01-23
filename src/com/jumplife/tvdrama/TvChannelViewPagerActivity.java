@@ -1,6 +1,8 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -117,12 +119,52 @@ public class TvChannelViewPagerActivity extends Activity {
     	dramaLists = new ArrayList<ArrayList<Drama>>();
     	ArrayList<Drama> dramaList = new ArrayList<Drama>(30);
     	dramaList = sqliteTvDrama.getDramaList(1);
-    	dramaLists.add(dramaList);
-    	dramaList = sqliteTvDrama.getDramaList(2);
+    	Collections.sort(dramaList, new Comparator<Drama>(){
+    		public int compare(Drama obj1,Drama obj2){
+        		if(obj1.getViews() < obj2.getViews()) 
+        			return 1;   
+        		else if(obj1.getViews() == obj2.getViews()) 
+        			return 0;
+        		else
+        			return -1;
+    		}
+    	});
     	dramaLists.add(dramaList);
     	dramaList = sqliteTvDrama.getDramaList(3);
+    	Collections.sort(dramaList, new Comparator<Drama>(){
+    		public int compare(Drama obj1,Drama obj2){
+        		if(obj1.getViews() < obj2.getViews()) 
+        			return 1;   
+        		else if(obj1.getViews() == obj2.getViews()) 
+        			return 0;
+        		else
+        			return -1;
+    		}
+    	});
     	dramaLists.add(dramaList);
     	dramaList = sqliteTvDrama.getDramaList(4);
+    	Collections.sort(dramaList, new Comparator<Drama>(){
+    		public int compare(Drama obj1,Drama obj2){
+        		if(obj1.getViews() < obj2.getViews()) 
+        			return 1;   
+        		else if(obj1.getViews() == obj2.getViews()) 
+        			return 0;
+        		else
+        			return -1;
+    		}
+    	});
+    	dramaLists.add(dramaList);
+    	dramaList = sqliteTvDrama.getDramaList(2);
+    	Collections.sort(dramaList, new Comparator<Drama>(){
+    		public int compare(Drama obj1,Drama obj2){
+        		if(obj1.getViews() < obj2.getViews()) 
+        			return 1;   
+        		else if(obj1.getViews() == obj2.getViews()) 
+        			return 0;
+        		else
+        			return -1;
+    		}
+    	});
     	dramaLists.add(dramaList);
     }
 	
@@ -156,41 +198,10 @@ public class TvChannelViewPagerActivity extends Activity {
     }
 	
 	private void setCursor(int index) {
-		int one = cursorWidth + cursorOffset * 2;
-		int two = one * 2;
-		int three = one * 3;
+		int offset = cursorWidth + cursorOffset * 2;
 		
 		Animation animation = null;
-		switch (index) {
-			case 0:
-				if (currIndex == 1) {
-					animation = new TranslateAnimation(one, 0, 0, 0);
-				} if (currIndex == 3) {
-					animation = new TranslateAnimation(three, 0, 0, 0);
-				}
-				break;
-			case 1:
-				if (currIndex == 0) {
-					animation = new TranslateAnimation(0, one, 0, 0);
-				} else if (currIndex == 2) {
-					animation = new TranslateAnimation(two, one, 0, 0);
-				}
-				break;
-			case 2:
-				if (currIndex == 1) {
-					animation = new TranslateAnimation(one, two, 0, 0);
-				} else if (currIndex == 3){
-					animation = new TranslateAnimation(three, two, 0, 0);
-				}
-				break;
-			case 3:
-				if (currIndex == 2) {
-					animation = new TranslateAnimation(two, three, 0, 0);
-				} else if (currIndex == 0){
-					animation = new TranslateAnimation(0, three, 0, 0);
-				}
-				break;
-		}
+		animation = new TranslateAnimation(currIndex * offset, index * offset, 0, 0);
 		currIndex = index;
 		animation.setFillAfter(true);
 		animation.setDuration(300);

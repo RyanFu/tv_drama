@@ -35,7 +35,7 @@
                 android:background="@color/transparent100"
 	            android:textColor="@color/channel_button_text_normal"
 	            android:textSize="20dp"
-	            android:text="@string/koera" />
+	            android:text="@string/korea" />
 	        <View 
 	            android:layout_width="0.1dp"
 	            android:layout_height="fill_parent"

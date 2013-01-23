@@ -55,26 +55,26 @@
 		        android:text="@string/report_descriptionA1"
 		        />
 		    <TextView
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="18dp"
-		        android:padding="2dp"
-		        android:textColor="@color/white"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:padding="2dp"
+                android:textColor="@color/white"
                 android:textSize="18dp"
                 android:textStyle="bold"
-		        android:text="@string/report_descriptionQ2"
-		        />
-		    <TextView
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
+                android:text="@string/report_descriptionQ2"
+                />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-		        android:padding="2dp"
-		        android:textColor="@color/white"
+                android:padding="2dp"
+                android:textColor="@color/white"
                 android:textSize="18dp"
                 android:textStyle="bold"
-		        android:text="@string/report_descriptionA2"
-		        />
-		    <TextView
+                android:text="@string/report_descriptionA2"
+                />
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="web"
@@ -84,7 +84,7 @@
                 android:textStyle="bold"
                 android:text="@string/report_descriptionA21"
                 />
-		    <TextView
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -93,7 +93,7 @@
                 android:textStyle="bold"
                 android:text="@string/report_descriptionA22"
                 />
-		    <TextView
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -105,7 +105,7 @@
 		    <TextView
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+		        android:layout_marginTop="18dp"
 		        android:padding="2dp"
 		        android:textColor="@color/white"
                 android:textSize="18dp"
@@ -121,6 +121,54 @@
                 android:textSize="18dp"
                 android:textStyle="bold"
 		        android:text="@string/report_descriptionA3"
+		        />
+		    <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:padding="5dp"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:text="@string/report_descriptionA31"
+                />
+		    <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:text="@string/report_descriptionA32"
+                />
+		    <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:text="@string/report_descriptionA33"
+                />
+		    <TextView
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+		        android:padding="2dp"
+		        android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+		        android:text="@string/report_descriptionQ4"
+		        />
+		    <TextView
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+		        android:padding="2dp"
+		        android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+		        android:text="@string/report_descriptionA4"
 		        />
 		    <TextView
 		        android:layout_width="fill_parent"

@@ -34,19 +34,25 @@
 	
 	<string name="chapter_listing">Chapter Listing</string>
 	<string name="drama_introduction">Drama Introduction</string>
+	
 	<string name="report">Report</string>
     <string name="need_flash_player">The following videos have to be more than Android 4.0 version and Flash Player installed native browser in order to view.</string>
     <string name="report_title">回報須知</string>
     <string name="report_description">電視綜藝的使用者你好，下列我們將會列出經常性問題的Q＆A，提供參考</string>
-    <string name="report_descriptionQ1">1. 開啟影片很久，影片仍未撥放？(Youtube、DailyMotion)</string>
-    <string name="report_descriptionA1">Q:目前電視綜藝使用的連結多半來自於Youtube及DailyMotion，皆需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試離開目前位置調整網路連線後再做使用。</string>
-    <string name="report_descriptionQ2">2. 開啟影片很久，影片仍未撥放？(Flash Player)</string>
-    <string name="report_descriptionA2">Q:部分電視綜藝節目來源來自於LETV或是SoHu等網路影音平台，這些平台僅支援Flash Player+手機內建瀏覽器，請參照下列步驟:</string>
-    <string name="report_descriptionA21">a.安裝Flash Player : http://goo.gl/ymsaz</string>
+    <string name="report_descriptionQ1">1. 開啟影片很久，影片仍未撥放？ (Youtube)</string>
+    <string name="report_descriptionA1">Q:目前電視綜藝使用的連結多半來自於Youtube，需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試離開目前位置調整網路連線後再做使用。</string>
+    <string name="report_descriptionQ2">2. 開啟影片很久，影片仍未撥放？ (DailyMotion)</string>
+    <string name="report_descriptionA2">Q:部分電視綜藝節目來源來自於DailyMotion網路影音平台，需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試參照下列步驟安裝DailyMotion撥放器使用。:</string>
+    <string name="report_descriptionA21">a. 安裝DailyMotion Player : http://goo.gl/QjWXz</string>
     <string name="report_descriptionA22">b. 設定 -> 應用程式 -> 選瀏覽器app(ex chrome) -> 按下"清除預設值"</string>
     <string name="report_descriptionA23">c. 觀看時選擇內建的瀏覽器</string>
-    <string name="report_descriptionQ3">3. 為什麼常常出影片失效？</string>
-    <string name="report_descriptionA3">Q:由於部分影片侵犯著作權，所以電視台將會提出要求予以下架，此時請回報給JumpLife團隊，若有搜尋正常連結，將會盡速更新。</string>
+    <string name="report_descriptionQ3">3. 開啟影片很久，影片仍未撥放？ (Flash Player)</string>
+    <string name="report_descriptionA3">Q:部分電視綜藝節目來源來自於LETV或是SoHu等網路影音平台，這些平台僅支援Flash Player+手機內建瀏覽器，請參照下列步驟:</string>
+    <string name="report_descriptionA31">a. 安裝Flash Player : http://goo.gl/ymsaz</string>
+    <string name="report_descriptionA32">b. 設定 -> 應用程式 -> 選瀏覽器app(ex chrome) -> 按下"清除預設值"</string>
+    <string name="report_descriptionA33">c. 觀看時選擇內建的瀏覽器</string>
+    <string name="report_descriptionQ4">3. 為什麼常常出影片失效？</string>
+    <string name="report_descriptionA4">Q:由於部分影片侵犯著作權，所以電視台將會提出要求予以下架，此時請回報給JumpLife團隊，若有搜尋正常連結，將會盡速更新。</string>
     <string name="report_descriptionfinal">若依舊無法解決你的問題，請使用回報按鈕，電視綜藝感謝你的使用</string>
 	
 	<string name="episode">Episode</string>
