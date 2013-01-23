@@ -32,6 +32,8 @@ import com.jumplife.tvdrama.R;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple YouTube Android API demo application demonstrating the use of {@link YouTubePlayer}
@@ -54,6 +57,7 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	private static String[] ENTRIES;
 	private YouTubePlayerView youTubePlayerView;
 	private YouTubePlayer player;
+	private TextView stateText;
 	private TextView partText;
 	private ImageButton playButton;
 	private ImageButton preButton;
@@ -105,7 +109,8 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 		playButton = (ImageButton) findViewById(R.id.play_button);
 		preButton = (ImageButton) findViewById(R.id.pre_button);
 		nextButton = (ImageButton) findViewById(R.id.next_button);
-		partText = (TextView) findViewById(R.id.section_id);
+		stateText = (TextView) findViewById(R.id.state_text);
+	    partText = (TextView) findViewById(R.id.section_id);
 		partText.setText("Part " + (currentlySelectedPosition+1));
 		setPlayButtonView();
 		
@@ -206,9 +211,9 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	}
 
 	private void updateText() {
-		/*stateText.setText(String.format("Current state: %s %s %s",
+		stateText.setText(String.format("Current state: %s %s %s",
 				playerStateChangeListener.playerState, playbackEventListener.playbackState,
-				playbackEventListener.bufferingState));*/
+				playbackEventListener.bufferingState));
 	}
 
 	private void log(String message) {
@@ -251,31 +256,37 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	}
 
 	private final class MyPlaybackEventListener implements PlaybackEventListener {
-		public void onPlaying() {
-			updateText();
-			log("\tPLAYING " + getTimesText());
-		}
+	    String playbackState = "NOT_PLAYING";
+	    String bufferingState = "";
+	    public void onPlaying() {
+	      playbackState = "PLAYING";
+	      updateText();
+	      log("\tPLAYING " + getTimesText());
+	    }
 
 	    public void onBuffering(boolean isBuffering) {
-			updateText();
-			log("\t\t" + (isBuffering ? "BUFFERING " : "NOT BUFFERING ") + getTimesText());
+	      bufferingState = isBuffering ? "(BUFFERING)" : "";
+	      updateText();
+	      log("\t\t" + (isBuffering ? "BUFFERING " : "NOT BUFFERING ") + getTimesText());
 	    }
-	
+
 	    public void onStopped() {
-	    	updateText();
-	    	log("\tSTOPPED");
+	      playbackState = "STOPPED";
+	      updateText();
+	      log("\tSTOPPED");
 	    }
-	
-		public void onPaused() {
-			updateText();
-			log("\tPAUSED " + getTimesText());
+
+	    public void onPaused() {
+	      playbackState = "PAUSED";
+	      updateText();
+	      log("\tPAUSED " + getTimesText());
 	    }
-	
-		public void onSeekTo(int endPositionMillis) {
-			log(String.format("\tSEEKTO: (%s/%s)",
-					formatTime(endPositionMillis),
-					formatTime(player.getDurationMillis())));
-		}
+
+	    public void onSeekTo(int endPositionMillis) {
+	      log(String.format("\tSEEKTO: (%s/%s)",
+	          formatTime(endPositionMillis),
+	          formatTime(player.getDurationMillis())));
+	    }
 	}
 
 	private final class MyPlayerStateChangeListener implements PlayerStateChangeListener {
@@ -318,11 +329,25 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 
 	    public void onError(ErrorReason reason) {
 	    	playerState = "ERROR (" + reason + ")";
-	    	if (reason == ErrorReason.UNEXPECTED_SERVICE_DISCONNECTION) {
+	    	/*if (reason == ErrorReason.UNEXPECTED_SERVICE_DISCONNECTION) {
 	    		// When this error occurs the player is released and can no longer be used.
 	    		player = null;
 	    		setControlsEnabled(false);
-	    	}
+	    	} else if(reason == ErrorReason.EMBEDDING_DISABLED) {
+	    		PlayerControlsActivity.this.finish();
+	    		Uri uri = Uri.parse(
+	    				"http://www.youtube.com/watch?v=" + ENTRIES[currentlySelectedPosition]);
+        		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+        		startActivity(it);
+	    	}*/
+	    	Toast.makeText(PlayerControlsActivity.this, getResources().getString(R.string.error_player_other), Toast.LENGTH_LONG).show();
+	    	setControlsEnabled(false);
+    		PlayerControlsActivity.this.finish();
+    		Uri uri = Uri.parse(
+    				"http://www.youtube.com/watch?v=" + ENTRIES[currentlySelectedPosition]);
+    		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+    		startActivity(it);
+    		
 	    	updateText();
 	    	log(playerState);
 	    }
@@ -406,7 +431,6 @@ public void setAd() {
     	
     }
 
-	@Override
 	public void adWhirlGeneric()
 	{
 		// TODO Auto-generated method stub

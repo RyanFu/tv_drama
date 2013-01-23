@@ -83,6 +83,7 @@
     <string name="adwhirl_key">e08cc3d67c8b414ea0d7bb81e86bb530</string>
     
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+    <string name="error_player_other">There was an error in YouTubePlayer，and it will open Youtube APP ，Please to wait</string>
     
     <bool name="ga_auto_activity_tracking">true</bool>
     <bool name="ga_debug">true</bool>

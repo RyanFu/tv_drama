@@ -47,6 +47,14 @@
 		    android:src="@drawable/tv" />
          
 	</RelativeLayout>
+	<TextView
+      android:id="@+id/state_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="5dp"
+      android:gravity="center_horizontal"
+      android:singleLine="true"
+      android:visibility="gone" />
     <com.google.android.youtube.player.YouTubePlayerView
 		android:id="@+id/youtube_view"
 		android:layout_width="fill_parent"
@@ -64,19 +72,19 @@
 	        android:id="@+id/pre_button"
 	        android:layout_width="58dp"
 	        android:layout_height="58dp"
-	        android:background="@drawable/back_normal" />            
+	        android:background="@drawable/imagebutton_back" />            
 	    <ImageButton
 	        android:id="@+id/play_button"
 	        android:layout_width="70dp"
 	        android:layout_height="70dp"
 	        android:layout_marginRight="15dp"
 	        android:layout_marginLeft="15dp"
-	        android:background="@drawable/play_normal" />       
+	        android:background="@drawable/imagebutton_play" />       
 	    <ImageButton
 	        android:id="@+id/next_button"
 	        android:layout_width="58dp"
 	        android:layout_height="58dp"
-	        android:background="@drawable/next_normal" />
+	        android:background="@drawable/imagebutton_next" />
 	</LinearLayout>
 	
     <RelativeLayout

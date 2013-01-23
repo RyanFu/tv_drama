@@ -30,6 +30,8 @@ import com.jumplife.tvdrama.entity.News;
 import com.jumplife.tvdrama.entity.Section;
 
 import android.app.Activity;
+import android.content.Context;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class DramaAPI {
@@ -431,6 +433,47 @@ public class DramaAPI {
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			String url = "http://106.187.51.230:8000//api/v1/dramas/" + DramaId + ".json";						
+			if(DEBUG)
+				Log.d(TAG, "URL : " + url);
+			
+			HttpPut httpPut = new HttpPut(url);
+			HttpResponse response = httpClient.execute(httpPut);
+			
+			StatusLine statusLine =  response.getStatusLine();
+			if (statusLine.getStatusCode() == 200){
+				result = true;
+			}
+		} 
+	    catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return result;
+		} 
+		catch (ClientProtocolException e) {
+			e.printStackTrace();
+			return result;
+		} 
+		catch (IOException e){
+			e.printStackTrace();
+			return result;
+		}	
+		return result;
+	}
+	
+	public boolean updateViewsWithDevice(int DramaId, int epId) {
+		final TelephonyManager tm = (TelephonyManager) mActivity.getSystemService(Context.TELEPHONY_SERVICE);
+		boolean result = false;
+		String DeviceId;
+		if(tm.getLine1Number() != null && !tm.getLine1Number().equals(""))
+			DeviceId = tm.getLine1Number();
+		else 
+			DeviceId = tm.getDeviceId();
+		
+		try{
+			DefaultHttpClient httpClient = new DefaultHttpClient();
+			String url = "http://106.187.40.45/api/v1/dramas/update_device_watch.json?" +
+					"registration_id=" + DeviceId + 
+					"&drama_id=" + DramaId +
+					"&ep_num=" + epId;						
 			if(DEBUG)
 				Log.d(TAG, "URL : " + url);
 			
