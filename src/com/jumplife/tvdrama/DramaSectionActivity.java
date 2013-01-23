@@ -232,7 +232,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     		        });
     		        dialog.show();            		 
             	} else {
-            		/*if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
             			String url = sectionList.get(position).getUrl();
             			url = url.substring(39);
             			String[] tmpUrls = url.split("\\?");
@@ -245,8 +245,8 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             			
             		uri = Uri.parse(sectionList.get(position).getUrl());
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
-            		startActivity(it);*/
-            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            		startActivity(it);
+            		/*if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
             			String url = sectionList.get(position).getUrl();
             			url = url.substring(39);
             			String[] tmpUrls = url.split("\\?");
@@ -270,7 +270,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	            		uri = Uri.parse(sectionList.get(position).getUrl());
 	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
 	            		startActivity(it);
-        			}
+        			}*/
             	}
             	new UpdateDramaSectionRecordTask().execute();
             }
@@ -392,7 +392,12 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             
             super.onPostExecute(result);
         }
-
+       
+        public void closeProgressDilog() {
+        	if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
+        }
     }
 
     class UpdateViewTask extends AsyncTask<Integer, Integer, String> {
@@ -473,8 +478,10 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     @Override
 	protected void onDestroy(){
         super.onDestroy();
-        if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
+        	loadTask.closeProgressDilog();
         	loadTask.cancel(true);
+        }
     }
     
     @Override

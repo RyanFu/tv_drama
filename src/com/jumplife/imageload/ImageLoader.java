@@ -32,12 +32,12 @@ public class ImageLoader {
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private ExecutorService executorService;
     private int width;
-    private static Bitmap btStub;
+    private Bitmap btStub;
     
     public ImageLoader(Context context){
         fileCache = new FileCache(context);
         executorService = Executors.newFixedThreadPool(3);
-        btStub = BitmapFactory.decodeResource(context.getResources(), R.drawable.stub);
+        btStub  = BitmapFactory.decodeResource(context.getResources(), R.drawable.stub);
     }
     
     public ImageLoader(Context context, int size){
@@ -47,7 +47,6 @@ public class ImageLoader {
         btStub = BitmapFactory.decodeResource(context.getResources(), R.drawable.stub);
     }
     
-    final int stub_id= R.drawable.stub;
     public void DisplayImage(String url, ImageView imageView)
     {
     	imageViews.put(imageView, url);
@@ -57,7 +56,7 @@ public class ImageLoader {
             imageView.setImageBitmap(bitmap);        	
         } else {
             queuePhoto(url, imageView);
-            imageView.setImageResource(stub_id);
+            imageView.setImageBitmap(btStub);
         }
     }
     
@@ -84,7 +83,7 @@ public class ImageLoader {
         else {
             //queuePhoto(url, imageView);
         	queuePhoto(url, imageView, width);
-            imageView.setImageResource(stub_id);
+            imageView.setImageBitmap(btStub);
         }
     }
         
@@ -277,7 +276,7 @@ public class ImageLoader {
                 photoToLoad.imageView.setImageBitmap(bitmap);
                 //photoToLoad.imageView.startAnimation(anim);
             } else {
-                photoToLoad.imageView.setImageResource(stub_id);
+                photoToLoad.imageView.setImageBitmap(btStub);
                 //photoToLoad.imageView.startAnimation(anim);
             }
         }
@@ -326,7 +325,7 @@ public class ImageLoader {
                 photoToLoad.imageView.setImageBitmap(bitmap);
                 //photoToLoad.imageView.startAnimation(anim);
             } else {
-                photoToLoad.imageView.setImageResource(stub_id);
+                photoToLoad.imageView.setImageBitmap(btStub);
                 //photoToLoad.imageView.startAnimation(anim);
             }
         }

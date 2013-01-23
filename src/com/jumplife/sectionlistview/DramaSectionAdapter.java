@@ -154,13 +154,6 @@ public class DramaSectionAdapter extends BaseAdapter{
 		poster.getLayoutParams().height = height;
 		poster.getLayoutParams().width = width;
 		
-		if(sectionList.get(position).getUrl() == null ||
-    			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
-    			sectionList.get(position).getUrl().contains("maplestage"))
-			name.setText("Part" + (position+1) + "(未提供)");
-		else
-			name.setText("Part" + (position+1));
-		
 		if(sectionList.get(position).getUrl().contains("youtube")) {
 			String[] youtubeId = new String[2];
 			if(sectionList.get(position).getUrl().contains("=")) {

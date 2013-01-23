@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <GridView android:id="@+id/gridview_tvchannel"
+	    android:background="@color/background"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="fill_parent"
+	    android:verticalSpacing="5dp"  
+	    android:horizontalSpacing="5dp"  
+	    android:listSelector="@drawable/grid_item_drama_bg"
+	    android:numColumns="2"
+	    />
+</LinearLayout>

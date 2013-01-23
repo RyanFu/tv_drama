@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jumplife.tvdrama"
-    android:versionCode="9"
-    android:versionName="1.0.8">
+    android:versionCode="15"
+    android:versionName="1.0.14">
     
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -30,6 +30,9 @@
             android:screenOrientation="portrait" ></activity>
         <activity android:name=".TvChannelWaterFallActivity"
             android:screenOrientation="portrait" ></activity>
+        <activity android:name="TvChannelViewPagerActivity"
+            android:screenOrientation="portrait"
+            android:hardwareAccelerated="true" ></activity>
         <activity android:name=".MyFavoriteWaterFallActivity"
             android:screenOrientation="portrait" ></activity>
         <activity android:name=".DramaTabActivities"

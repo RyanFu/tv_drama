@@ -34,6 +34,7 @@ import com.kuad.kuADListener;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -77,26 +78,45 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 		setContentView(R.layout.player_controls);
 		initView();
 		setListener();
-		setAapter();
 		
 		AdTask adTask = new AdTask();
     	adTask.execute();
 	}
 
+	public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        	player.setFullscreen(true);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){        
+        	player.setFullscreen(false);
+        }
+    }
+	
 	public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player,
 			boolean wasRestored) {
-		this.player = player;
-		player.setPlaylistEventListener(playlistEventListener);
-		player.setPlayerStateChangeListener(playerStateChangeListener);
-		player.setPlaybackEventListener(playbackEventListener);
-	    
-	    if (player != null) 
-			player.setPlayerStyle(PlayerStyle.DEFAULT);
+		if (player == null) {
+			Toast.makeText(PlayerControlsActivity.this, getResources().getString(R.string.error_player_other), Toast.LENGTH_LONG).show();
+	    	setControlsEnabled(false);
+    		PlayerControlsActivity.this.finish();
+    		Uri uri = Uri.parse(
+    				"http://www.youtube.com/watch?v=" + ENTRIES[currentlySelectedPosition]);
+    		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+    		startActivity(it);
+		} else {
+			this.player = player;
 
-		if (!wasRestored) {
-			playVideoAtSelection();
+		    playlistEventListener = new MyPlaylistEventListener();
+		    playerStateChangeListener = new MyPlayerStateChangeListener();
+		    playbackEventListener = new MyPlaybackEventListener();
+			player.setPlaylistEventListener(playlistEventListener);
+			player.setPlayerStateChangeListener(playerStateChangeListener);
+			player.setPlaybackEventListener(playbackEventListener);	    
+		    player.setPlayerStyle(PlayerStyle.DEFAULT);
+			if (!wasRestored) {
+				playVideoAtSelection();
+			}
+			setControlsEnabled(true);
 		}
-		setControlsEnabled(true);
 	}
 
 	private void initView() {
@@ -115,10 +135,6 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 		setPlayButtonView();
 		
 		youTubePlayerView.initialize(DeveloperKey.DEVELOPER_KEY, this);
-
-	    playlistEventListener = new MyPlaylistEventListener();
-	    playerStateChangeListener = new MyPlayerStateChangeListener();
-	    playbackEventListener = new MyPlaybackEventListener();
 	}
 	
 	private void setPlayButtonView() {
@@ -129,28 +145,7 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	}
 	
 	private void setListener() {
-		/*((RadioButton) findViewById(R.id.style_default)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if (isChecked && player != null) 
-						player.setPlayerStyle(PlayerStyle.DEFAULT);
-				}			
-			});
-		((RadioButton) findViewById(R.id.style_minimal)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isChecked && player != null) {
-					player.setPlayerStyle(PlayerStyle.MINIMAL);
-				}
-			}			
-		});
-		((RadioButton) findViewById(R.id.style_chromeless)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isChecked && player != null) {
-					player.setPlayerStyle(PlayerStyle.CHROMELESS);
-				}
-			}			
-		});*/
-				
-	    playButton.setOnClickListener(new OnClickListener(){
+		playButton.setOnClickListener(new OnClickListener(){
 	    	public void onClick(View v) {
 	    		isplay = !isplay;
 	    		setPlayButtonView();
@@ -176,10 +171,6 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 				playVideoAtSelection();
 	    	}
 	    });
-	}
-	
-	private void setAapter() {
-		
 	}
 	
 	@Override
@@ -260,6 +251,8 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	    String bufferingState = "";
 	    public void onPlaying() {
 	      playbackState = "PLAYING";
+	      isplay = true;
+	      setPlayButtonView();
 	      updateText();
 	      log("\tPLAYING " + getTimesText());
 	    }
@@ -278,6 +271,8 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 
 	    public void onPaused() {
 	      playbackState = "PAUSED";
+	      isplay = false;
+	      setPlayButtonView();
 	      updateText();
 	      log("\tPAUSED " + getTimesText());
 	    }
@@ -354,7 +349,7 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 
 	}
 	
-public void setAd() {
+	public void setAd() {
     	
     	Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);

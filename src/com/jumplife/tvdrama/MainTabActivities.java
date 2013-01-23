@@ -216,7 +216,8 @@ public void setAd() {
 		
 		// Create an Intent to launch an Activity for the tab (to be reused)
 		// Initialize a TabSpec for each tab and add it to the TabHost
-        Intent intentTvChannel = new Intent().setClass(this, TvChannelWaterFallActivity.class);
+        //Intent intentTvChannel = new Intent().setClass(this, TvChannelWaterFallActivity.class);
+		Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
         spec = tabHost.newTabSpec("tab1")
         				.setIndicator(ActivitysTab)
         				.setContent(intentTvChannel);

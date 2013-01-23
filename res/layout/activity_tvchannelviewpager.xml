@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+    <RelativeLayout android:id="@+id/waterfall_linear_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+        <LinearLayout android:id="@+id/ll_drama_button"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/tabackground"
+            android:orientation="horizontal"
+            android:weightSum="1.0" >
+            <Button android:id="@+id/button_drama_taiwan"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.25"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100"
+                android:textColor="@color/channel_button_text_press"
+                android:textSize="20dp"
+                android:text="@string/taiwan" />
+            <View 
+                android:layout_width="0.1dp"
+                android:layout_height="fill_parent"
+                android:background="@drawable/tab_linecolor"
+                />
+            <Button android:id="@+id/button_drama_koera"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.25"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100"
+                android:textColor="@color/channel_button_text_normal"
+                android:textSize="20dp"
+                android:text="@string/koera" />
+            <View 
+                android:layout_width="0.1dp"
+                android:layout_height="fill_parent"
+                android:background="@drawable/tab_linecolor"
+                />
+            <Button android:id="@+id/button_drama_japan"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.25"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100"
+                android:textColor="@color/channel_button_text_normal"
+                android:textSize="20dp"
+                android:text="@string/japan" />
+            <View 
+                android:layout_width="0.1dp"
+                android:layout_height="fill_parent"
+                android:background="@drawable/tab_linecolor"
+                />
+            <Button android:id="@+id/button_drama_china"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.25"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100"
+                android:textColor="@color/channel_button_text_normal"
+                android:textSize="20dp"
+                android:text="@string/china" />
+            </LinearLayout>
+        <View android:id="@+id/line0"
+            android:layout_width="fill_parent" 
+            android:layout_height="0.1dp"
+            android:layout_below="@+id/ll_drama_button"
+            android:background="#545454"
+            />
+        <LinearLayout android:id="@+id/ll_variety_arrow"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/line0"
+            android:orientation="horizontal"
+            android:weightSum="1.0" >
+	        <ImageView android:id="@+id/arrow_1"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/arrow"
+                />
+	    </LinearLayout>
+	    <android.support.v4.view.ViewPager
+	        android:id="@+id/viewpager_tvchannel"
+	        android:background="@color/background"
+	        android:layout_width="fill_parent" 
+	        android:layout_height="fill_parent"
+	        android:layout_below="@+id/line0"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:verticalSpacing="5dp"  
+	        android:horizontalSpacing="5dp"  
+	        android:listSelector="@drawable/grid_item_drama_bg"
+	        android:numColumns="2"
+            />
+    </RelativeLayout>
+    
+    <ImageButton android:id="@+id/refresh"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       android:scaleType="fitCenter"
+       android:visibility="gone"
+       android:background="@drawable/button_background"
+       android:src="@drawable/renew"/>
+
+</LinearLayout>

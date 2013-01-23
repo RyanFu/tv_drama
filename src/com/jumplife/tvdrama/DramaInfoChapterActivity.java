@@ -334,10 +334,8 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 							currentChapter = position;
 							new UpdateDramaChapterRecordTask().execute();
 							
-							Log.d(TAG, "leave drama info chapter");
-							
 							Intent newAct = new Intent();
-							newAct.putExtra("chapter_no", position+1);
+							newAct.putExtra("chapter_no", Integer.parseInt(chapters[position]));
 							newAct.putExtra("drama_id", dramaId);
 							newAct.putExtra("drama_name", dramaName);
 			                newAct.setClass(DramaInfoChapterActivity.this, DramaSectionActivity.class);
@@ -435,7 +433,12 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 
 	        super.onPostExecute(result);  
         }  
-          
+         
+        public void closeProgressDilog() {
+        	if(DramaInfoChapterActivity.this != null && !DramaInfoChapterActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
+        }
     }
 	
 	class UpdateDramaChapterRecordTask extends AsyncTask<Integer, Integer, String>{  
@@ -496,7 +499,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	@Override
 	protected void onDestroy(){
         super.onDestroy();
-        if (taskLoad!= null && taskLoad.getStatus() != AsyncTask.Status.FINISHED)
+        if (taskLoad!= null && taskLoad.getStatus() != AsyncTask.Status.FINISHED) {
+        	taskLoad.closeProgressDilog();
         	taskLoad.cancel(true);
+        }
     }
 }

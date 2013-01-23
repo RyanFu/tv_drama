@@ -23,20 +23,20 @@
     
    	<ImageButton
         android:id="@+id/pre_button"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:background="@drawable/imagebutton_back" />           
     <ImageButton
         android:id="@+id/play_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:background="@drawable/imagebutton_play" />      
     <ImageButton
         android:id="@+id/next_button"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:background="@drawable/imagebutton_next" />
 
 </LinearLayout>

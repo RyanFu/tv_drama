@@ -12,7 +12,7 @@
 	<string name="about_us">About US</string>
 	
 	<string name="taiwan">Taiwan</string>
-	<string name="koera">Koera</string>
+	<string name="korea">Korea</string>
 	<string name="japan">Japan</string>
 	<string name="china">China</string>
 	
@@ -76,7 +76,12 @@
    <string name="no_provide">(No Provided)</string>
    
    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
-    <string name="error_player_other">There was an error in YouTubePlayer，and it will open Youtube APP ，Please to wait</string>
+    <string name="error_player_other">The link is diabled in embeded player，and it will open other enable APP ，Please to wait</string>
+    
+    <string name="player_description">The player can continued play video automatically，and if the link is diabled in embeded player，it will open other enable APP</string>
+    <string name="player_description_play"> play/pause</string>
+    <string name="player_description_next"> next Part</string>
+    <string name="player_description_pre"> pre Part</string>
     
     <string name="admob_key">fad0a7a7089a4630</string>  <!-- admob mediation -->
     <string name="kuad_key">000000G0c</string>

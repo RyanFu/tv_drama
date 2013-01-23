@@ -12,7 +12,7 @@
     <string name="about_us">About US</string>
     
     <string name="taiwan">Taiwan</string>
-    <string name="koera">Koera</string>
+    <string name="korea">Korea</string>
     <string name="japan">Japan</string>
     <string name="china">China</string>
     
@@ -83,7 +83,12 @@
     <string name="adwhirl_key">e08cc3d67c8b414ea0d7bb81e86bb530</string>
     
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
-    <string name="error_player_other">There was an error in YouTubePlayer，and it will open Youtube APP ，Please to wait</string>
+    <string name="error_player_other">The link is diabled in embeded player，and it will open other enable APP ，Please to wait</string>
+    
+    <string name="player_description">The player can continued play video automatically，and if the link is diabled in embeded player，it will open other enable APP</string>
+    <string name="player_description_play"> play/pause</string>
+    <string name="player_description_next"> next Part</string>
+    <string name="player_description_pre"> pre Part</string>
     
     <bool name="ga_auto_activity_tracking">true</bool>
     <bool name="ga_debug">true</bool>
