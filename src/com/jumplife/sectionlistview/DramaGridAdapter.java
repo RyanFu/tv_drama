@@ -31,18 +31,17 @@ public class DramaGridAdapter extends BaseAdapter{
 	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas){
 		this.dramas = dramas;
 		this.mContext = mContext;
-		
-		imageLoader=new ImageLoader(mContext);
 		width = 80;
 		height = 120;
+		imageLoader=new ImageLoader(mContext, width);
 	}
 	
 	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, int width, int height){
 		this.dramas = dramas;
 		this.mContext = mContext;
-		imageLoader=new ImageLoader(mContext, width);
 		this.width = width;
 		this.height = height;
+		imageLoader=new ImageLoader(mContext, width);
 	}
 	
 	public int getCount() {
@@ -77,7 +76,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		itemView.poster.getLayoutParams().width = width;
 		itemView.name.setText(dramas.get(position).getChineseName());
 		itemView.view.setText(mContext.getResources().getString(R.string.play_time) + dramas.get(position).getViews());
-		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), itemView.poster, width);
+		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), itemView.poster);
 		
 		return convertView;
 		/*LayoutInflater myInflater = LayoutInflater.from(mContext);

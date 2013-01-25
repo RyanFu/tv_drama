@@ -88,7 +88,7 @@ public class TvChannelViewPagerActivity extends Activity {
 		buttonChina = (Button)findViewById(R.id.button_drama_china);
 		
 		viewpager = (ViewPager) findViewById(R.id.viewpager_tvchannel);
-		viewpager.setOffscreenPageLimit(3);
+		viewpager.setOffscreenPageLimit(listnumber);
 		
 		imageButtonRefresh = (ImageButton) findViewById(R.id.refresh);
         imageButtonRefresh.setOnClickListener(new OnClickListener() {

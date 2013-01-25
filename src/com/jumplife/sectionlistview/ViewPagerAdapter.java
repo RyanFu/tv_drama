@@ -57,7 +57,9 @@ public class ViewPagerAdapter extends PagerAdapter{
         itemOnClickListener itemclick = new itemOnClickListener(pos);
         varietyGridView.setOnItemClickListener(itemclick);
         
-        ((ViewPager)pager).addView(view, pos);
+        //((ViewPager)pager).addView(view, pos);
+        ((ViewPager)pager).addView(view, ((ViewPager)pager).getChildCount() > pos ? pos : ((ViewPager)pager).getChildCount());
+
 	    return view;
 	}
 	

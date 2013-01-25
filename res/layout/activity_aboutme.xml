@@ -31,29 +31,6 @@
                 android:textSize="15dp"
                 android:text="@string/advice_and_feedback" />
         </LinearLayout>
-        <LinearLayout android:id="@+id/ll_facebook"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.33"
-            android:background="@drawable/button_aboutus_bg"
-            android:orientation="vertical"
-            android:paddingTop="15dp"
-            android:paddingBottom="12dp">
-            <ImageView 
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@drawable/facebook" />
-            <TextView 
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:lines="2"
-                android:padding="5dp"
-                android:textSize="15dp"
-                android:text="@string/facebook" />
-        </LinearLayout>
         <LinearLayout android:id="@+id/ll_declare"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -76,6 +53,29 @@
                 android:padding="5dp"
                 android:textSize="15dp"
                 android:text="@string/liability_disclaimer" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/ll_facebook"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:background="@drawable/button_aboutus_bg"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            android:paddingBottom="12dp">
+            <ImageView 
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/facebook" />
+            <TextView 
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lines="2"
+                android:padding="5dp"
+                android:textSize="15dp"
+                android:text="@string/facebook" />
         </LinearLayout>
     </LinearLayout>
     <LinearLayout 

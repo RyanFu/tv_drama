@@ -65,7 +65,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	private int dramaId = 0;
 	private String dramaName = "";
 
-	private static String TAG = "DramaInfoChapterActivity";
+	//private static String TAG = "DramaInfoChapterActivity";
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,7 +101,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         	dramaName = extras.getString("drama_name");
         }
 		
-		imageLoader = new ImageLoader(this);
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		imageLoader = new ImageLoader(this, displayMetrics.widthPixels);
 		topbar_text = (TextView)findViewById(R.id.topbar_text);
         poster = (ImageView)findViewById(R.id.imageview_daramaposter);
         like = (ImageView)findViewById(R.id.like);
@@ -265,11 +267,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	
 	private void setView(){
 		topbar_text.setText(drama.getChineseName());
-        textviewDramaContent.setText(drama.getIntroduction());
+        textviewDramaContent.setText(drama.getIntroduction());       
         
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        imageLoader.DisplayImage(drama.getPosterUrl(), poster, displayMetrics.widthPixels);
+        imageLoader.DisplayImage(drama.getPosterUrl(), poster);
         
         setOnClickListener();
         setFakeTabView();

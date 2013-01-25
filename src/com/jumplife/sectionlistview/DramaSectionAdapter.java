@@ -44,9 +44,9 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.mContext = mContext;
 		this.chapterNO = chapterNO;
 		this.currentSection = currentSection;
-		imageLoader=new ImageLoader(mContext);
 		width = 80;
 		height = 120;
+		imageLoader=new ImageLoader(mContext);
 	}
 	
 	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, int width, int height, String currentSection, int chapterNO){
@@ -55,8 +55,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.width = width;
 		this.height = height;
 		this.chapterNO = chapterNO;
-		this.currentSection = currentSection;
-		
+		this.currentSection = currentSection;		
 		imageLoader=new ImageLoader(mContext, width);
 	}
 	
@@ -123,25 +122,25 @@ public class DramaSectionAdapter extends BaseAdapter{
 			if(sectionList.get(position).getUrl().contains("=")) {
 				youtubeId = sectionList.get(position).getUrl().split("\\=");
 				if(youtubeId.length > 1) 
-					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, width);
+					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster);
 				else
-					imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster, width);
+					imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
 			} else if(sectionList.get(position).getUrl().contains("embed")) {
 				String[] tmp = sectionList.get(position).getUrl().split("embed");
 				if(tmp.length > 1) {
 					youtubeId = tmp[1].split("\\/");
 					if(youtubeId.length > 1) 
-						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, width);
+						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster);
 					else
-						imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster, width);
+						imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
 				}
 			}else
-				imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster, width);
+				imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
 		} else if (sectionList.get(position).getUrl().contains("dailymotion")) {
 			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl(), itemView.poster);
 			task.execute();			
 		} else {
-			imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster, width);
+			imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
 		}
 		
 		return convertView;
@@ -159,25 +158,25 @@ public class DramaSectionAdapter extends BaseAdapter{
 			if(sectionList.get(position).getUrl().contains("=")) {
 				youtubeId = sectionList.get(position).getUrl().split("\\=");
 				if(youtubeId.length > 1) 
-					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster, width);
+					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster);
 				else
-					imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster, width);
+					imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
 			} else if(sectionList.get(position).getUrl().contains("embed")) {
 				String[] tmp = sectionList.get(position).getUrl().split("embed");
 				if(tmp.length > 1) {
 					youtubeId = tmp[1].split("\\/");
 					if(youtubeId.length > 1) 
-						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster, width);
+						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster);
 					else
-						imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster, width);
+						imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
 				}
 			}else
-				imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster, width);
+				imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
 		} else if (sectionList.get(position).getUrl().contains("dailymotion")) {
-			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl(), poster);
+			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl());
 			task.execute();			
 		} else {
-			imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster, width);
+			imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
 		}
 		
 		return converView;*/
@@ -233,7 +232,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 
         @Override
         protected void onPostExecute(String result) {
-        	imageLoader.DisplayImage(dailymotionUrl, poster, width);
+        	imageLoader.DisplayImage(dailymotionUrl, poster);
             super.onPostExecute(result);
         }
         

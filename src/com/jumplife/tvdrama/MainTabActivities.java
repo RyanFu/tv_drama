@@ -51,6 +51,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	private LinearLayout topbarLayout;
 	private int openCount;
 	private int version;
+	private LoadPromoteTask loadPromoteTask;
 	
 	public static String TAG = "MainTabActivities";
 	
@@ -79,8 +80,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		sharepre = new SharePreferenceIO(MainTabActivities.this);
         openCount = sharepre.SharePreferenceO("opencount", 0);
         version = sharepre.SharePreferenceO("version", 0);
-        if(openCount > 5) {
-        	LoadPromoteTask loadPromoteTask = new LoadPromoteTask();
+        loadPromoteTask = new LoadPromoteTask();
+    	if(openCount > 5) {
         	loadPromoteTask.execute();
         	openCount = 0;
         }
@@ -96,7 +97,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     	
     }
     
-public void setAd() {
+    public void setAd() {
     	
     	Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
@@ -188,9 +189,13 @@ public void setAd() {
     }
     
     @Override
-    protected void onDestroy(){
-    	super.onDestroy();
-    }
+	protected void onDestroy(){
+        super.onDestroy();
+        if (loadPromoteTask!= null && loadPromoteTask.getStatus() != AsyncTask.Status.FINISHED) {
+        	loadPromoteTask.closeProgressDilog();
+        	loadPromoteTask.cancel(true);
+        }
+	}
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
@@ -308,9 +313,8 @@ public void setAd() {
   
         @Override  
         protected void onPostExecute(String result) {
-        	if(MainTabActivities.this != null && !MainTabActivities.this.isFinishing() 
-        			&& progressdialogInit != null && progressdialogInit.isShowing())
-        		progressdialogInit.dismiss();
+        	closeProgressDilog();
+        	
         	if(promotion != null && !promotion[1].equals("null") && Integer.valueOf(promotion[4]) > version) {
 	        	View viewPromotion;
 	            LayoutInflater factory = LayoutInflater.from(MainTabActivities.this);
@@ -364,8 +368,13 @@ public void setAd() {
 	            dialogPromotion.show();
         	}
 	       	super.onPostExecute(result);  
-        }  
-          
+        } 
+        
+        public void closeProgressDilog() {
+        	if(MainTabActivities.this != null && !MainTabActivities.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
+        }   
     }
     
     class AdTask extends AsyncTask<Integer, Integer, String> {
