@@ -291,8 +291,10 @@ public class DramaAPI {
 					Drama drama = DramaJsonToClass(dramaJson);
 					dramas.add(drama);
 				}
-				if(dramas != null && dramas.size() > 0)
+				if(dramas != null && dramas.size() > 0) {
+					Log.d(TAG, "Insert New Drama.");
 					sqlTvDrama.insertDramas(dramas);
+				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

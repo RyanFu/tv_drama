@@ -39,6 +39,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -64,6 +65,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	private int chapterNo = 0;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
+	private Boolean developerMode = false;
 	private static String TAG = "DramaSectionActivity";
 	
     @Override
@@ -232,7 +234,28 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     		        });
     		        dialog.show();            		 
             	} else {
-            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
+            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
+	            			String url = sectionList.get(position).getUrl();
+	            			url = url.substring(39);
+	            			String[] tmpUrls = url.split("\\?");
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			} else {
+            				String url = sectionList.get(position).getUrl();
+	            			url = url.substring(33);
+	            			String[] tmpUrls = url.split("&");	            			
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			}
+            		}
+            		/*if (sectionList.get(position).getUrl().contains("http://touch.dailymotion.com/video/")) {
             			String url = sectionList.get(position).getUrl();
             			url = url.substring(39);
             			String[] tmpUrls = url.split("\\?");
@@ -240,9 +263,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             			if(tmpUrls.length > 0)
             				tmpId = tmpUrls[0];
             			if(tmpId != null)
-            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
-            		}
-            			
+            				sectionList.get(position).setUrl("http://www.dailymotion.com/embed/video/" + tmpId);
+            		}*/
+            		
             		uri = Uri.parse(sectionList.get(position).getUrl());
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
             		startActivity(it);
@@ -275,6 +298,66 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             	new UpdateDramaSectionRecordTask().execute();
             }
         });
+    	
+    	if(developerMode) {
+	    	sectioGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
+	            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+					shIO.SharePreferenceI("views", true);
+	            	Uri uri;
+	            	if(sectionList.get(position).getUrl() == null ||
+	            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+	            			sectionList.get(position).getUrl().contains("maplestage")) {
+	            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+	    		        dialog.setTitle(DramaSectionActivity.this.getResources().getString(R.string.no_link));
+	    		        dialog.setMessage(DramaSectionActivity.this.getResources().getString(R.string.use_google_search));
+	    		        dialog.setPositiveButton(DramaSectionActivity.this.getResources().getString(R.string.google_search)
+	    		        		, new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+	    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+	    	            				+ chapterNo + getResources().getString(R.string.no));  
+	    	            		startActivity(search);
+	    		            }
+	    		        });
+	    		        dialog.setNegativeButton(DramaSectionActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            }
+	    		        });
+	    		        dialog.show();
+	    		        return true;
+	            	} else {
+	            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+	            			String url = sectionList.get(position).getUrl();
+	            			url = url.substring(39);
+	            			String[] tmpUrls = url.split("\\?");
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			uri = Uri.parse(sectionList.get(position).getUrl());
+		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+		            		startActivity(it);
+		    		        return true;
+	            		} else if(youtubeIds != null) {
+	            			Intent newAct = new Intent();
+	    					newAct.putExtra("youtube_ids", youtubeIds);
+	    					newAct.putExtra("youtube_index", position);
+	    					newAct.putExtra("youtube_link", sectionList.get(position).getUrl());
+	    	                newAct.setClass(DramaSectionActivity.this, PlayerControlsActivity.class);
+	    					//newAct.setClass(VarietySectionActivity.this, YouTubePlayerActivity.class);
+	    	                startActivity(newAct);
+	        		        return true;
+	        			} else {	            			
+		            		uri = Uri.parse(sectionList.get(position).getUrl());
+		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+		            		startActivity(it);
+		    		        return true;
+	        			}
+	            	}
+				}
+	        });
+    	}
     	
     	DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

@@ -211,9 +211,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-        	if(MyFavoriteWaterFallActivity.this != null && !MyFavoriteWaterFallActivity.this.isFinishing() 
-        			&& progressdialogInit != null && progressdialogInit.isShowing())
-        		progressdialogInit.dismiss();
+        	closeProgressDilog();
 
             if (dramaList == null) {
             	rlWaterfall.setVisibility(View.GONE);
@@ -234,6 +232,11 @@ public class MyFavoriteWaterFallActivity extends Activity {
             super.onPostExecute(result);
         }
 
+        public void closeProgressDilog() {
+        	if(MyFavoriteWaterFallActivity.this != null && !MyFavoriteWaterFallActivity.this.isFinishing() 
+        			&& progressdialogInit != null && progressdialogInit.isShowing())
+        		progressdialogInit.dismiss();
+        }
     }
 
     public void showReloadDialog(final Context context) {
@@ -263,8 +266,10 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
 	protected void onDestroy(){
         super.onDestroy();
-        if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
         	loadTask.cancel(true);
+        	loadTask.closeProgressDilog();
+        }
     }
     @Override
     public void onStop() {

@@ -83,9 +83,7 @@ public class TvDrama extends Activity {
 		        for(int i=0; i<dramasInsertId.size(); i++)
 		           idLst = dramasInsertId.get(i) + "," +idLst;
 		        api.AddDramasFromInfo(idLst);
-		        
-		        dramasShowId.removeAll(dramasInsertId);
-	        }
+	        }	        
 	        sqlTvDrama.updateDramaIsShow(dramasShowId);
 	        sqlTvDrama.updateDramaViews(dramas);
 	        sqlTvDrama.updateDramaEps(dramas);
