@@ -332,7 +332,7 @@ public class DramaAPI {
 			}
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			StringBuilder lines = new StringBuilder();;
+			StringBuilder lines = new StringBuilder();
 			String tempStr;
 			
 			while ((tempStr = reader.readLine()) != null) {

@@ -65,7 +65,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	private int chapterNo = 0;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
-	private Boolean developerMode = false;
+	private Boolean developerMode = true;
 	private static String TAG = "DramaSectionActivity";
 	
     @Override
@@ -344,6 +344,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	    					newAct.putExtra("youtube_ids", youtubeIds);
 	    					newAct.putExtra("youtube_index", position);
 	    					newAct.putExtra("youtube_link", sectionList.get(position).getUrl());
+	    					//newAct.setClass(DramaSectionActivity.this, FullscreenDemoActivity.class);
 	    	                newAct.setClass(DramaSectionActivity.this, PlayerControlsActivity.class);
 	    					//newAct.setClass(VarietySectionActivity.this, YouTubePlayerActivity.class);
 	    	                startActivity(newAct);

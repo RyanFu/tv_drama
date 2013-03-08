@@ -88,6 +88,12 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
       EasyTracker.getInstance().activityStart(this);
     }
     
+	@Override
+    public void onPause() {
+      super.onPause();
+      imageLoader.clearCache();
+    }
+	
     @Override
     public void onStop() {
       super.onStop();

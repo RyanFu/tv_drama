@@ -31,6 +31,9 @@ public class DramaSectionAdapter extends BaseAdapter{
 	private Context mContext;
 	private ImageLoader imageLoader;
 	private String currentSection;
+	private LayoutInflater myInflater; 
+	private String[] currentSectionTmp;
+	private String[] youtubeId;
 	private int chapterNO;
 	private int width;
 	private int height;
@@ -46,7 +49,8 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.currentSection = currentSection;
 		width = 80;
 		height = 120;
-		imageLoader=new ImageLoader(mContext);
+		imageLoader = new ImageLoader(mContext);
+		myInflater = LayoutInflater.from(mContext);
 	}
 	
 	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, int width, int height, String currentSection, int chapterNO){
@@ -57,6 +61,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.chapterNO = chapterNO;
 		this.currentSection = currentSection;		
 		imageLoader=new ImageLoader(mContext, width);
+		myInflater = LayoutInflater.from(mContext);
 	}
 	
 	public int getCount() {
@@ -76,19 +81,19 @@ public class DramaSectionAdapter extends BaseAdapter{
 	}
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ItemView itemView = new ItemView();;
+		ItemView itemView = new ItemView();
 		
 		if (convertView != null) {
 			itemView = (ItemView) convertView.getTag();
 		} else {
-			LayoutInflater myInflater = LayoutInflater.from(mContext);
 			convertView = myInflater.inflate(R.layout.gridview_dramasection_item, null);
 			itemView.poster = (ImageView)convertView.findViewById(R.id.drama_poster);
 			itemView.name = (TextView)convertView.findViewById(R.id.drama_name);
 			
 			convertView.setTag(itemView);
 		}
-		String[] currentSectionTmp = null;
+		
+		currentSectionTmp = null;
 		if(currentSection != null)
 			currentSectionTmp = currentSection.split(",");
 		boolean mark = false;
@@ -118,7 +123,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 			itemView.name.setText("Part" + (position+1));
 		
 		if(sectionList.get(position).getUrl().contains("youtube")) {
-			String[] youtubeId = new String[2];
+			youtubeId = new String[2];
 			if(sectionList.get(position).getUrl().contains("=")) {
 				youtubeId = sectionList.get(position).getUrl().split("\\=");
 				if(youtubeId.length > 1) 
@@ -144,42 +149,6 @@ public class DramaSectionAdapter extends BaseAdapter{
 		}
 		
 		return convertView;
-		/*LayoutInflater myInflater = LayoutInflater.from(mContext);
-		View converView = myInflater.inflate(R.layout.gridview_dramasection_item, null);
-		
-		ImageView poster = (ImageView)converView.findViewById(R.id.drama_poster);
-		poster.setScaleType(ImageView.ScaleType.FIT_CENTER);
-		TextView name = (TextView)converView.findViewById(R.id.drama_name);
-		poster.getLayoutParams().height = height;
-		poster.getLayoutParams().width = width;
-		
-		if(sectionList.get(position).getUrl().contains("youtube")) {
-			String[] youtubeId = new String[2];
-			if(sectionList.get(position).getUrl().contains("=")) {
-				youtubeId = sectionList.get(position).getUrl().split("\\=");
-				if(youtubeId.length > 1) 
-					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster);
-				else
-					imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
-			} else if(sectionList.get(position).getUrl().contains("embed")) {
-				String[] tmp = sectionList.get(position).getUrl().split("embed");
-				if(tmp.length > 1) {
-					youtubeId = tmp[1].split("\\/");
-					if(youtubeId.length > 1) 
-						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", poster);
-					else
-						imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
-				}
-			}else
-				imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
-		} else if (sectionList.get(position).getUrl().contains("dailymotion")) {
-			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl());
-			task.execute();			
-		} else {
-			imageLoader.DisplayImage(sectionList.get(position).getUrl(), poster);
-		}
-		
-		return converView;*/
 	}
 	
 	class LoadThumbnailTask extends AsyncTask<Integer, Integer, String> {

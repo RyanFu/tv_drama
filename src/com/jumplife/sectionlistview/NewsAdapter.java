@@ -17,8 +17,9 @@ import com.jumplife.tvdrama.entity.News;
 
 public class NewsAdapter extends BaseAdapter{
 	private Context mContext;
-	 private ArrayList<News> newsList;
-	 private ImageLoader imageLoader;
+	private ArrayList<News> newsList;
+	private ImageLoader imageLoader;
+	
 	public NewsAdapter(Context mContext,  ArrayList<News> newsList){
 		this.newsList = newsList;
 		this.mContext = mContext;

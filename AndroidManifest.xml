@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jumplife.tvdrama"
-    android:versionCode="20"
-    android:versionName="1.0.19">
+    android:versionCode="21"
+    android:versionName="1.0.20">
     
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -53,6 +53,7 @@
             android:windowSoftInputMode="stateHidden" ></activity>
         <activity android:name="com.jumplife.youtubeapi.PlayerControlsActivity"
             android:windowSoftInputMode="stateHidden"></activity>
+        <activity android:name="com.jumplife.youtubeapi.FullscreenDemoActivity"></activity>
         
         <activity android:name="com.google.ads.AdActivity"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>

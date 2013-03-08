@@ -42,7 +42,7 @@
     <string name="report_descriptionQ1">1. 開啟影片很久，影片仍未撥放？ (Youtube)</string>
     <string name="report_descriptionA1">Q:目前電視綜藝使用的連結多半來自於Youtube，需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試離開目前位置調整網路連線後再做使用。</string>
     <string name="report_descriptionQ2">2. 開啟影片很久，影片仍未撥放？ (DailyMotion)</string>
-    <string name="report_descriptionA2">Q:部分電視綜藝節目來源來自於DailyMotion網路影音平台，需要網路品質佳的情況下，使用情況方會良好，若持續等待一段時間仍未有影片顯示，請嘗試按壓撥放暫停鈕重覆讀取，若依舊無法顯示，參照下列步驟安裝DailyMotion撥放器使用。:</string>
+    <string name="report_descriptionA2">Q:部分電視綜藝節目來源來自於DailyMotion網路影音平台，有可能因您所在位置的網路快慢而導致讀取速度的差異，重試讀取的方式可參考影片http://bit.ly/DailyMotion撥放處理 ，建議在穩定的wifi下收看，以免網路不穩定造成收視的問題，若依舊無法顯示，參照下列步驟安裝DailyMotion撥放器使用。:</string>
     <string name="report_descriptionA21">a. 安裝DailyMotion Player : http://goo.gl/QjWXz</string>
     <string name="report_descriptionA22">b. 設定 -> 應用程式 -> 選瀏覽器app(ex chrome) -> 按下"清除預設值"</string>
     <string name="report_descriptionA23">c. 觀看時選擇內建的瀏覽器</string>

@@ -15,8 +15,9 @@ import android.widget.TextView;
 
 public class SearchListAdapter extends BaseAdapter implements Filterable{
 	
-    Context mContext;
+    private Context mContext;
     private ArrayList<String> arr_sort;
+    private LayoutInflater myInflater;
     private class ItemView {
 		TextView textviewTitle;
 	}
@@ -24,6 +25,7 @@ public class SearchListAdapter extends BaseAdapter implements Filterable{
 	public SearchListAdapter(Context mContext, ArrayList<String> arr_sort){
 		this.arr_sort = arr_sort;
 		this.mContext = mContext;
+		myInflater = LayoutInflater.from(mContext);
 	}
 
 	public int getCount() {
@@ -47,7 +49,6 @@ public class SearchListAdapter extends BaseAdapter implements Filterable{
 		if (convertView != null) {
 			itemView = (ItemView) convertView.getTag();
 		} else {
-			LayoutInflater myInflater = LayoutInflater.from(mContext);
 			convertView = myInflater.inflate(R.layout.listview_movies, null);
 			itemView = new ItemView();
 			itemView.textviewTitle = (TextView)convertView.findViewById(R.id.movie_name);
@@ -57,15 +58,6 @@ public class SearchListAdapter extends BaseAdapter implements Filterable{
 		itemView.textviewTitle.setText(arr_sort.get(position));
 		
 		return convertView;
-		
-		/*LayoutInflater myInflater = LayoutInflater.from(mContext);
-		View converView = myInflater.inflate(R.layout.listview_movies, null);
-		
-		TextView name = (TextView)converView.findViewById(R.id.movie_name);
-		name.setText(arr_sort.get(position));
-		
-		return converView;*/
-
 	}
 
 	public Filter getFilter() {

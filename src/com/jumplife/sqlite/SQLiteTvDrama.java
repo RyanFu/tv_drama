@@ -41,16 +41,20 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
             		mActivity.deleteDatabase(DB_NAME);
             	}
                 boolean checkFile = shareIO.SharePreferenceO("checkfile", true);
-                if (checkFile) {
+                if (checkFile || !checkDataBase()) {
                 	Log.d(DramaTable, "check file");
+                	db = this.getWritableDatabase();
+                    closeDB();
                     checkFileSystem(mActivity);
                     shareIO.SharePreferenceI("checkfile", false);
                 }
             }
         }
 
-        if (!checkDataBase())
+        if (!checkDataBase()) {
             db = this.getWritableDatabase();
+            closeDB();
+        }
     }
 
     @Override
@@ -205,10 +209,12 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
             idLst = a.get(i) + "," + idLst;
         idLst = idLst.substring(0, idLst.length() - 1);
         
-    	openDataBase();
-        Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;", null);
-        cursor.moveToFirst();
-        cursor.close();
+        if(a.size() > 0) {
+	    	openDataBase();
+	        Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;", null);
+	        cursor.moveToFirst();
+	        cursor.close();
+        }
     }
     
     public void updateDramaViews(ArrayList<Drama> dramas) {
@@ -224,13 +230,17 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
     }
     
     public void updateDramaEps(ArrayList<Drama> dramas) {
-    	String updateViews = "UPDATE " + DramaTable + " SET eps_num_str = CASE";
+    	StringBuilder updateViews = new StringBuilder();
+    	//String updateViews = "UPDATE " + DramaTable + " SET eps_num_str = CASE";
+    	updateViews.append("UPDATE ").append(DramaTable).append(" SET eps_num_str = CASE");
         for(int i=0; i<dramas.size(); i++)
-        	updateViews = updateViews + " WHEN id = " + dramas.get(i).getId() + " THEN '" + dramas.get(i).getEps() + "' ";
-        updateViews = updateViews + "END ;";
+        	updateViews.append(" WHEN id = ").append(dramas.get(i).getId()).append(" THEN '").append(dramas.get(i).getEps()).append("' ");
+        	//updateViews = updateViews + " WHEN id = " + dramas.get(i).getId() + " THEN '" + dramas.get(i).getEps() + "' ";
+        updateViews.append("END ;");
+        //updateViews = updateViews + "END ;";
         	
     	openDataBase();
-    	Cursor cursor = db.rawQuery(updateViews, null);
+    	Cursor cursor = db.rawQuery(updateViews.toString(), null);
     	cursor.moveToFirst();
         cursor.close();
     }

@@ -19,6 +19,7 @@ public class DramaGridAdapter extends BaseAdapter{
 	private ArrayList<Drama> dramas;
 	private Context mContext;
 	private ImageLoader imageLoader;
+	private LayoutInflater myInflater;
 	
 	private int width;
 	private int height;
@@ -34,6 +35,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		width = 80;
 		height = 120;
 		imageLoader=new ImageLoader(mContext, width);
+		myInflater = LayoutInflater.from(mContext);
 	}
 	
 	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, int width, int height){
@@ -42,6 +44,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		this.width = width;
 		this.height = height;
 		imageLoader=new ImageLoader(mContext, width);
+		myInflater = LayoutInflater.from(mContext);
 	}
 	
 	public int getCount() {
@@ -62,7 +65,6 @@ public class DramaGridAdapter extends BaseAdapter{
 		if (convertView != null) {
 			itemView = (ItemView) convertView.getTag();
 		} else {
-			LayoutInflater myInflater = LayoutInflater.from(mContext);
 			convertView = myInflater.inflate(R.layout.gridview_drama_item, null);
 			itemView.poster = (ImageView)convertView.findViewById(R.id.drama_poster);
 			itemView.name = (TextView)convertView.findViewById(R.id.drama_name);
@@ -79,21 +81,6 @@ public class DramaGridAdapter extends BaseAdapter{
 		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), itemView.poster);
 		
 		return convertView;
-		/*LayoutInflater myInflater = LayoutInflater.from(mContext);
-		View converView = myInflater.inflate(R.layout.gridview_drama_item, null);
-		
-		ImageView poster = (ImageView)converView.findViewById(R.id.drama_poster);
-		poster.setScaleType(ImageView.ScaleType.FIT_CENTER);
-		TextView name = (TextView)converView.findViewById(R.id.drama_name);
-		TextView view = (TextView)converView.findViewById(R.id.drama_view);
-		poster.getLayoutParams().height = height;
-		poster.getLayoutParams().width = width;
-		
-		name.setText(dramas.get(position).getChineseName());
-		view.setText("播放次數 : " + dramas.get(position).getViews());
-		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), poster, width);
-		
-		return converView;*/
 	}
 
 }
