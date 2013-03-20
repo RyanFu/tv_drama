@@ -65,7 +65,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	private int chapterNo = 0;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
-	private Boolean developerMode = true;
+	private Boolean developerMode = false;
 	private static String TAG = "DramaSectionActivity";
 	
     @Override
@@ -438,7 +438,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             progressdialogInit.setMessage("Loading…");
             progressdialogInit.setOnCancelListener(cancelListener);
             progressdialogInit.setCanceledOnTouchOutside(false);
-            progressdialogInit.show();
+            if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+        			&& progressdialogInit != null && !progressdialogInit.isShowing())
+        		progressdialogInit.show();
             
             Log.d(TAG, "load data onPreExecute");
             
