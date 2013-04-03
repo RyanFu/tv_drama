@@ -484,13 +484,11 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	            adWhirlLayout.handler.post(new ViewAdRunnable(adWhirlLayout, hodoADview));
 	            adWhirlLayout.rotateThreadedDelayed();
             }
-            @Override
             public void onFailed(String msg) {
                 //失敗取得banner
                 Log.d("hodo", "onFailed :" +msg);
                 adWhirlLayout.rollover();
             }
-            @Override
             public void onBannerChange(){
                 //banner 切換
                 Log.d("hodo", "onBannerChange");
