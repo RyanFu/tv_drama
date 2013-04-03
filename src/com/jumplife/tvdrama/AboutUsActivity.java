@@ -63,7 +63,7 @@ public class AboutUsActivity extends Activity {
 			public void onClick(View arg0) {
 				EasyTracker.getTracker().trackEvent("關於我們", "建議回饋", "", (long)0);
 				Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
-				String[] ccs={"abooyaya@gmail.com, chunyuko85@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
+				String[] ccs={"abooyaya@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
 				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
 				it.putExtra(Intent.EXTRA_CC, ccs); 
 				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋"); 

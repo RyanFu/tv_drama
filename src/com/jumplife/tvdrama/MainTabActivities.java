@@ -3,12 +3,14 @@ package com.jumplife.tvdrama;
 import java.util.HashMap;
 
 
-
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
+import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.hodo.HodoADView;
+import com.hodo.listener.HodoADListener;
 import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
@@ -52,6 +54,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	private int openCount;
 	private int version;
 	private LoadPromoteTask loadPromoteTask;
+	private AdWhirlLayout adWhirlLayout;
 	
 	public static String TAG = "MainTabActivities";
 	
@@ -80,6 +83,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		sharepre = new SharePreferenceIO(MainTabActivities.this);
         openCount = sharepre.SharePreferenceO("opencount", 0);
         version = sharepre.SharePreferenceO("version", 0);
+        
+        AdTask adTask = new AdTask();
+    	adTask.execute();
+        
         loadPromoteTask = new LoadPromoteTask();
     	if(openCount > 5) {
         	loadPromoteTask.execute();
@@ -89,9 +96,6 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     	sharepre.SharePreferenceI("opencount", openCount);
     	long endTime = System.currentTimeMillis();
     	Log.e(TAG, "sample method took %%%%%%%%%%%%%%%%%%%%%%%%%%%%"+(endTime-startTime)+"ms");
-    	
-    	AdTask adTask = new AdTask();
-    	adTask.execute();
     	
     	setTabClickLog();
     	
@@ -104,29 +108,17 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     	
     	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
     	
-    	AdWhirlManager.setConfigExpireTimeout(1000 * 60); 
-        //AdWhirlTargeting.setAge(23);
-        //AdWhirlTargeting.setGender(AdWhirlTargeting.Gender.MALE);
-        //AdWhirlTargeting.setKeywords("online games gaming");
-        //AdWhirlTargeting.setPostalCode("94123");
+    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+
         AdWhirlTargeting.setTestMode(false);
    		
-        AdWhirlLayout adwhirlLayout = new AdWhirlLayout(this, adwhirlKey);	
+        adWhirlLayout = new AdWhirlLayout(this, adwhirlKey);	
         
-    	adwhirlLayout.setAdWhirlInterface(this);
+        adWhirlLayout.setAdWhirlInterface(this);
     	
-    	adwhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-    	//adwhirlLayout.setLayoutParams();
-    	
-    	/*TextView ta  = (TextView) findViewById(R.layout.text_view);
-       LayoutParams lp = new LayoutParams();
-       lp.gravity= Gravity.CENTER_HORIZONTAL; 
-       ta.setLayoutParams(lp);
-    	 * 
-    	 */
-
+        adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 	 	
-    	adLayout.addView(adwhirlLayout);
+    	adLayout.addView(adWhirlLayout);
     	
 
     }
@@ -155,6 +147,38 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 				Log.i("AdOn", "OnFailesToReceviekuAd");
 			}
 			});
+    }
+    
+    public void showHodoAd() {
+    	Resources res = getResources();
+    	String hodoKey = res.getString(R.string.hodo_key);
+    	Log.d("hodo", "showHodoAd");
+    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+		final HodoADView hodoADview = new HodoADView(this);
+        hodoADview.reruestAD(hodoKey);
+        //關掉自動輪撥功能,交由adWhirl輪撥
+        hodoADview.setAutoRefresh(false);
+        
+        hodoADview.setListener(new HodoADListener() {
+            public void onGetBanner() {
+                //成功取得banner
+            	Log.d("hodo", "onGetBanner");
+		        adWhirlLayout.adWhirlManager.resetRollover();
+	            adWhirlLayout.handler.post(new ViewAdRunnable(adWhirlLayout, hodoADview));
+	            adWhirlLayout.rotateThreadedDelayed();
+            }
+            @Override
+            public void onFailed(String msg) {
+                //失敗取得banner
+                Log.d("hodo", "onFailed :" +msg);
+                adWhirlLayout.rollover();
+            }
+            @Override
+            public void onBannerChange(){
+                //banner 切換
+                Log.d("hodo", "onBannerChange");
+            }
+        });
     }
     
     public void setTabClickLog() {

@@ -28,7 +28,10 @@ import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
+import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.hodo.HodoADView;
+import com.hodo.listener.HodoADListener;
 import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
@@ -60,6 +63,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	private String[] chapters;
 	private String[] likeDramas;
 	private boolean likeDrama = false;
+	private AdWhirlLayout adWhirlLayout;
 	
 	private Drama drama;
 	private int dramaId = 0;
@@ -72,14 +76,13 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drama_info_chapter);
         initView();
+        AdTask adTask = new AdTask();
+    	adTask.execute();
         taskLoad = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
         	taskLoad.execute();
         else
         	taskLoad.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-        
-        AdTask adTask = new AdTask();
-    	adTask.execute();
     }
 	
 	@Override
@@ -130,35 +133,22 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	}
 	
 	public void setAd() {
-    	
-    	Resources res = getResources();
+		Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
     	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
     	
-    	AdWhirlManager.setConfigExpireTimeout(1000 * 60); 
-        //AdWhirlTargeting.setAge(23);
-        //AdWhirlTargeting.setGender(AdWhirlTargeting.Gender.MALE);
-        //AdWhirlTargeting.setKeywords("online games gaming");
-        //AdWhirlTargeting.setPostalCode("94123");
+    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+
         AdWhirlTargeting.setTestMode(false);
    		
-        AdWhirlLayout adwhirlLayout = new AdWhirlLayout(this, adwhirlKey);	
+        adWhirlLayout = new AdWhirlLayout(this, adwhirlKey);	
         
-    	adwhirlLayout.setAdWhirlInterface(this);
+        adWhirlLayout.setAdWhirlInterface(this);
     	
-    	adwhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-    	//adwhirlLayout.setLayoutParams();
-    	
-    	/*TextView ta  = (TextView) findViewById(R.layout.text_view);
-       LayoutParams lp = new LayoutParams();
-       lp.gravity= Gravity.CENTER_HORIZONTAL; 
-       ta.setLayoutParams(lp);
-    	 * 
-    	 */
-
+        adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 	 	
-    	adLayout.addView(adwhirlLayout);
+    	adLayout.addView(adWhirlLayout);
    
     }
     
@@ -474,6 +464,38 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         	super.onPostExecute(result);  
         }  
           
+    }
+	
+	public void showHodoAd() {
+    	Resources res = getResources();
+    	String hodoKey = res.getString(R.string.hodo_key);
+    	Log.d("hodo", "showHodoAd");
+    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+		final HodoADView hodoADview = new HodoADView(this);
+        hodoADview.reruestAD(hodoKey);
+        //關掉自動輪撥功能,交由adWhirl輪撥
+        hodoADview.setAutoRefresh(false);
+        
+        hodoADview.setListener(new HodoADListener() {
+            public void onGetBanner() {
+                //成功取得banner
+            	Log.d("hodo", "onGetBanner");
+		        adWhirlLayout.adWhirlManager.resetRollover();
+	            adWhirlLayout.handler.post(new ViewAdRunnable(adWhirlLayout, hodoADview));
+	            adWhirlLayout.rotateThreadedDelayed();
+            }
+            @Override
+            public void onFailed(String msg) {
+                //失敗取得banner
+                Log.d("hodo", "onFailed :" +msg);
+                adWhirlLayout.rollover();
+            }
+            @Override
+            public void onBannerChange(){
+                //banner 切換
+                Log.d("hodo", "onBannerChange");
+            }
+        });
     }
 
 	class AdTask extends AsyncTask<Integer, Integer, String> {
