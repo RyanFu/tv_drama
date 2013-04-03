@@ -47,7 +47,7 @@ public class DramaAPI {
 	private boolean doOutput;
 	
 	public static final String TAG = "DRAMA_API";
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	
 	public DramaAPI(String urlAddress, int connectionTimeout, int readTimeout) {
 		this.urlAddress = new String(urlAddress + "/");
