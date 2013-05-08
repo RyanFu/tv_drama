@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:background="@color/background" >
+    <ProgressBar android:id="@+id/pb_about_us"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+    
+    <ScrollView 
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:layout_alignParentTop="true" 
+        android:layout_above="@+id/ad_layout">
+        
+        <LinearLayout android:id="@+id/ll_aboutus" 
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:gravity="center"
+            android:orientation="vertical" >
+            </LinearLayout>
+        </ScrollView>
+        
+    <RelativeLayout
+        android:id="@+id/ad_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background"
+        android:gravity="center_horizontal" 
+        android:layout_gravity="center_horizontal"/>    
+    
+</RelativeLayout>
+
+<!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
@@ -232,4 +266,4 @@
                 android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</LinearLayout> -->

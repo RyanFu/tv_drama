@@ -7,6 +7,11 @@
     <color name="my_favorite_text_color">#9e9e9e</color>
     <color name="textcolor_grey">#f1f1f1</color>
     
+    <!-- selector -->
+    <color name="selector_press">#d4d4d4</color>
+    <color name="selector_scroll_bg">#efefef</color>
+    <color name="selector_seperator">#959595</color>
+    
     <!-- Add for Report -->
     <color name="report_press">#606060</color>
     <color name="report_normal">#562104</color>
@@ -25,6 +30,12 @@
     <color name="grid_item_round">#f4f4f4</color>
     <color name="grid_item_orange">#ff8929</color>
     
+    <!-- Add for ReNew Eps Button -->
+    <color name="button_renew_eps_normal_start">#3f3f3f</color>
+    <color name="button_renew_eps_normal_end">#444444</color>
+    <color name="button_renew_eps_press_start">#5a5a5a</color>
+    <color name="button_renew_eps_press_end">#3a3a3a</color>
+    
     <!-- Add for Channel Button -->
     <color name="channel_button_text_normal">#b8b8b8</color>
     <color name="channel_button_text_press">#fe5f0a</color>
@@ -41,8 +52,8 @@
     <color name="tab_bg_seperate">#a3a3a3</color>
     
     <color name="background">#0a0a0a</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="black">#ff000000</color>
     <color name="transparent100">#00000000</color>
     <color name="transparent80">#33000000</color>
     <color name="transparent50">#88000000</color>

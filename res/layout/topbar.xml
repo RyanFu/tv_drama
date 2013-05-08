@@ -9,18 +9,20 @@
 	   android:layout_width="fill_parent" 
        android:layout_height="40dp" 
        android:background="@drawable/topbar_bg"
+       android:gravity="left"
        >
        
        <ImageView android:id="@+id/app_img"
            android:layout_width="30dp"
            android:layout_height="30dp"
-           android:layout_toLeftOf="@+id/topbar_text"
+           android:layout_alignParentLeft="true"
            android:layout_margin="5dp"
            android:src="@drawable/tv" />
        <TextView android:id="@+id/topbar_text"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/app_img"
+           android:layout_centerVertical="true"
            android:textSize="20dp"
            android:textStyle="bold"
            android:textColor="@color/white"

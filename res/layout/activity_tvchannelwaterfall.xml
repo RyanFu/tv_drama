@@ -6,10 +6,26 @@
     <RelativeLayout android:id="@+id/waterfall_linear_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
+        <include android:id="@+id/topbar" layout="@layout/topbar" 
+            android:layout_alignParentTop="true"/>
+        <Button
+            android:id="@+id/button_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/topbar"
+            android:layout_alignBottom="@+id/topbar"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button_background"
+            android:text="" />
+        <View 
+	        android:layout_width="fill_parent"
+	        android:layout_height="2dp"
+	        android:layout_alignBottom="@+id/button_select"
+	        android:background="@color/main_color_orange_light" />
         <LinearLayout android:id="@+id/ll_drama_button"
 	        android:layout_width="fill_parent"
 	        android:layout_height="40dp"
-	        android:layout_alignParentTop="true"
+	        android:layout_below="@+id/topbar"
 	        android:background="@drawable/tabackground"
 	        android:orientation="horizontal"
 	        android:weightSum="1.0" >

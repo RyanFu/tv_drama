@@ -359,13 +359,14 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         openDataBase();
         ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         Cursor cursor = null;
-        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
+        cursor = db.rawQuery("SELECT id, name, poster_url, views, release_date FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
         while (cursor.moveToNext()) {
             Drama drama = new Drama();
             drama.setId(cursor.getInt(0));
             drama.setChineseName(cursor.getString(1));
             drama.setPosterUrl(cursor.getString(2));
             drama.setViews(cursor.getInt(3));
+            drama.setReleaseDate(cursor.getString(4));
             drama_lst.add(drama);
         }
 

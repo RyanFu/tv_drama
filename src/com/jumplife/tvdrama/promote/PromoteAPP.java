@@ -3,6 +3,8 @@ package com.jumplife.tvdrama.promote;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.jumplife.tvdrama.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -14,35 +16,38 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.jumplife.tvdrama.R;
 
 public class PromoteAPP {
 	private int[] image = new int[]{
 		R.drawable.movie_64,
 		R.drawable.movietime,
 		R.drawable.tvdrama,
-		R.drawable.tvvariety
+		R.drawable.tvvariety,
+		R.drawable.movienewsicon
 	};
 	
 	private String[] title = {
 			"《電影櫃》強力推薦",
 			"《電影時刻表》強力推薦",
 			"《電視連續劇》強力推薦",
-			"《電視綜藝》強力推薦"
+			"《電視綜藝》強力推薦",
+			"《電影窩》強力推薦"
 	};
 	
 	private String[] content = {
 			"瀏覽最多電影評價 收藏自己的電影歷程",
 			"最完整的電影電視時刻 隨時掌握電影資訊",
 			"收錄最新最完整台韓日陸連續劇",
-			"收錄最新最完整台灣及韓國綜藝節目"
+			"收錄最新最完整台灣及韓國綜藝節目",
+			"收錄最新最豐富的電影新聞、名言、影評及趣圖"
 	};
 	
 	private String[] market = {
 			"com.jumplife.moviediary",
 			"com.jumplife.movieinfo",
 			"com.jumplife.tvdrama",
-			"com.jumplife.tvvariety"
+			"com.jumplife.tvvariety",
+			"com.jumplife.movienews"
 	};
 	
 	private Activity mAcitivty;

@@ -79,7 +79,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
         
         tabHost.setCurrentTab(0);
         
-        topbarLayout.setVisibility(View.VISIBLE);		
+        topbarLayout.setVisibility(View.GONE);		
 		sharepre = new SharePreferenceIO(MainTabActivities.this);
         openCount = sharepre.SharePreferenceO("opencount", 0);
         version = sharepre.SharePreferenceO("version", 0);
@@ -184,15 +184,19 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 			public void onTabChanged(String tabId) {
 				if(tabId.equalsIgnoreCase("tab1")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "連續劇", (long)0);
+					topbarLayout.setVisibility(View.GONE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab2")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "我的收藏", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab3")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "戲劇搜尋", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab4")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "關於我們", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 			}
 		});
@@ -244,7 +248,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		// Create an Intent to launch an Activity for the tab (to be reused)
 		// Initialize a TabSpec for each tab and add it to the TabHost
         //Intent intentTvChannel = new Intent().setClass(this, TvChannelWaterFallActivity.class);
-		Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
+		Bundle extras = getIntent().getExtras();
+        Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
+        intentTvChannel.putExtra("type_id", extras.getInt("type_id", 0));
+        intentTvChannel.putExtra("sort_id", extras.getInt("sort_id", 0));
         spec = tabHost.newTabSpec("tab1")
         				.setIndicator(ActivitysTab)
         				.setContent(intentTvChannel);

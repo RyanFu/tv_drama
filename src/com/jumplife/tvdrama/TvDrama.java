@@ -2,12 +2,17 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
+import static com.jumplife.tvdrama.CommonUtilities.SERVER_URL;
+import static com.jumplife.tvdrama.CommonUtilities.SENDER_ID;
+
 import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gcm.GCMRegistrar;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Drama;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
@@ -28,6 +33,9 @@ public class TvDrama extends Activity {
 	private ImageView imageviewPBar;
 	private TextView loading;
 	private AnimationDrawable animationDrawable;
+
+    private AsyncTask<Void, Void, Void> mRegisterTask;
+    
 	public static String TAG = "TvDrama";
 	
 	@SuppressWarnings("deprecation")
@@ -48,12 +56,49 @@ public class TvDrama extends Activity {
         loading.setText(getResources().getString(R.string.loading));
         imageviewPBar = (ImageView)findViewById(R.id.imageview_progressbar);
         
+        checkNotNull(SERVER_URL, "SERVER_URL");
+        checkNotNull(SENDER_ID, "SENDER_ID");
+        GCMRegistrar.checkDevice(this);
+        GCMRegistrar.checkManifest(this);
+        final String regId = GCMRegistrar.getRegistrationId(this);
+        if (regId.equals("")) {
+            GCMRegistrar.register(this, SENDER_ID);
+        } else {
+        	if (!GCMRegistrar.isRegisteredOnServer(this)) {
+                final Context context = this;
+                mRegisterTask = new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        boolean registered = ServerUtilities.register(context, regId);
+                        if (!registered) {
+                            GCMRegistrar.unregister(context);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        mRegisterTask = null;
+                    }
+
+                };
+                mRegisterTask.execute(null, null, null);
+            }
+        }
+
         taskLoad = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
         	taskLoad.execute();
         else
         	taskLoad.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
     }
+	
+	private void checkNotNull(Object reference, String name) {
+        if (reference == null) {
+        	throw new NullPointerException("error");
+        }
+    }    
 	
 	@Override  
     public void onWindowFocusChanged(boolean hasFocus) {  
@@ -98,7 +143,15 @@ public class TvDrama extends Activity {
 	}
 	
 	private void setData(){
-		Intent newAct = new Intent();
+		Bundle extras = getIntent().getExtras();
+        Intent newAct = new Intent();
+        if(extras != null) {
+        	newAct.putExtra("type_id", extras.getInt("type_id", 0));
+        	newAct.putExtra("sort_id", extras.getInt("sort_id", 0));
+        } else {
+        	newAct.putExtra("type_id", 0);
+        	newAct.putExtra("sort_id", 0);
+        }
 		newAct.setClass( TvDrama.this, MainTabActivities.class );
 		startActivity(newAct);
     	finish();
