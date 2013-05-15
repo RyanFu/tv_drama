@@ -87,6 +87,9 @@ public class TvChannelViewPagerActivity extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		currIndex = extras.getInt("type_id", 0);
+		if(currIndex > listnumber)
+			currIndex = 0;
+		
 		functionFlag = extras.getInt("sort_id", 0);
 		
         initViews();
@@ -102,7 +105,7 @@ public class TvChannelViewPagerActivity extends Activity {
 		tvSelect = (TextView)findViewById(R.id.tv_select);
 		//Drawable icon = getResources().getDrawable(R.drawable.check);
 		
-    	ActionItem firstItem = new ActionItem(FLAG_HOT, "依撥放次數");
+    	ActionItem firstItem = new ActionItem(FLAG_HOT, "依播放次數");
         ActionItem secondItem = new ActionItem(FLAG_NEW, "依上架時間");
         ActionItem thisweekItem = new ActionItem(FLAG_2013, "2013年");
         ActionItem recentItem = new ActionItem(FLAG_2012, "2012年");
@@ -266,13 +269,16 @@ public class TvChannelViewPagerActivity extends Activity {
 	        case FLAG_BEFORE:
 	        	dramaLists = beforeDramaLists;
 	        	break;
+	        default:
+	        	dramaLists = hotDramaLists;
+	        	break;
     	}
     }
     
     private void setActionText(int flag) {
     	switch(flag) {
 	        case FLAG_HOT:
-	        	tvSelect.setText("依撥放次數");
+	        	tvSelect.setText("依播放次數");
 	        	functionFlag = FLAG_HOT;
 	        	break;
 	        case FLAG_NEW:

@@ -52,7 +52,6 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_myfavoritewaterfall);
         
         initViews();        

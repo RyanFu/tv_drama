@@ -33,13 +33,16 @@ import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Drama;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 public class DramaInfoChapterActivity extends Activity implements AdWhirlInterface{
 
@@ -58,7 +61,8 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     //private ArrayList<Chapter> chapters;
 	private LoadDataTask taskLoad;
 	private RefreshDataTask refreshTaskLoad;
-	private ImageLoader imageLoader;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 	private SharePreferenceIO shIO;
 	private int tabFlag = 1;
 	private int chapterCount = 0;
@@ -79,6 +83,17 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drama_info_chapter);
+        
+        options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
+        
         initView();
         AdTask adTask = new AdTask();
     	adTask.execute();
@@ -98,7 +113,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	@Override
     public void onPause() {
       super.onPause();
-      imageLoader.clearCache();
+      //imageLoader.clearCache();
     }
 	
     @Override
@@ -116,7 +131,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		
 		DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		imageLoader = new ImageLoader(this, displayMetrics.widthPixels);
+		//imageLoader = new ImageLoader(this, displayMetrics.widthPixels);
 		topbar_text = (TextView)findViewById(R.id.topbar_text);
         poster = (ImageView)findViewById(R.id.imageview_daramaposter);
         like = (ImageView)findViewById(R.id.like);
@@ -194,7 +209,8 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	
 	private String fetchData(){
 		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
-		sqlTvDrama.getDramaChapterRecord(dramaId);
+		
+		Log.d(null, "drama id : " + dramaId);
 		
 		drama = new Drama();
         drama = sqlTvDrama.getDrama(dramaId);
@@ -210,23 +226,22 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		return "progress end";
 	}
 	
-	private String reNewData(){
-		DramaAPI dramaAPI = new DramaAPI();
-		dramaAPI.updateDramasStrs(dramaId);
+	private String reNewData(){		
+		DramaAPI dramaAPI = new DramaAPI(this);
+		String eps = dramaAPI.getDramaEps(dramaId);
 		
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
-		sqlTvDrama.getDramaChapterRecord(dramaId);
+		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);		
 		
-		drama = new Drama();
-        drama = sqlTvDrama.getDrama(dramaId);
-        String tmp = sqlTvDrama.getDramaChapter(dramaId);
-        currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);
-        if(tmp != null && !tmp.equals("")) {
-        	chapters = tmp.split(",");
+		currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);
+        if(eps != null && !eps.equals("")) {
+        	chapters = eps.split(",");
         	chapterCount = chapters.length;
+        	drama.setEps(eps);    		
+        	sqlTvDrama.updateDramaEps(dramaId, eps);
         }
         
         SQLiteTvDrama.closeDB();
+        
         
 		return "progress end";
 	}
@@ -290,7 +305,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		topbar_text.setText(drama.getChineseName());
         textviewDramaContent.setText(drama.getIntroduction());       
         
-        imageLoader.DisplayImage(drama.getPosterUrl(), poster);
+        imageLoader.displayImage(drama.getPosterUrl(), poster, options);
         
         setOnClickListener();
         setFakeTabView();

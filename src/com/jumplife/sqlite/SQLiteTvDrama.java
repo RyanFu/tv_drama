@@ -22,7 +22,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
     private static final String   DramaTable          = "dramas";
     private static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
     private static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
-    private static final int      DATABASE_VERSION    = 5;                                          // 資料庫版本
+    private static final int      DATABASE_VERSION    = 6;                                          // 資料庫版本
     private static SQLiteDatabase db;
     private static String DB_PATH_DATA;
 
@@ -242,6 +242,15 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
     	openDataBase();
     	Cursor cursor = db.rawQuery(updateViews.toString(), null);
     	cursor.moveToFirst();
+        cursor.close();
+    }
+    
+    public void updateDramaEps(int dramaId, String eps) {
+    	openDataBase();        
+        Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET eps_num_str = ? WHERE id = ?", 
+        									new String[] {eps + "", dramaId + ""});
+        
+        cursor.moveToFirst();
         cursor.close();
     }
     

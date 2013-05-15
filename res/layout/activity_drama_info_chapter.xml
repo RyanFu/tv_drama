@@ -12,6 +12,7 @@
 	            android:layout_height="fill_parent"
 	            android:layout_alignParentTop="true"
 	            android:layout_alignParentRight="true"
+	            android:scaleType="centerCrop"
 	            android:background="@drawable/love_normal"/>"
 	    </RelativeLayout>    
     <ScrollView 

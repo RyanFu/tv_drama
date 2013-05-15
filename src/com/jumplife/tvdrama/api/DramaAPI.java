@@ -303,28 +303,24 @@ public class DramaAPI {
 		}
 	}
 	
-	public void updateDramasStrs(int id) {
+	public String getDramaEps(int id) {
 		String message = getMessageFromServer("GET", "api/v1/dramas/new_dramas_info.json?dramas_id=" + id, null);
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(mActivity);
+		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(mActivity);
 		
 		if(message != null) {
 			try {
 				JSONArray dramaArray;		
 				dramaArray = new JSONArray(message.toString());
-				ArrayList<Drama> dramas = new ArrayList<Drama>();
-				for (int i = 0; i < dramaArray.length() ; i++) {
-					JSONObject dramaJson = dramaArray.getJSONObject(i);
-					Drama drama = DramaJsonToClass(dramaJson);
-					dramas.add(drama);
-				}
-				if(dramas != null && dramas.size() > 0) {
-					Log.d(TAG, "Update Drama Eps");
-					sqlTvDrama.updateDramaEps(dramas);
-				}
+				JSONObject dramaJson = dramaArray.getJSONObject(0);
+				Drama drama = DramaJsonToClass(dramaJson);
+				return drama.getEps();
 			} catch (JSONException e) {
 				e.printStackTrace();
+				return null;
 			}
 		}
+		
+		return null;
 	}
 	
 	public String getMessageFromServer(String requestMethod, String apiPath, JSONObject json) {
@@ -743,6 +739,23 @@ public class DramaAPI {
 			}
 		}
 		return history;
+	}
+	
+	public void getVersionCode(int[] mVersionCode, String[] msg){
+		String message = getMessageFromServer("GET", "api/version_check.json", null);
+		if(message == null) {
+			return;
+		}
+		else {			
+			try {
+				JSONObject jsonObject =  new JSONObject(message.toString());
+				mVersionCode[0] = jsonObject.getInt("version_code");
+				msg[0] = jsonObject.getString("message");		
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
 	
 	public String getUrlAddress() {

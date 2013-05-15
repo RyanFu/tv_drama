@@ -12,9 +12,14 @@ import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Drama;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.AnimationDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +34,7 @@ import android.widget.TextView;
 public class TvDrama extends Activity {
 
 	private LoadDataTask taskLoad;
+	private CheckVersionTask taskVersion;
 	private RelativeLayout rlLoading;
 	private ImageView imageviewPBar;
 	private TextView loading;
@@ -53,7 +59,7 @@ public class TvDrama extends Activity {
         rlLoading.setLayoutParams(lp);
         
         loading = (TextView)findViewById(R.id.textview_load);
-        loading.setText(getResources().getString(R.string.loading));
+        loading.setText("檢查版本中");
         imageviewPBar = (ImageView)findViewById(R.id.imageview_progressbar);
         
         checkNotNull(SERVER_URL, "SERVER_URL");
@@ -87,11 +93,11 @@ public class TvDrama extends Activity {
             }
         }
 
-        taskLoad = new LoadDataTask();
+        taskVersion = new CheckVersionTask();
         if(Build.VERSION.SDK_INT < 11)
-        	taskLoad.execute();
+        	taskVersion.execute();
         else
-        	taskLoad.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+        	taskVersion.executeOnExecutor(CheckVersionTask.THREAD_POOL_EXECUTOR, 0);
     }
 	
 	private void checkNotNull(Object reference, String name) {
@@ -157,6 +163,80 @@ public class TvDrama extends Activity {
     	finish();
 	}
 	
+	class CheckVersionTask extends AsyncTask<Integer, Integer, String>{  
+        
+		int[] mVersionCode = new int[]{-1};
+		String[] message = new String[]{""};
+		
+        @Override  
+        protected void onPreExecute() {
+        	super.onPreExecute();  
+        }  
+          
+        @Override  
+        protected String doInBackground(Integer... params) {
+        	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        	DramaAPI api = new DramaAPI();
+        	Log.d("", "version code " + mVersionCode[0]);
+        	api.getVersionCode(mVersionCode, message);
+        	Log.d("", "version code " + mVersionCode[0]);
+            return "progress end";
+        }  
+ 
+
+		@Override  
+        protected void onProgressUpdate(Integer... progress) {    
+            super.onProgressUpdate(progress);  
+        }  
+  
+        @Override  
+        protected void onPostExecute(String result) {
+        	PackageInfo packageInfo = null;
+        	int tmpVersionCode = -1;
+			try {
+				packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			} catch (NameNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(packageInfo != null)
+				tmpVersionCode = packageInfo.versionCode;
+			
+			if(tmpVersionCode > -1 && tmpVersionCode < mVersionCode[0]) {
+	        	new AlertDialog.Builder(TvDrama.this).setTitle("已有新版電視連續劇")
+	    		.setMessage(message[0])
+	            .setPositiveButton("前往更新", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	startActivity(new Intent(Intent.ACTION_VIEW, 
+	    			    		Uri.parse("market://details?id=com.jumplife.tvdrama")));
+	                	TvDrama.this.finish();
+	                }
+	            })
+	            .setNegativeButton("下次再說", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                    loading.setText(getResources().getString(R.string.loading));
+	                	taskLoad = new LoadDataTask();
+	                    if(Build.VERSION.SDK_INT < 11)
+	                    	taskLoad.execute();
+	                    else
+	                    	taskLoad.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+	                }
+	            })
+	            .show();
+		        super.onPostExecute(result);
+			} else {
+		        loading.setText(getResources().getString(R.string.loading));
+				taskLoad = new LoadDataTask();
+		        if(Build.VERSION.SDK_INT < 11)
+		        	taskLoad.execute();
+		        else
+		        	taskLoad.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+			}
+				
+        }  
+          
+    }
+
 	class LoadDataTask extends AsyncTask<Integer, Integer, String>{  
         
         @Override  
@@ -214,5 +294,7 @@ public class TvDrama extends Activity {
     	  animationDrawable.stop();
       if (taskLoad!= null && taskLoad.getStatus() != AsyncTask.Status.FINISHED)
 			taskLoad.cancel(true);
+      if (taskVersion!= null && taskVersion.getStatus() != AsyncTask.Status.FINISHED)
+    	  taskVersion.cancel(true);
     }
 }

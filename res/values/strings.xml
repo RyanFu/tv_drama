@@ -32,10 +32,12 @@
     <string name="movie_timetable">Movie Timetable</string>
     <string name="tv_entertainment">TV Entertainment</string>
     <string name="notification_switch">Notification</string>
-    <string name="diary">Update Diary</string>
+    <string name="diary">Update Diary</string>    
+    <string name="clear">Clear Buffer</string>
     <string name="chapter_listing">Chapter Listing</string>
     <string name="drama_introduction">Drama Introduction</string>
     <string name="renew_eps">Update EPS</string>
+    <string name="clear_finish">Clear Finish</string>
     
     <string name="open">open</string>
     <string name="close">close</string>

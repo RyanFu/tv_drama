@@ -109,18 +109,22 @@ public class SearchDramaActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-        	PromoteAPP promoteAPP = new PromoteAPP(SearchDramaActivity.this);
-        	if(!promoteAPP.isPromote) {
-	        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
-	            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
-	                // do something when the button is clicked
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	SearchDramaActivity.this.finish();
-	                }
-	            }).setNegativeButton(getResources().getString(R.string.cancel), null)
-	            .show();
-		    } else
-		    	promoteAPP.promoteAPPExe();
+        	if(!edittextSearch.getText().toString().equals(""))
+        		edittextSearch.setText("");
+        	else {
+	        	PromoteAPP promoteAPP = new PromoteAPP(SearchDramaActivity.this);
+	        	if(!promoteAPP.isPromote) {
+		        	new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.leave_app))
+		            .setPositiveButton(getResources().getString(R.string.leave), new DialogInterface.OnClickListener() {
+		                // do something when the button is clicked
+		                public void onClick(DialogInterface arg0, int arg1) {
+		                	SearchDramaActivity.this.finish();
+		                }
+		            }).setNegativeButton(getResources().getString(R.string.cancel), null)
+		            .show();
+			    } else
+			    	promoteAPP.promoteAPPExe();
+        	}
 
             return true;
         } else

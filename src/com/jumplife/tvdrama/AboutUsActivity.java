@@ -3,11 +3,15 @@ package com.jumplife.tvdrama;
 import java.util.ArrayList;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.promote.PromoteAPP;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -22,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +37,7 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.Toast;
 
 public class AboutUsActivity extends Activity {
 	
@@ -47,7 +53,8 @@ public class AboutUsActivity extends Activity {
 	private LinearLayout llAboutUs;
 	private ProgressBar pbInit;
 	private ArrayList<AppProject> appProject;
-	private ImageLoader imageLoader;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
     private SharePreferenceIO  shIO;
     private String updateDiary = "";
 	
@@ -63,6 +70,16 @@ public class AboutUsActivity extends Activity {
 		setContentView(R.layout.activity_aboutme);
 		
 		mActivity = this;
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
 		
 		initView();
         loadtask = new LoadDataTask();
@@ -95,7 +112,7 @@ public class AboutUsActivity extends Activity {
 		llMovietime = (LinearLayout)findViewById(R.id.ll_movietime);
 		llTvVariety = (LinearLayout)findViewById(R.id.ll_tvvariety);*/
         shIO = new SharePreferenceIO(this);
-		imageLoader = new ImageLoader(mActivity);
+		//imageLoader = new ImageLoader(mActivity);
 		
 		pbInit = (ProgressBar)findViewById(R.id.pb_about_us);
 		llAboutUs = (LinearLayout)findViewById(R.id.ll_aboutus);
@@ -106,6 +123,7 @@ public class AboutUsActivity extends Activity {
 	private void initBasicView() {
 		TableRow Schedule_row_first = new TableRow(mActivity);
 		TableRow Schedule_row_second = new TableRow(mActivity);
+		TableRow Schedule_row_third = new TableRow(mActivity);
 		
 
         
@@ -113,13 +131,13 @@ public class AboutUsActivity extends Activity {
 		mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels / 3;
 		TableRow.LayoutParams Params = new TableRow.LayoutParams
-				(screenWidth, screenWidth * 5 / 6, 0.33f);				
+				(screenWidth, LayoutParams.MATCH_PARENT, 0.33f);				
 		mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels / 6;
-        RelativeLayout.LayoutParams rlIvParams = new RelativeLayout.LayoutParams(width, width);
-        rlIvParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        rlIvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlIvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        LinearLayout.LayoutParams llIvParams = new LinearLayout.LayoutParams(width, width);
+        //rlIvParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        //rlIvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llIvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));				
@@ -127,29 +145,31 @@ public class AboutUsActivity extends Activity {
 		
 		TextView tvFeed = new TextView(mActivity);
 		ImageView ivFeed = new ImageView(mActivity);
-		RelativeLayout rlFeed = new RelativeLayout(mActivity);		
+		LinearLayout llFeed = new LinearLayout(mActivity);		
 			
 		ivFeed.setScaleType(ImageView.ScaleType.CENTER_CROP);
         ivFeed.setImageResource(R.drawable.feedback);
-        rlFeed.addView(ivFeed, rlIvParams);
+        llFeed.addView(ivFeed, llIvParams);
 		
-		RelativeLayout.LayoutParams rlTvFeedParams = new RelativeLayout.LayoutParams
+        LinearLayout.LayoutParams llTvFeedParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		rlTvFeedParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		rlTvFeedParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		rlTvFeedParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+		//rlTvFeedParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		//rlTvFeedParams.addRule(RelativeLayout.BELOW, ivFeed.getId());
+		//rlTvFeedParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		llTvFeedParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
 		tvFeed.setText(mActivity.getResources().getString(R.string.advice_and_feedback));
 		tvFeed.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
 		//tvFeed.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-		rlFeed.addView(tvFeed, rlTvFeedParams);		
+		llFeed.addView(tvFeed, llTvFeedParams);		
 		
-		rlFeed.setBackgroundResource(R.drawable.button_aboutus_bg);
-		
-		rlFeed.setLayoutParams(Params);
-		rlFeed.setOnClickListener(new OnClickListener(){
+		llFeed.setBackgroundResource(R.drawable.button_aboutus_bg);
+		llFeed.setOrientation(LinearLayout.VERTICAL);
+		llFeed.setGravity(Gravity.CENTER_HORIZONTAL);
+		llFeed.setLayoutParams(Params);
+		llFeed.setOnClickListener(new OnClickListener(){
 			public void onClick(View arg0) {
 				//EasyTracker.getTracker().sendEvent("關於我們", "點擊", "建議回饋", (long)0);
 				Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
@@ -160,35 +180,38 @@ public class AboutUsActivity extends Activity {
 				startActivity(it);  
 			}			
 		});
-		Schedule_row_first.addView(rlFeed);
+		Schedule_row_first.addView(llFeed);
 		
 		
 		
 		
 		TextView tvDeclare = new TextView(mActivity);
 		ImageView ivDeclare = new ImageView(mActivity);
-		RelativeLayout rlDeclare = new RelativeLayout(mActivity);		
+		LinearLayout llDeclare = new LinearLayout(mActivity);		
 			
 		ivDeclare.setScaleType(ImageView.ScaleType.CENTER_CROP);
         ivDeclare.setImageResource(R.drawable.declare);
-        rlDeclare.addView(ivDeclare, rlIvParams);
+        llDeclare.addView(ivDeclare, llIvParams);
 		
-		RelativeLayout.LayoutParams rlTvDeclareParams = new RelativeLayout.LayoutParams
+        LinearLayout.LayoutParams llTvDeclareParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		rlTvDeclareParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		rlTvDeclareParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		rlTvDeclareParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+		//rlTvDeclareParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		//rlTvDeclareParams.addRule(RelativeLayout.BELOW, ivDeclare.getId());
+		//rlTvDeclareParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		llTvDeclareParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
 		tvDeclare.setText(mActivity.getResources().getString(R.string.liability_disclaimer));
 		tvDeclare.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
 		//tvDeclare.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-		rlDeclare.addView(tvDeclare, rlTvDeclareParams);		
+		llDeclare.addView(tvDeclare, llTvDeclareParams);		
 		
-		rlDeclare.setBackgroundResource(R.drawable.button_aboutus_bg);		
-		rlDeclare.setLayoutParams(Params);
-		rlDeclare.setOnClickListener(new OnClickListener(){
+		llDeclare.setBackgroundResource(R.drawable.button_aboutus_bg);
+		llDeclare.setOrientation(LinearLayout.VERTICAL);
+		llDeclare.setGravity(Gravity.CENTER_HORIZONTAL);
+		llDeclare.setLayoutParams(Params);
+		llDeclare.setOnClickListener(new OnClickListener(){
 			@SuppressWarnings("deprecation")
 			public void onClick(View arg0) {
 				//EasyTracker.getTracker().sendEvent("關於我們", "點擊", "免責稱明", (long)0);
@@ -212,35 +235,38 @@ public class AboutUsActivity extends Activity {
 		        dialog.show();
 			}			
 		});
-		Schedule_row_first.addView(rlDeclare);
+		Schedule_row_first.addView(llDeclare);
 		
 		
 		
 		
 		TextView tvFacebook = new TextView(mActivity);
 		ImageView ivFacebook = new ImageView(mActivity);
-		RelativeLayout rlFacebook = new RelativeLayout(mActivity);		
+		LinearLayout llFacebook = new LinearLayout(mActivity);		
 			
 		ivFacebook.setScaleType(ImageView.ScaleType.CENTER_CROP);
         ivFacebook.setImageResource(R.drawable.facebook);
-        rlFacebook.addView(ivFacebook, rlIvParams);
+        llFacebook.addView(ivFacebook, llIvParams);
 		
-        RelativeLayout.LayoutParams rlTvFacebookParams = new RelativeLayout.LayoutParams
+        LinearLayout.LayoutParams llTvFacebookParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        rlTvFacebookParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        rlTvFacebookParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlTvFacebookParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        //rlTvFacebookParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvFacebookParams.addRule(RelativeLayout.BELOW, ivFacebook.getId());
+        //rlTvFacebookParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvFacebookParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
 		tvFacebook.setText(mActivity.getResources().getString(R.string.facebook));
 		tvFacebook.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
 		//tvFacebook.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-		rlFacebook.addView(tvFacebook, rlTvFacebookParams);		
+		llFacebook.addView(tvFacebook, llTvFacebookParams);		
 		
-		rlFacebook.setBackgroundResource(R.drawable.button_aboutus_bg);
-		rlFacebook.setLayoutParams(Params);
-		rlFacebook.setOnClickListener(new OnClickListener(){
+		llFacebook.setBackgroundResource(R.drawable.button_aboutus_bg);
+		llFacebook.setOrientation(LinearLayout.VERTICAL);
+		llFacebook.setGravity(Gravity.CENTER_HORIZONTAL);
+		llFacebook.setLayoutParams(Params);
+		llFacebook.setOnClickListener(new OnClickListener(){
 			public void onClick(View arg0) {
 				//EasyTracker.getTracker().sendEvent("關於我們", "點擊", "FB粉絲團", (long)0);
 				Uri uri = Uri.parse("http://www.facebook.com/movietalked");
@@ -248,74 +274,41 @@ public class AboutUsActivity extends Activity {
                 startActivity(it);
 			}			
 		});
-		Schedule_row_first.addView(rlFacebook);
+		Schedule_row_first.addView(llFacebook);
 		Schedule_row_first.setLayoutParams(new LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		llAboutUs.addView(Schedule_row_first);
-
-
-		/*TextView tvClear = new TextView(mActivity);
-		ImageView ivClear = new ImageView(mActivity);
-		RelativeLayout rlClear = new RelativeLayout(mActivity);		
-			
-		ivClear.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        ivClear.setImageResource(R.drawable.delete);
-        rlClear.addView(ivClear, rlIvParams);
-		
-        RelativeLayout.LayoutParams rlTvClearParams = new RelativeLayout.LayoutParams
-				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        rlTvClearParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        rlTvClearParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlTvClearParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
-				0, 
-				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
-				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
-		tvClear.setText(mActivity.getResources().getString(R.string.clear));
-		tvClear.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
-		tvClear.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-		rlClear.addView(tvClear, rlTvClearParams);		
-		
-		rlClear.setBackgroundResource(R.drawable.about_us_item_background);
-		rlClear.setLayoutParams(Params);
-		rlClear.setOnClickListener(new OnClickListener(){
-			public void onClick(View arg0) {
-				imageLoader.clearMemoryCache();
-				imageLoader.clearDiscCache();
-				Toast toast = Toast.makeText(mActivity, 
-	            		mActivity.getResources().getString(R.string.clear_finish), Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-			}			
-		});
-		Schedule_row_second.addView(rlClear);*/
 		
 		
 		
 		
 		TextView tvNews = new TextView(mActivity);
 		ImageView ivNews= new ImageView(mActivity);
-		RelativeLayout rlNews = new RelativeLayout(mActivity);		
+		LinearLayout llNews = new LinearLayout(mActivity);		
 			
 		ivNews.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		ivNews.setImageResource(R.drawable.news);
-		rlNews.addView(ivNews, rlIvParams);
+		llNews.addView(ivNews, llIvParams);
 		
-        RelativeLayout.LayoutParams rlTvNewsParams = new RelativeLayout.LayoutParams
+		LinearLayout.LayoutParams llTvNewsParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        rlTvNewsParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        rlTvNewsParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlTvNewsParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        //rlTvNewsParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvNewsParams.addRule(RelativeLayout.BELOW, ivNews.getId());
+        //rlTvNewsParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvNewsParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
         tvNews.setText(mActivity.getResources().getString(R.string.entertainment_news));
         tvNews.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
         //tvNews.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-        rlNews.addView(tvNews, rlTvNewsParams);		
+        llNews.addView(tvNews, llTvNewsParams);		
 		
-        rlNews.setBackgroundResource(R.drawable.button_aboutus_bg);
-        rlNews.setLayoutParams(Params);
-        rlNews.setOnClickListener(new OnClickListener(){
+        llNews.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llNews.setOrientation(LinearLayout.VERTICAL);
+        llNews.setGravity(Gravity.CENTER_HORIZONTAL);
+        llNews.setLayoutParams(Params);
+        llNews.setOnClickListener(new OnClickListener(){
         	public void onClick(View arg0) {
         		EasyTracker.getTracker().trackEvent("關於我們", "影劇報", "", (long)0);
 				Intent newAct = new Intent();
@@ -323,34 +316,37 @@ public class AboutUsActivity extends Activity {
                 startActivity( newAct );
 			}				
 		});
-        Schedule_row_second.addView(rlNews);
+        Schedule_row_second.addView(llNews);
 		
         
 		
 		TextView tvNotification = new TextView(mActivity);
 		ivNotification = new ImageView(mActivity);
-		RelativeLayout rlNotification = new RelativeLayout(mActivity);		
+		LinearLayout llNotification = new LinearLayout(mActivity);		
 			
 		ivNotification.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		setNotificationDrawable();
-		rlNotification.addView(ivNotification, rlIvParams);
+		llNotification.addView(ivNotification, llIvParams);
 		
-        RelativeLayout.LayoutParams rlTvNotificationParams = new RelativeLayout.LayoutParams
+		LinearLayout.LayoutParams llTvNotificationParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        rlTvNotificationParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        rlTvNotificationParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlTvNotificationParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        //rlTvNotificationParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvNotificationParams.addRule(RelativeLayout.BELOW, ivNotification.getId());
+        //rlTvNotificationParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvNotificationParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
         tvNotification.setText(mActivity.getResources().getString(R.string.notification_switch));
         tvNotification.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
         //tvNotification.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-        rlNotification.addView(tvNotification, rlTvNotificationParams);		
+        llNotification.addView(tvNotification, llTvNotificationParams);		
 		
-        rlNotification.setBackgroundResource(R.drawable.button_aboutus_bg);
-        rlNotification.setLayoutParams(Params);
-        rlNotification.setOnClickListener(new OnClickListener(){
+        llNotification.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llNotification.setOrientation(LinearLayout.VERTICAL);
+        llNotification.setGravity(Gravity.CENTER_HORIZONTAL);
+        llNotification.setLayoutParams(Params);
+        llNotification.setOnClickListener(new OnClickListener(){
         	public void onClick(View arg0) {
         		String message;
         		boolean shareKey = true;;
@@ -376,34 +372,37 @@ public class AboutUsActivity extends Activity {
 	            .show();
 			}				
 		});
-        Schedule_row_second.addView(rlNotification);
+        Schedule_row_second.addView(llNotification);
 		
 		
 		
 		TextView tvDiary = new TextView(mActivity);
 		ImageView ivDiary= new ImageView(mActivity);
-		RelativeLayout rlDiary = new RelativeLayout(mActivity);		
+		LinearLayout llDiary = new LinearLayout(mActivity);		
 			
 		ivDiary.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		ivDiary.setImageResource(R.drawable.version);
-		rlDiary.addView(ivDiary, rlIvParams);
+		llDiary.addView(ivDiary, llIvParams);
 		
-        RelativeLayout.LayoutParams rlTvDiaryParams = new RelativeLayout.LayoutParams
+		LinearLayout.LayoutParams llTvDiaryParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        rlTvDiaryParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        rlTvDiaryParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        rlTvDiaryParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        //rlTvDiaryParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvDiaryParams.addRule(RelativeLayout.BELOW, ivDiary.getId());
+        //rlTvDiaryParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvDiaryParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
         tvDiary.setText(mActivity.getResources().getString(R.string.diary));
         tvDiary.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
         //tvDiary.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-        rlDiary.addView(tvDiary, rlTvDiaryParams);		
+        llDiary.addView(tvDiary, llTvDiaryParams);		
 		
-        rlDiary.setBackgroundResource(R.drawable.button_aboutus_bg);
-        rlDiary.setLayoutParams(Params);
-        rlDiary.setOnClickListener(new OnClickListener(){
+        llDiary.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llDiary.setOrientation(LinearLayout.VERTICAL);
+        llDiary.setGravity(Gravity.CENTER_HORIZONTAL);
+        llDiary.setLayoutParams(Params);
+        llDiary.setOnClickListener(new OnClickListener(){
         	
         	public void onClick(View arg0) {
         		diaryDataTask = new DiaryDataTask();
@@ -413,26 +412,67 @@ public class AboutUsActivity extends Activity {
                 	diaryDataTask.executeOnExecutor(DiaryDataTask.THREAD_POOL_EXECUTOR, 0);
 			}				
 		});
-        Schedule_row_second.addView(rlDiary);
-
-        
-
-		/*RelativeLayout rltmps1 = new RelativeLayout(mActivity);
-		rltmps1.setBackgroundResource(R.drawable.button_aboutus_bg);	
-		rltmps1.setLayoutParams(Params);
-		Schedule_row_second.addView(rltmps1);
-		RelativeLayout rltmps2 = new RelativeLayout(mActivity);
-		rltmps2.setBackgroundResource(R.drawable.button_aboutus_bg);	
-		rltmps2.setLayoutParams(Params);
-		Schedule_row_second.addView(rltmps2);*/
+        Schedule_row_second.addView(llDiary);
 		
 		
 		
         Schedule_row_second.setLayoutParams(new LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		llAboutUs.addView(Schedule_row_second);
+
+
+		TextView tvClear = new TextView(mActivity);
+		ImageView ivClear = new ImageView(mActivity);
+		LinearLayout llClear = new LinearLayout(mActivity);		
+			
+		ivClear.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        ivClear.setImageResource(R.drawable.delete);
+        llClear.addView(ivClear, llIvParams);
+		
+        LinearLayout.LayoutParams llTvClearParams = new LinearLayout.LayoutParams
+				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //rlTvClearParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvClearParams.addRule(RelativeLayout.BELOW, ivClear.getId());
+        //rlTvClearParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvClearParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				0, 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
+		tvClear.setText(mActivity.getResources().getString(R.string.clear));
+		tvClear.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
+		//tvClear.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
+		llClear.addView(tvClear, llTvClearParams);		
+		
+		llClear.setBackgroundResource(R.drawable.button_aboutus_bg);
+		llClear.setOrientation(LinearLayout.VERTICAL);
+		llClear.setGravity(Gravity.CENTER_HORIZONTAL);
+		llClear.setLayoutParams(Params);
+		llClear.setOnClickListener(new OnClickListener(){
+			public void onClick(View arg0) {
+				imageLoader.clearMemoryCache();
+				imageLoader.clearDiscCache();
+				Toast toast = Toast.makeText(mActivity, 
+	            		mActivity.getResources().getString(R.string.clear_finish), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+			}			
+		});
+		Schedule_row_third.addView(llClear);
+        
+
+		RelativeLayout rltmps1 = new RelativeLayout(mActivity);
+		rltmps1.setBackgroundResource(R.drawable.button_aboutus_bg);	
+		rltmps1.setLayoutParams(Params);
+		Schedule_row_third.addView(rltmps1);
+		RelativeLayout rltmps2 = new RelativeLayout(mActivity);
+		rltmps2.setBackgroundResource(R.drawable.button_aboutus_bg);	
+		rltmps2.setLayoutParams(Params);
+		Schedule_row_third.addView(rltmps2);
 		
 		
+		Schedule_row_third.setLayoutParams(new LayoutParams
+				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		llAboutUs.addView(Schedule_row_third);
 	}
 	
 	private void setNotificationDrawable() {
@@ -461,7 +501,7 @@ public class AboutUsActivity extends Activity {
 				
 				TextView tv = new TextView(mActivity);
 				ImageView iv = new ImageView(mActivity);
-				RelativeLayout rl = new RelativeLayout(mActivity);
+				LinearLayout ll = new LinearLayout(mActivity);
 				
 				if(index < appProject.size()) {
 					
@@ -469,42 +509,45 @@ public class AboutUsActivity extends Activity {
 					mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 			        int width = displayMetrics.widthPixels / 6;
 			        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			        RelativeLayout.LayoutParams rlIvParams = new RelativeLayout.LayoutParams(width, width);
-			        rlIvParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			        rlIvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			        rlIvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin),
+			        LinearLayout.LayoutParams llIvParams = new LinearLayout.LayoutParams(width, width);
+			        //rlIvParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			        //rlIvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			        llIvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin),
 			        		mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 							mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 							mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
-					rl.addView(iv, rlIvParams);
+					ll.addView(iv, llIvParams);
 			        iv.getLayoutParams().width = width;
 			        iv.getLayoutParams().height = width;
-			        imageLoader.DisplayImage(appProject.get(index).getIconUrl(), iv);
+			        imageLoader.displayImage(appProject.get(index).getIconUrl(), iv, options);
 					
-					RelativeLayout.LayoutParams rlTvParams = new RelativeLayout.LayoutParams
+			        LinearLayout.LayoutParams llTvParams = new LinearLayout.LayoutParams
 							(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-					rlTvParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-					rlTvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-					rlTvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+					//rlTvParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+					//rlTvParams.addRule(RelativeLayout.BELOW, iv.getId());
+					//rlTvParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+					llTvParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 							0, 
 							mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 							mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
 					tv.setText(appProject.get(index).getName());
 					tv.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
-					rl.addView(tv, rlTvParams);
+					ll.addView(tv, llTvParams);
 				} else
-					rl.setVisibility(View.INVISIBLE);
+					ll.setVisibility(View.INVISIBLE);
 				
-				rl.setBackgroundResource(R.drawable.button_aboutus_bg);
+				ll.setBackgroundResource(R.drawable.button_aboutus_bg);
+				ll.setOrientation(LinearLayout.VERTICAL);
+				ll.setGravity(Gravity.CENTER_HORIZONTAL);
 				
 				DisplayMetrics displayMetrics = new DisplayMetrics();
 				mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 		        int screenWidth = displayMetrics.widthPixels / 3;
 				TableRow.LayoutParams Params = new TableRow.LayoutParams
-						(screenWidth, screenWidth * 5 / 6, 0.33f);				
-				rl.setLayoutParams(Params);
-				rl.setOnClickListener(new ItemButtonClick(index, mActivity));
-				Schedule_row.addView(rl);
+						(screenWidth, LayoutParams.MATCH_PARENT, 0.33f);				
+				ll.setLayoutParams(Params);
+				ll.setOnClickListener(new ItemButtonClick(index, mActivity));
+				Schedule_row.addView(ll);
 			}
 			Schedule_row.setLayoutParams(new LayoutParams
 					(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));

@@ -11,11 +11,14 @@ import com.adwhirl.AdWhirlTargeting;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 
 import android.app.AlertDialog;
@@ -55,6 +58,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	private int version;
 	private LoadPromoteTask loadPromoteTask;
 	private AdWhirlLayout adWhirlLayout;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 	
 	public static String TAG = "MainTabActivities";
 	
@@ -83,6 +88,16 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		sharepre = new SharePreferenceIO(MainTabActivities.this);
         openCount = sharepre.SharePreferenceO("opencount", 0);
         version = sharepre.SharePreferenceO("version", 0);
+        
+        options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
         
         AdTask adTask = new AdTask();
     	adTask.execute();
@@ -353,9 +368,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	            ImageView imageView = (ImageView)viewPromotion.findViewById(R.id.imageView1);
 	            TextView textviewTitle = (TextView)viewPromotion.findViewById(R.id.textView1);
 	            TextView textviewDescription = (TextView)viewPromotion.findViewById(R.id.textView2);
-	            ImageLoader imageLoader = new ImageLoader(MainTabActivities.this);			
 				if(!promotion[0].equals("null"))
-					imageLoader.DisplayImage(promotion[0], imageView);
+					imageLoader.displayImage(promotion[0], imageView, options);
 				else
 					imageView.setVisibility(View.GONE);
 				if(!promotion[2].equals("null"))

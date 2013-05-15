@@ -28,11 +28,13 @@
     <string name="liability_disclaimer">免責聲明</string>
     <string name="entertainment_news">電影報</string>
     <string name="notification_switch">通知開關</string>
-    <string name="diary">更新日誌</string>
+    <string name="diary">更新日誌</string>    
+    <string name="clear">清除緩衝</string>
     <string name="movie_notes">電影櫃</string>
     <string name="movie_timetable">電影時刻表</string>
     <string name="tv_entertainment">電視綜藝</string>
     <string name="renew_eps">更新集數</string>
+    <string name="clear_finish">清除緩衝完成</string>
     
     <string name="chapter_listing">章節列表</string>
     <string name="drama_introduction">戲劇簡介</string>
