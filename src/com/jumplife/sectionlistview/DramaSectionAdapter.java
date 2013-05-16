@@ -12,9 +12,12 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.entity.Section;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -29,7 +32,8 @@ public class DramaSectionAdapter extends BaseAdapter{
 
 	private ArrayList<Section> sectionList;
 	private Context mContext;
-	private ImageLoader imageLoader;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 	private String currentSection;
 	private LayoutInflater myInflater; 
 	private String[] currentSectionTmp;
@@ -49,8 +53,18 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.currentSection = currentSection;
 		width = 80;
 		height = 120;
-		imageLoader = new ImageLoader(mContext);
+		//imageLoader = new ImageLoader(mContext);
 		myInflater = LayoutInflater.from(mContext);
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
 	}
 	
 	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, int width, int height, String currentSection, int chapterNO){
@@ -60,8 +74,18 @@ public class DramaSectionAdapter extends BaseAdapter{
 		this.height = height;
 		this.chapterNO = chapterNO;
 		this.currentSection = currentSection;		
-		imageLoader=new ImageLoader(mContext, width);
+		//imageLoader=new ImageLoader(mContext, width);
 		myInflater = LayoutInflater.from(mContext);
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
 	}
 	
 	public int getCount() {
@@ -127,25 +151,25 @@ public class DramaSectionAdapter extends BaseAdapter{
 			if(sectionList.get(position).getUrl().contains("=")) {
 				youtubeId = sectionList.get(position).getUrl().split("\\=");
 				if(youtubeId.length > 1) 
-					imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster);
+					imageLoader.displayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, options);
 				else
-					imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
+					imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 			} else if(sectionList.get(position).getUrl().contains("embed")) {
 				String[] tmp = sectionList.get(position).getUrl().split("embed");
 				if(tmp.length > 1) {
 					youtubeId = tmp[1].split("\\/");
 					if(youtubeId.length > 1) 
-						imageLoader.DisplayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster);
+						imageLoader.displayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, options);
 					else
-						imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
+						imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 				}
 			}else
-				imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
+				imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 		} else if (sectionList.get(position).getUrl().contains("dailymotion")) {
 			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl(), itemView.poster);
 			task.execute();			
 		} else {
-			imageLoader.DisplayImage(sectionList.get(position).getUrl(), itemView.poster);
+			imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 		}
 		
 		return convertView;
@@ -201,7 +225,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 
         @Override
         protected void onPostExecute(String result) {
-        	imageLoader.DisplayImage(dailymotionUrl, poster);
+        	imageLoader.displayImage(dailymotionUrl, poster, options);
             super.onPostExecute(result);
         }
         

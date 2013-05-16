@@ -2,9 +2,12 @@ package com.jumplife.sectionlistview;
 
 import java.util.ArrayList;
 
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.entity.Drama;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -18,7 +21,8 @@ public class DramaGridAdapter extends BaseAdapter{
 
 	private ArrayList<Drama> dramas;
 	private Context mContext;
-	private ImageLoader imageLoader;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 	private LayoutInflater myInflater;
 	
 	private int width;
@@ -34,8 +38,18 @@ public class DramaGridAdapter extends BaseAdapter{
 		this.mContext = mContext;
 		width = 80;
 		height = 120;
-		imageLoader=new ImageLoader(mContext, width);
+		//imageLoader=new ImageLoader(mContext, width);
 		myInflater = LayoutInflater.from(mContext);
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
 	}
 	
 	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, int width, int height){
@@ -43,8 +57,18 @@ public class DramaGridAdapter extends BaseAdapter{
 		this.mContext = mContext;
 		this.width = width;
 		this.height = height;
-		imageLoader=new ImageLoader(mContext, width);
+		//imageLoader=new ImageLoader(mContext, width);
 		myInflater = LayoutInflater.from(mContext);
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
 	}
 	
 	public int getCount() {
@@ -78,7 +102,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		itemView.poster.getLayoutParams().width = width;
 		itemView.name.setText(dramas.get(position).getChineseName());
 		itemView.view.setText(mContext.getResources().getString(R.string.play_time) + dramas.get(position).getViews());
-		imageLoader.DisplayImage(dramas.get(position).getPosterUrl(), itemView.poster);
+		imageLoader.displayImage(dramas.get(position).getPosterUrl(), itemView.poster, options);
 		
 		return convertView;
 	}

@@ -13,10 +13,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
@@ -24,11 +24,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.entity.Chapter;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.entity.News;
 import com.jumplife.tvdrama.entity.Section;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.telephony.TelephonyManager;
@@ -62,12 +64,12 @@ public class DramaAPI {
 	}
 	
 	public DramaAPI(Activity a) {
-		this(new String("http://106.187.40.45"));
+		this(new String("http://drama.jumplife.com.tw"));
 		this.mActivity = a;
 	}
 	
 	public DramaAPI() {
-		this(new String("http://106.187.40.45"));
+		this(new String("http://drama.jumplife.com.tw"));
 	}
 	
 	public int connect(String requestedMethod, String apiPath) {
@@ -301,6 +303,26 @@ public class DramaAPI {
 		}
 	}
 	
+	public String getDramaEps(int id) {
+		String message = getMessageFromServer("GET", "api/v1/dramas/new_dramas_info.json?dramas_id=" + id, null);
+		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(mActivity);
+		
+		if(message != null) {
+			try {
+				JSONArray dramaArray;		
+				dramaArray = new JSONArray(message.toString());
+				JSONObject dramaJson = dramaArray.getJSONObject(0);
+				Drama drama = DramaJsonToClass(dramaJson);
+				return drama.getEps();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		return null;
+	}
+	
 	public String getMessageFromServer(String requestMethod, String apiPath, JSONObject json) {
 		URL url;
 		try {
@@ -434,7 +456,7 @@ public class DramaAPI {
 
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String url = "http://106.187.51.230:8000//api/v1/dramas/" + DramaId + ".json";						
+			String url = "http://drama.jumplife.com.tw/api/v1/dramas/" + DramaId + ".json";						
 			if(DEBUG)
 				Log.d(TAG, "URL : " + url);
 			
@@ -472,7 +494,7 @@ public class DramaAPI {
 		
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String url = "http://106.187.40.45/api/v1/dramas/update_device_watch.json?" +
+			String url = "http://drama.jumplife.com.tw/api/v1/dramas/update_device_watch.json?" +
 					"registration_id=" + DeviceId + 
 					"&drama_id=" + DramaId +
 					"&ep_num=" + epId;						
@@ -502,7 +524,93 @@ public class DramaAPI {
 		return result;
 	}
 	
+	@SuppressWarnings("null")
+	public ArrayList<AppProject> getAppProjectList (Activity mActivity) {
+		ArrayList<AppProject> appList = new ArrayList<AppProject>(10);
+		String requestMethod = "GET";
+		URL url;
+		String message = null;
+		try {
+			url = new URL("http://mmedia.jumplife.com.tw/api/v1/appprojects.json");
+			JSONObject json = null;
+			
+			HttpURLConnection connection;
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod(requestMethod);
+			
+			connection.setRequestProperty("Content-Type",  "application/json;charset=utf-8");
+			if(requestMethod.equalsIgnoreCase("POST"))
+				connection.setDoOutput(true);
+			else
+				connection.setDoInput(true);
+			connection.connect();
+			
+			
+			if(requestMethod.equalsIgnoreCase("POST")) {
+				OutputStream outputStream;
+				
+				outputStream = connection.getOutputStream();
+				if(DEBUG)
+					Log.d("post message", json.toString());
+				
+				outputStream.write(json.toString().getBytes());
+				outputStream.flush();
+				outputStream.close();
+			}
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			StringBuilder lines = new StringBuilder();
+			String tempStr;
+			
+			while ((tempStr = reader.readLine()) != null) {
+	            lines = lines.append(tempStr);
+	        }
+			if(DEBUG)
+				Log.d(TAG, lines.toString());
+			
+			reader.close();
+			connection.disconnect();
+			
+			message =  lines.toString();
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(message == null) {
+			return null;
+		}
+		else {
+			JSONArray appArray;
+			
+			try {
+				appArray = new JSONArray(message.toString());
+				for (int i = 0; i < appArray.length() ; i++) {
+					JSONObject appJson = appArray.getJSONObject(i);
+					String name = appJson.getString("name"); 
+					String iconurl = appJson.getString("iconurl");
+					String pack = appJson.getString("pack");
+					String clas = appJson.getString("clas");
+					
+					if(!mActivity.getApplicationContext().getPackageName().equals(pack)) {
+				    	AppProject appProject = new AppProject(name, iconurl, pack, clas);
+				    	appList.add(appProject);
+				    }
+				}
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return appList;
+	}
+	
 	//取得新聞列表
+	@SuppressLint("SimpleDateFormat")
 	public ArrayList<News> getNewsList(int page) {
 		ArrayList<News> newsList = new ArrayList<News>(10);
 		
@@ -572,7 +680,84 @@ public class DramaAPI {
 		
 		return newsList;
 	}
+	
+
+
+	public boolean postGcm(String regId, Context context) {
+		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		boolean result = false;
+		String deviceId;
+		if(tm.getLine1Number() != null && !tm.getLine1Number().equals(""))
+			deviceId = tm.getLine1Number();
+		else 
+			deviceId = tm.getDeviceId();
 		
+		try{
+			DefaultHttpClient httpClient = new DefaultHttpClient();
+			HttpPost httpPost = new HttpPost("http://drama.jumplife.com.tw/api/v1/devices?registration_id=" 
+					+ regId + "&device_id=" + deviceId);			
+			HttpResponse response = httpClient.execute(httpPost);
+
+			StatusLine statusLine =  response.getStatusLine();
+			if (statusLine.getStatusCode() == 200){
+				result = true;
+			}
+		} 
+	    catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return result;
+		} 
+		catch (ClientProtocolException e) {
+			e.printStackTrace();
+			return result;
+		} 
+		catch (IOException e){
+			e.printStackTrace();
+			return result;
+		}	
+		return result;
+	}
+	
+	public String getDramasHistory(){
+		String history = "";
+		String message = getMessageFromServer("GET", "api/v1/drama_history.json", null);
+		if(message == null) {
+			return null;
+		}
+		else {			
+			try {
+				JSONArray dramasArray = new JSONArray(message.toString());
+				for(int i=0; i<dramasArray.length(); i++) {
+					JSONObject dramaObject = dramasArray.getJSONObject(i);
+					history = history 
+							+ "<b>" + dramaObject.getString("release_date") + "</b>" 
+							+ "<p>" + dramaObject.getString("dramas_str") + "</p><br><br><hr>";
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return history;
+	}
+	
+	public void getVersionCode(int[] mVersionCode, String[] msg){
+		String message = getMessageFromServer("GET", "api/version_check.json", null);
+		if(message == null) {
+			return;
+		}
+		else {			
+			try {
+				JSONObject jsonObject =  new JSONObject(message.toString());
+				mVersionCode[0] = jsonObject.getInt("version_code");
+				msg[0] = jsonObject.getString("message");		
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+	
 	public String getUrlAddress() {
 		return urlAddress;
 	}

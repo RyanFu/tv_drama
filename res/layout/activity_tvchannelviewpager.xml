@@ -6,10 +6,53 @@
     <RelativeLayout android:id="@+id/waterfall_linear_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
+        <include android:id="@+id/topbar" layout="@layout/topbar" 
+            android:layout_alignParentTop="true"/>
+        <LinearLayout android:id="@+id/ll_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/topbar"
+            android:layout_alignBottom="@+id/topbar"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:background="@drawable/button_select_background" >
+	        <TextView android:id="@+id/tv_select"     
+	            android:layout_width="95dp"
+	            android:layout_height="wrap_content"
+	            android:gravity="center"
+	            android:textSize="16dp"
+	            android:textColor="@drawable/button_select_tv_background"
+	            android:text="依播放次數" />
+	            
+	        <ImageView
+	            android:layout_width="18dp"
+	            android:layout_height="18dp"
+	            android:layout_marginLeft="5dp"
+	            android:scaleType="fitXY"
+	            android:src="@drawable/button_select_iv_background" />
+        
+        </LinearLayout>
+        <View android:id="@+id/line1"
+            android:layout_width="0.5dp"
+            android:layout_height="fill_parent"
+            android:layout_toLeftOf="@+id/ll_select"
+            android:background="@color/report_normal" />
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="fill_parent"
+            android:layout_toLeftOf="@+id/line1"
+            android:background="@color/tab_textview_normal" />
+        
+        
+        <View 
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_alignBottom="@+id/ll_select"
+            android:background="@color/main_color_orange_light" />
         <LinearLayout android:id="@+id/ll_drama_button"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
-            android:layout_alignParentTop="true"
+            android:layout_below="@+id/topbar"
             android:background="@drawable/tabackground"
             android:orientation="horizontal"
             android:weightSum="1.0" >

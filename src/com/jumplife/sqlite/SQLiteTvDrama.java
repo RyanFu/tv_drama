@@ -22,7 +22,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
     private static final String   DramaTable          = "dramas";
     private static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
     private static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
-    private static final int      DATABASE_VERSION    = 5;                                          // 資料庫版本
+    private static final int      DATABASE_VERSION    = 6;                                          // 資料庫版本
     private static SQLiteDatabase db;
     private static String DB_PATH_DATA;
 
@@ -245,6 +245,15 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         cursor.close();
     }
     
+    public void updateDramaEps(int dramaId, String eps) {
+    	openDataBase();        
+        Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET eps_num_str = ? WHERE id = ?", 
+        									new String[] {eps + "", dramaId + ""});
+        
+        cursor.moveToFirst();
+        cursor.close();
+    }
+    
     public Drama getDrama(int dramaId) throws SQLException {
         openDataBase();
         Cursor cursor = db.rawQuery("SELECT id, name, introduction, poster_url FROM " + DramaTable + " WHERE id = \'" + dramaId + "\' AND is_show = 't';", null);
@@ -359,13 +368,14 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         openDataBase();
         ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         Cursor cursor = null;
-        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
+        cursor = db.rawQuery("SELECT id, name, poster_url, views, release_date FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
         while (cursor.moveToNext()) {
             Drama drama = new Drama();
             drama.setId(cursor.getInt(0));
             drama.setChineseName(cursor.getString(1));
             drama.setPosterUrl(cursor.getString(2));
             drama.setViews(cursor.getInt(3));
+            drama.setReleaseDate(cursor.getString(4));
             drama_lst.add(drama);
         }
 

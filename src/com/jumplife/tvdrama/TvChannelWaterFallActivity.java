@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
+
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -31,6 +34,8 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class TvChannelWaterFallActivity extends Activity {
     public final static int  SETTING          = 1;
@@ -41,12 +46,15 @@ public class TvChannelWaterFallActivity extends Activity {
     private Button		     buttonKoera;
     private Button		     buttonJapan;
     private Button		     buttonChina;
+    private Button           selectButton;
+    private QuickAction      quickAction;
     private ImageView	     imageviewTaiwan;
     private ImageView	     imageviewKoera;
     private ImageView	     imageviewJapan;
     private ImageView	     imageviewChina;
     private LoadDataTask     loadTask;
     private updateDataTask	 updatetask;
+	private TextView 		 topbar_text;
 
     private ArrayList<Drama> dramaList;
     private SQLiteTvDrama sqliteTvDrama;
@@ -57,6 +65,12 @@ public class TvChannelWaterFallActivity extends Activity {
     private final int FLAG_CHINA = 2;
     private final int FLAG_KOERA = 3;
     private final int FLAG_JAPAN = 4;
+    
+    private final int FLAG_FIRSTROUND  = 1;
+    private final int FLAG_SECONDROUND = 2;
+    private final int FLAG_THIS_WEEK   = 3;
+    private final int FLAG_RECENT      = 4;
+    private final int FLAG_TOP         = 5;
     
     private int functionFlag = 0;
 
@@ -100,6 +114,69 @@ public class TvChannelWaterFallActivity extends Activity {
     }
 
     private void initViews() {
+    	ActionItem firstItem = new ActionItem(FLAG_FIRSTROUND, "首輪電影");
+        ActionItem secondItem = new ActionItem(FLAG_SECONDROUND, "二輪電影");
+        ActionItem thisweekItem = new ActionItem(FLAG_THIS_WEEK, "本周新片");
+        ActionItem recentItem = new ActionItem(FLAG_RECENT, "近期上映");
+        ActionItem topItem = new ActionItem(FLAG_TOP, "票房排行");
+
+        quickAction = new QuickAction(this, QuickAction.VERTICAL);
+
+        // add action items into QuickAction
+        quickAction.addActionItem(firstItem);
+        quickAction.addActionItem(secondItem);
+        quickAction.addActionItem(thisweekItem);
+        quickAction.addActionItem(recentItem);
+        quickAction.addActionItem(topItem);
+
+        // Set listener for action item clicked
+        quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+            public void onItemClick(QuickAction source, int pos, int actionId) {
+                quickAction.getActionItem(pos);
+
+                if (actionId == FLAG_FIRSTROUND) {
+                	EasyTracker.getTracker().trackEvent("電影打卡瀑布流", "首輪電影", "", (long)0);
+                    functionFlag = FLAG_FIRSTROUND;
+                } else if (actionId == FLAG_SECONDROUND) {
+                	EasyTracker.getTracker().trackEvent("電影打卡瀑布流", "二輪電影", "", (long)0);
+                    functionFlag = FLAG_SECONDROUND;
+                } else if (actionId == FLAG_THIS_WEEK) {
+                	EasyTracker.getTracker().trackEvent("電影打卡瀑布流", "本周新片", "", (long)0);
+                    functionFlag = FLAG_THIS_WEEK;
+                } else if (actionId == FLAG_RECENT) {
+                	EasyTracker.getTracker().trackEvent("電影打卡瀑布流", "近期上映", "", (long)0);
+                    functionFlag = FLAG_RECENT;
+                } else if (actionId == FLAG_TOP) {
+                	EasyTracker.getTracker().trackEvent("電影打卡瀑布流", "票房排行", "", (long)0);
+                    functionFlag = FLAG_TOP;
+                }
+
+                loadTask = new LoadDataTask();
+                if(Build.VERSION.SDK_INT < 11)
+                	loadTask.execute();
+                else
+                	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+            }
+        });
+
+        // set listnener for on dismiss event, this listener will be called only if QuickAction dialog was dismissed
+        // by clicking the area outside the dialog.
+        quickAction.setOnDismissListener(new QuickAction.OnDismissListener() {
+            public void onDismiss() {
+                // Toast.makeText(getApplicationContext(), "Dismissed", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        selectButton = (Button) findViewById(R.id.button_select);
+        selectButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                quickAction.show(v);
+            }
+        });
+
+        topbar_text = (TextView)findViewById(R.id.topbar_text);
+        topbar_text.setText(getResources().getString(R.string.app_name));
+        
     	sqliteTvDrama = new SQLiteTvDrama(this);
     	
     	dramaGridView = (GridView)findViewById(R.id.gridview_tvchannel);

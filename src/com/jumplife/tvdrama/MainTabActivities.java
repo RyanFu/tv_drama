@@ -11,11 +11,14 @@ import com.adwhirl.AdWhirlTargeting;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
-import com.jumplife.imageload.ImageLoader;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 
 import android.app.AlertDialog;
@@ -55,6 +58,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	private int version;
 	private LoadPromoteTask loadPromoteTask;
 	private AdWhirlLayout adWhirlLayout;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 	
 	public static String TAG = "MainTabActivities";
 	
@@ -79,10 +84,20 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
         
         tabHost.setCurrentTab(0);
         
-        topbarLayout.setVisibility(View.VISIBLE);		
+        topbarLayout.setVisibility(View.GONE);		
 		sharepre = new SharePreferenceIO(MainTabActivities.this);
         openCount = sharepre.SharePreferenceO("opencount", 0);
         version = sharepre.SharePreferenceO("version", 0);
+        
+        options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
         
         AdTask adTask = new AdTask();
     	adTask.execute();
@@ -184,15 +199,19 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 			public void onTabChanged(String tabId) {
 				if(tabId.equalsIgnoreCase("tab1")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "連續劇", (long)0);
+					topbarLayout.setVisibility(View.GONE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab2")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "我的收藏", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab3")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "戲劇搜尋", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 				else if(tabId.equalsIgnoreCase("tab4")) {
 					EasyTracker.getTracker().trackEvent("主選單", "點擊", "關於我們", (long)0);
+					topbarLayout.setVisibility(View.VISIBLE);		
 				}
 			}
 		});
@@ -244,7 +263,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		// Create an Intent to launch an Activity for the tab (to be reused)
 		// Initialize a TabSpec for each tab and add it to the TabHost
         //Intent intentTvChannel = new Intent().setClass(this, TvChannelWaterFallActivity.class);
-		Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
+		Bundle extras = getIntent().getExtras();
+        Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
+        intentTvChannel.putExtra("type_id", extras.getInt("type_id", 0));
+        intentTvChannel.putExtra("sort_id", extras.getInt("sort_id", 0));
         spec = tabHost.newTabSpec("tab1")
         				.setIndicator(ActivitysTab)
         				.setContent(intentTvChannel);
@@ -346,9 +368,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	            ImageView imageView = (ImageView)viewPromotion.findViewById(R.id.imageView1);
 	            TextView textviewTitle = (TextView)viewPromotion.findViewById(R.id.textView1);
 	            TextView textviewDescription = (TextView)viewPromotion.findViewById(R.id.textView2);
-	            ImageLoader imageLoader = new ImageLoader(MainTabActivities.this);			
 				if(!promotion[0].equals("null"))
-					imageLoader.DisplayImage(promotion[0], imageView);
+					imageLoader.displayImage(promotion[0], imageView, options);
 				else
 					imageView.setVisibility(View.GONE);
 				if(!promotion[2].equals("null"))

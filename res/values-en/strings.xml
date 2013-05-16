@@ -28,13 +28,21 @@
 	<string name="facebook">Our Fans Club</string>
 	<string name="liability_disclaimer">Liability Disclaimer</string>
 	<string name="entertainment_news">Entertainment News</string>
-	<string name="movie_notes">Movie Notes</string>
+	<string name="movie_notes">Movie Notes</string>    
+    <string name="clear">Clear Buffer</string>
 	<string name="movie_timetable">Movie Timetable</string>
 	<string name="tv_entertainment">TV Entertainment</string>
+    <string name="notification_switch">Notification</string>
+    <string name="diary">Update Diary</string>
+    <string name="renew_eps">Update EPS</string>
+    <string name="clear_finish">Clear Finish</string>
 	
 	<string name="chapter_listing">Chapter Listing</string>
 	<string name="drama_introduction">Drama Introduction</string>
 	
+    <string name="open">open</string>
+    <string name="close">close</string>
+    
 	<string name="report">Report</string>
     <string name="need_flash_player">The following videos have to be more than Android 4.0 version and Flash Player installed native browser in order to view.</string>
     <string name="report_title">回報須知</string>

@@ -7,5 +7,10 @@
     <dimen name="header_footer_left_right_padding">25dp</dimen>
     <dimen name="header_footer_top_bottom_padding">10dp</dimen>
     <dimen name="header_footer_internal_padding">20dp</dimen>
+    
+    <!-- about us fragment -->
+    <dimen name="about_us_title">8dp</dimen>
+    <dimen name="about_us_margin">8dp</dimen>
+    <dimen name="about_us_seperate">2dp</dimen>
 
 </resources>
