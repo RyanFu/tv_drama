@@ -63,8 +63,11 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	    setContentView(R.layout.activity_news);
 		findViews();
 		
+		/*
 		AdTask adTask = new AdTask();
     	adTask.execute();
+		*/
+		this.setAd();
 		
     	loadtask = new LoadDataTask();
 	    if(Build.VERSION.SDK_INT < 11)
@@ -322,14 +325,13 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 			}
 			});
     }
-    
     public void showHodoAd() {
     	Resources res = getResources();
     	String hodoKey = res.getString(R.string.hodo_key);
     	Log.d("hodo", "showHodoAd");
     	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
 		final HodoADView hodoADview = new HodoADView(this);
-        hodoADview.reruestAD(hodoKey);
+        hodoADview.requestAD(hodoKey);
         //關掉自動輪撥功能,交由adWhirl輪撥
         hodoADview.setAutoRefresh(false);
         
@@ -352,14 +354,12 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
             }
         });
     }
-
 	class AdTask extends AsyncTask<Integer, Integer, String> {
 		@Override
 		protected String doInBackground(Integer... arg0) {
 			
 			return null;
-		}
-		
+		}	
 		 @Override  
 	     protected void onPostExecute(String result) {
 			 setAd();
@@ -367,8 +367,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 		 }
     	
     }
-	
-	
 	@Override
 	protected void onStart() {
 	    super.onStart();
@@ -387,11 +385,9 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	protected void onResume(){
         super.onResume();
    }
-
 	public void adWhirlGeneric()
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
 }

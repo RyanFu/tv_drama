@@ -99,8 +99,11 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
         
+        /*
         AdTask adTask = new AdTask();
     	adTask.execute();
+        */
+        this.setAd();
         
         loadPromoteTask = new LoadPromoteTask();
     	if(openCount > 5) {
@@ -170,7 +173,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     	Log.d("hodo", "showHodoAd");
     	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
 		final HodoADView hodoADview = new HodoADView(this);
-        hodoADview.reruestAD(hodoKey);
+        hodoADview.requestAD(hodoKey);
         //關掉自動輪撥功能,交由adWhirl輪撥
         hodoADview.setAutoRefresh(false);
         

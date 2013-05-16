@@ -95,8 +95,13 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		.build();
         
         initView();
+        /*
         AdTask adTask = new AdTask();
     	adTask.execute();
+        */
+        
+        this.setAd();
+        
         taskLoad = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
         	taskLoad.execute();
@@ -606,7 +611,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     	Log.d("hodo", "showHodoAd");
     	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
 		final HodoADView hodoADview = new HodoADView(this);
-        hodoADview.reruestAD(hodoKey);
+        hodoADview.requestAD(hodoKey);
         //關掉自動輪撥功能,交由adWhirl輪撥
         hodoADview.setAutoRefresh(false);
         
