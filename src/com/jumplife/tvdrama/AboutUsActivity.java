@@ -56,7 +56,7 @@ public class AboutUsActivity extends Activity {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
     private SharePreferenceIO  shIO;
-    private String updateDiary = "";
+    private static String updateDiary = "";
 	
 	private Activity mActivity;
 	

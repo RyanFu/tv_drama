@@ -64,9 +64,9 @@ public class TvDrama extends Activity {
         
         checkNotNull(SERVER_URL, "SERVER_URL");
         checkNotNull(SENDER_ID, "SENDER_ID");
-        GCMRegistrar.checkDevice(this);
-        GCMRegistrar.checkManifest(this);
-        final String regId = GCMRegistrar.getRegistrationId(this);
+        GCMRegistrar.checkDevice(getApplicationContext());
+        GCMRegistrar.checkManifest(getApplicationContext());
+        final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
         if (regId.equals("")) {
             GCMRegistrar.register(this, SENDER_ID);
         } else {
