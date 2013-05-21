@@ -382,6 +382,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 							SQLiteTvDrama.closeDB();
 							
 							Intent newAct = new Intent();
+							//newAct.putExtra("chapter", chapters);
 							newAct.putExtra("chapter_no", Integer.parseInt(chapters[position]));
 							newAct.putExtra("drama_id", dramaId);
 							newAct.putExtra("drama_name", dramaName);

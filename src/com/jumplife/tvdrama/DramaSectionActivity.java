@@ -103,19 +103,21 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         case LOADERPLAYER:
         	if (resultCode == LOADERPLAYER_CHANGE) {
         		currentSection = chapterNo + ", " + data.getIntExtra("currentPart", 1);
-        		if(dramaSectionAdapter == null) {
-        			dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
-        	        		screenHeight, currentSection, chapterNo);
-        	        sectioGridView.setAdapter(dramaSectionAdapter);
+        		shIO.SharePreferenceI("views", true);            	
+            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
+    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
+    			SQLiteTvDrama.closeDB();
+    			
+        		if(dramaSectionAdapter == null || sectioGridView == null) {
+        			loadTask = new LoadDataTask();
+                    if(Build.VERSION.SDK_INT < 11)
+                    	loadTask.execute();
+                    else
+                    	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
         		} else {
         			dramaSectionAdapter.setCurrentSection(currentSection);
         			dramaSectionAdapter.notifyDataSetChanged();
         		}
-            	shIO.SharePreferenceI("views", true);
-            	
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
             }
             break;
         }
