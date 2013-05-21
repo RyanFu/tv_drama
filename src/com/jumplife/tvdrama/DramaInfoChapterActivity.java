@@ -67,7 +67,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	private int tabFlag = 1;
 	private int chapterCount = 0;
 	private int lastChapterCount = 0;
-	private int currentChapter = 1;
+	private int currentChapter = 0;
 	private String[] chapters;
 	private String[] likeDramas;
 	private boolean likeDrama = false;
@@ -88,7 +88,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		.showStubImage(R.drawable.stub)
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.imageScaleType(ImageScaleType.EXACTLY)
 		.cacheOnDisc()
 		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
@@ -373,7 +373,13 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 						public void onClick(View arg0) {
 							int position = arg0.getId();
 							currentChapter = position;
-							new UpdateDramaChapterRecordTask().execute();
+							//new UpdateDramaChapterRecordTask().execute();
+							setFakeMark();  
+				        
+							Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+				        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaInfoChapterActivity.this);
+							sqlTvDrama.updateDramaChapterRecord(dramaId, currentChapter);
+							SQLiteTvDrama.closeDB();
 							
 							Intent newAct = new Intent();
 							newAct.putExtra("chapter_no", Integer.parseInt(chapters[position]));
@@ -438,8 +444,8 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	
 	private void setFakeMark() {
 		for(int i=0; i<chapterCount; i+=1) {
-			if(currentChapter == -1) {
-				if(i == 1)
+			if(currentChapter < 0) {
+				if(i == 0)
 					mark[i].setVisibility(View.VISIBLE);
 				else
 					mark[i].setVisibility(View.GONE);

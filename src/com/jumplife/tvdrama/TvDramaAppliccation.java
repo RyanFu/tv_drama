@@ -23,6 +23,7 @@ import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.MemoryCacheAware;
 import com.nostra13.universalimageloader.cache.memory.impl.LRULimitedMemoryCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
@@ -57,7 +58,7 @@ public class TvDramaAppliccation extends Application {
 	        .tasksProcessingOrder(QueueProcessingType.LIFO)
 			.threadPoolSize(2)
 			.threadPriority(Thread.NORM_PRIORITY)
-			.memoryCache(memoryCache)
+			.memoryCache(new WeakMemoryCache())
 			.denyCacheImageMultipleSizesInMemory()
 			.discCacheFileNameGenerator(new Md5FileNameGenerator())
 			.build();

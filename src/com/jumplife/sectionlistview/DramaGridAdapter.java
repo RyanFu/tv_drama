@@ -45,7 +45,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		.showStubImage(R.drawable.stub)
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.imageScaleType(ImageScaleType.EXACTLY)
 		.cacheOnDisc()
 		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())

@@ -15,6 +15,7 @@ import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Section;
+import com.jumplife.youtubeapi.PlayerControlsActivity;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
 
@@ -41,13 +42,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class DramaSectionActivity extends Activity implements AdWhirlInterface{
+public class DramaSectionActivity_1305210935 extends Activity implements AdWhirlInterface{
     private GridView        sectioGridView;
     private ImageButton     imageButtonRefresh;
     private TextView		textViewFeedback;
@@ -59,17 +61,16 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     private LoadDataTask    loadTask;
     private TextView topbar_text;
 	private ArrayList<Section> sectionList;
+	private String youtubeIds = null;
 
 	private int dramaId = 0;
 	private String dramaName = "";
 	private int chapterNo = 0;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
+	private Boolean developerMode = false;
 	private static String TAG = "DramaSectionActivity";
 	private AdWhirlLayout adWhirlLayout;
-	
-	private final static int LOADERPLAYER = 100;
-	public final static int LOADERPLAYER_CHANGE = 101;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,31 +97,6 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);    
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-        case LOADERPLAYER:
-        	if (resultCode == LOADERPLAYER_CHANGE) {
-        		currentSection = chapterNo + ", " + data.getIntExtra("currentPart", 1);
-        		if(dramaSectionAdapter == null) {
-        			dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
-        	        		screenHeight, currentSection, chapterNo);
-        	        sectioGridView.setAdapter(dramaSectionAdapter);
-        		} else {
-        			dramaSectionAdapter.setCurrentSection(currentSection);
-        			dramaSectionAdapter.notifyDataSetChanged();
-        		}
-            	shIO.SharePreferenceI("views", true);
-            	
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
-            }
-            break;
-        }
-    }
-    
     private void initViews() {
     	shIO = new SharePreferenceIO(this);
     	
@@ -210,13 +186,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             	dramaSectionAdapter.notifyDataSetChanged();
             	shIO.SharePreferenceI("views", true);
             	
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
-            	
             	if(sectionList.get(position).getUrl() == null ||
             			sectionList.get(position).getUrl().equalsIgnoreCase("")) {
-            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity_1305210935.this);
     		        dialog.setTitle(getResources().getString(R.string.no_link));
     		        dialog.setMessage(getResources().getString(R.string.use_google_search));
     		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
@@ -233,13 +205,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     		        });
     		        dialog.show();
             	} else {
-            		ArrayList<String> videoIds = new ArrayList<String>();
-            		for(int i = 0; i < sectionList.size(); i++)
-            			videoIds.add(sectionList.get(i).getUrl());
-            		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
-            		newAct.putExtra("currentPart", position + 1);
-            		newAct.putStringArrayListExtra("videoIds", videoIds);
-            		startActivityForResult(newAct, LOADERPLAYER);            		
+            		
             	}
 			}    		
     	});
@@ -250,9 +216,9 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     	
     	textViewFeedback.setOnClickListener(new OnClickListener(){
 			public void onClick(View arg0) {
-				LayoutInflater factory = LayoutInflater.from(DramaSectionActivity.this);
+				LayoutInflater factory = LayoutInflater.from(DramaSectionActivity_1305210935.this);
 	            View viewFeedBack = factory.inflate(R.layout.dialog_feedback,null);
-	            AlertDialog dialogFeedBack = new AlertDialog.Builder(DramaSectionActivity.this).create();
+	            AlertDialog dialogFeedBack = new AlertDialog.Builder(DramaSectionActivity_1305210935.this).create();
 	            dialogFeedBack.setView(viewFeedBack);
 	            ((Button)viewFeedBack.findViewById(R.id.dialog_button_feedback)).setOnClickListener(
 	                new OnClickListener(){
@@ -270,13 +236,166 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	            dialogFeedBack.show();				
 			}			
 		});
+    	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            	currentSection = chapterNo + ", " + (position + 1);
+            	dramaSectionAdapter.setCurrentSection(currentSection);
+            	dramaSectionAdapter.notifyDataSetChanged();
+            	shIO.SharePreferenceI("views", true);
+            	Uri uri;
+            	if(sectionList.get(position).getUrl() == null ||
+            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+            			sectionList.get(position).getUrl().contains("maplestage")) {
+            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity_1305210935.this);
+    		        dialog.setTitle(getResources().getString(R.string.no_link));
+    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
+    		            public void onClick(DialogInterface dialog, int which) {
+    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+    	            				+ chapterNo + getResources().getString(R.string.no));  
+    	            		startActivity(search);
+    		            }
+    		        });
+    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+    		            public void onClick(DialogInterface dialog, int which) {
+    		            }
+    		        });
+    		        dialog.show();            		 
+            	} else {
+            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
+            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
+	            			String url = sectionList.get(position).getUrl();
+	            			url = url.substring(39);
+	            			String[] tmpUrls = url.split("\\?");
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			} else {
+            				String url = sectionList.get(position).getUrl();
+	            			url = url.substring(33);
+	            			String[] tmpUrls = url.split("&");	            			
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			}
+            		}
+            		/*if (sectionList.get(position).getUrl().contains("http://touch.dailymotion.com/video/")) {
+            			String url = sectionList.get(position).getUrl();
+            			url = url.substring(39);
+            			String[] tmpUrls = url.split("\\?");
+            			String tmpId = null;
+            			if(tmpUrls.length > 0)
+            				tmpId = tmpUrls[0];
+            			if(tmpId != null)
+            				sectionList.get(position).setUrl("http://www.dailymotion.com/embed/video/" + tmpId);
+            		}*/
+            		
+            		uri = Uri.parse(sectionList.get(position).getUrl());
+            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+            		startActivity(it);
+            		/*if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+            			String url = sectionList.get(position).getUrl();
+            			url = url.substring(39);
+            			String[] tmpUrls = url.split("\\?");
+            			String tmpId = null;
+            			if(tmpUrls.length > 0)
+            				tmpId = tmpUrls[0];
+            			if(tmpId != null)
+            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+            		} else if(youtubeIds != null) {
+            			Intent newAct = new Intent();
+    					newAct.putExtra("youtube_ids", youtubeIds);
+    					newAct.putExtra("youtube_index", position);
+    					newAct.putExtra("youtube_link", sectionList.get(position).getUrl());
+    	                newAct.setClass(DramaSectionActivity.this, PlayerControlsActivity.class);
+    					//newAct.setClass(VarietySectionActivity.this, YouTubePlayerActivity.class);
+    	                startActivity(newAct);
+        			} else {	            			
+	            		uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+        			}*/
+            	}
+            	//new UpdateDramaSectionRecordTask().execute();
+            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity_1305210935.this);
+    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
+    			SQLiteTvDrama.closeDB();
+            }
+        });
     	
-    	setGridClickListener();
+    	if(developerMode) {
+	    	sectioGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
+	            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+					shIO.SharePreferenceI("views", true);
+	            	Uri uri;
+	            	if(sectionList.get(position).getUrl() == null ||
+	            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+	            			sectionList.get(position).getUrl().contains("maplestage")) {
+	            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity_1305210935.this);
+	    		        dialog.setTitle(DramaSectionActivity_1305210935.this.getResources().getString(R.string.no_link));
+	    		        dialog.setMessage(DramaSectionActivity_1305210935.this.getResources().getString(R.string.use_google_search));
+	    		        dialog.setPositiveButton(DramaSectionActivity_1305210935.this.getResources().getString(R.string.google_search)
+	    		        		, new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+	    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+	    	            				+ chapterNo + getResources().getString(R.string.no));  
+	    	            		startActivity(search);
+	    		            }
+	    		        });
+	    		        dialog.setNegativeButton(DramaSectionActivity_1305210935.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            }
+	    		        });
+	    		        dialog.show();
+	    		        return true;
+	            	} else {
+	            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/embed/video/")) {
+	            			String url = sectionList.get(position).getUrl();
+	            			url = url.substring(39);
+	            			String[] tmpUrls = url.split("\\?");
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			uri = Uri.parse(sectionList.get(position).getUrl());
+		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+		            		startActivity(it);
+		    		        return true;
+	            		} else if(youtubeIds != null) {
+	            			Intent newAct = new Intent();
+	    					newAct.putExtra("youtube_ids", youtubeIds);
+	    					newAct.putExtra("youtube_index", position);
+	    					newAct.putExtra("youtube_link", sectionList.get(position).getUrl());
+	    					//newAct.setClass(DramaSectionActivity.this, FullscreenDemoActivity.class);
+	    	                newAct.setClass(DramaSectionActivity_1305210935.this, PlayerControlsActivity.class);
+	    					//newAct.setClass(VarietySectionActivity.this, YouTubePlayerActivity.class);
+	    	                startActivity(newAct);
+	        		        return true;
+	        			} else {	            			
+		            		uri = Uri.parse(sectionList.get(position).getUrl());
+		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+		            		startActivity(it);
+		    		        return true;
+	        			}
+	            	}
+				}
+	        });
+    	}
     	
     	DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         screenWidth = displayMetrics.widthPixels;
-        dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
+        dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity_1305210935.this, sectionList, screenWidth,
         		screenHeight, currentSection, chapterNo);
         sectioGridView.setAdapter(dramaSectionAdapter);
         
@@ -291,6 +410,37 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         	tvNotify.setVisibility(View.VISIBLE);
         else
         	tvNotify.setVisibility(View.GONE);
+    }
+
+    private void checkYoutubeId() {
+    	String youtubeIdstmp = "";
+    	Boolean isAllYoutube = true;
+    	for(int i=0; i<sectionList.size(); i++) {
+    		if(sectionList.get(i).getUrl().contains("youtube")) {
+    			String[] youtubeId = new String[2];
+    			if(sectionList.get(i).getUrl().contains("=")) {
+    				youtubeId = sectionList.get(i).getUrl().split("\\=");
+    				if(youtubeId.length > 1)
+    					youtubeIdstmp = youtubeIdstmp + youtubeId[1] + ",";
+    				else 
+    					isAllYoutube = false;
+    			} else if(sectionList.get(i).getUrl().contains("embed")) {
+    				String[] tmp = sectionList.get(i).getUrl().split("embed");
+    				if(tmp.length > 1) {
+    					youtubeId = tmp[1].split("\\/");
+    					if(youtubeId.length > 1)
+        					youtubeIdstmp = youtubeIdstmp + youtubeId[1] + ",";
+    					else 
+        					isAllYoutube = false;
+    				}
+    			}
+    		}else
+    			isAllYoutube = false;
+    	}
+    	if(isAllYoutube && youtubeIdstmp.length()>1)
+    		youtubeIds = youtubeIdstmp.substring(0, youtubeIdstmp.length()-1);
+    	else
+    		youtubeIds = null;
     }
     
     private void fetchData() {
@@ -315,12 +465,12 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 
         @Override
         protected void onPreExecute() {
-            progressdialogInit = new ProgressDialog(DramaSectionActivity.this);
+            progressdialogInit = new ProgressDialog(DramaSectionActivity_1305210935.this);
             progressdialogInit.setTitle("Load");
             progressdialogInit.setMessage("Loading…");
             progressdialogInit.setOnCancelListener(cancelListener);
             progressdialogInit.setCanceledOnTouchOutside(false);
-            if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+            if(DramaSectionActivity_1305210935.this != null && !DramaSectionActivity_1305210935.this.isFinishing() 
         			&& progressdialogInit != null && !progressdialogInit.isShowing())
         		progressdialogInit.show();
             
@@ -343,7 +493,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 
         @Override
         protected void onPostExecute(String result) {
-        	if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+        	if(DramaSectionActivity_1305210935.this != null && !DramaSectionActivity_1305210935.this.isFinishing() 
         			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
 
@@ -353,6 +503,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             } else {
             	sectioGridView.setVisibility(View.VISIBLE);
                 imageButtonRefresh.setVisibility(View.GONE);
+                checkYoutubeId();
                 setViews();
             }
             Log.d(TAG, "load data onPostExecute");
@@ -361,7 +512,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         }
        
         public void closeProgressDilog() {
-        	if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
+        	if(DramaSectionActivity_1305210935.this != null && !DramaSectionActivity_1305210935.this.isFinishing() 
         			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
         }
@@ -378,7 +529,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         protected String doInBackground(Integer... params) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         	if(shIO.SharePreferenceO("views", false)) {
-        		DramaAPI dramaAPI = new DramaAPI(DramaSectionActivity.this);
+        		DramaAPI dramaAPI = new DramaAPI(DramaSectionActivity_1305210935.this);
         		//dramaAPI.updateViews(dramaId);
         		dramaAPI.updateViewsWithDevice(dramaId, chapterNo);
         		shIO.SharePreferenceI("views", false);
@@ -418,7 +569,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         @Override  
         protected String doInBackground(Integer... params) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
+        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity_1305210935.this);
 			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
 			return "progress end";
         }  

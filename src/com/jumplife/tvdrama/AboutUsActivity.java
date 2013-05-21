@@ -634,9 +634,14 @@ public class AboutUsActivity extends Activity {
         @Override
         protected String doInBackground(Integer... params) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-        	if(updateDiary.equals("")) {
+        	if(updateDiary == null) {
         		DramaAPI dramaAPI = new DramaAPI();
         		updateDiary = dramaAPI.getDramasHistory();
+        	} else {
+        		if(updateDiary.equals("")) {
+        			DramaAPI dramaAPI = new DramaAPI();
+        			updateDiary = dramaAPI.getDramasHistory();
+        		}
         	}
             return "progress end";
         }

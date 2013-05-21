@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jumplife.tvdrama"
-    android:versionCode="25"
-    android:versionName="1.0.24">
+    android:versionCode="27"
+    android:versionName="1.0.26">
     
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -136,6 +136,8 @@
         <activity 
             android:name="com.hodo.SplashaActivity"
             android:theme="@android:style/Theme.Translucent"/>
+        <activity android:name="LoaderPlayerActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode" ></activity>
        
     </application>
     
