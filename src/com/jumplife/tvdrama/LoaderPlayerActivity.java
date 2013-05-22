@@ -2,6 +2,10 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
+import com.adwhirl.AdWhirlLayout;
+import com.adwhirl.AdWhirlManager;
+import com.adwhirl.AdWhirlTargeting;
+import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.jumplife.tvdrama.DramaSectionActivity.LoadDataTask;
 import com.jumplife.videoloader.DailymotionLoader;
 import com.jumplife.videoloader.YoutubeLoader;
@@ -14,6 +18,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
@@ -44,7 +49,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 import android.widget.LinearLayout.LayoutParams;
 
-public class LoaderPlayerActivity extends Activity {
+public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  {
 
     public final static String MSG_INIT = "com.keyes.video.msg.init";
     protected String mMsgInit = "初始化";
@@ -64,6 +69,7 @@ public class LoaderPlayerActivity extends Activity {
     protected TextView mProgressMessage;
 	private AnimationDrawable animationDrawable;
     private RelativeLayout rlAd;
+	private AdWhirlLayout adWhirlLayout;
     private VideoView mVideoView;
     
     private int currentPart = 1;
@@ -72,12 +78,6 @@ public class LoaderPlayerActivity extends Activity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-    }
-    
-    @Override  
-    public void onWindowFocusChanged(boolean hasFocus) {  
-        super.onWindowFocusChanged(hasFocus);
-        animationDrawable.start();
     }
     
     @Override
@@ -96,9 +96,14 @@ public class LoaderPlayerActivity extends Activity {
         /*mProgressBar.bringToFront();
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressMessage.setText(mMsgInit);*/
-        mDialogLoader.show();
         mProgressMessage.setText(mMsgInit);
-        animationDrawable.start();
+        mProgressImage.post(new Runnable() {
+		    @Override
+		    public void run() {
+		        animationDrawable.start();
+		    }
+		});
+        mDialogLoader.show();
     
         Bundle extra = getIntent().getExtras();//.getStringArrayListExtra("");
         currentPart = extra.getInt("currentPart", 1);
@@ -130,6 +135,26 @@ public class LoaderPlayerActivity extends Activity {
         if (lMsgErrTitle != null) {
             mMsgErrorTitle = lMsgErrTitle;
         }
+    }
+    
+    public void setAd() {
+    	
+    	Resources res = getResources();
+    	String adwhirlKey = res.getString(R.string.adwhirl_key);
+    	
+    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+
+        AdWhirlTargeting.setTestMode(false);
+   		
+        adWhirlLayout = new AdWhirlLayout(this, adwhirlKey);
+        
+        adWhirlLayout.setAdWhirlInterface(this);
+    	
+        adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+	 	
+        rlAd.addView(adWhirlLayout);
+    	
+
     }
 
     private void initView() {
@@ -167,7 +192,12 @@ public class LoaderPlayerActivity extends Activity {
             public void onCompletion(MediaPlayer pMp) {
                 /*LoaderPlayerActivity.this.mProgressBar.setVisibility(View.VISIBLE);
                 LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.VISIBLE);*/
-            	LoaderPlayerActivity.this.animationDrawable.start();
+            	mProgressImage.post(new Runnable() {
+        		    @Override
+        		    public void run() {
+        		        animationDrawable.start();
+        		    }
+        		});
             	LoaderPlayerActivity.this.mDialogLoader.show();
                 currentPart+=1;
                 if(currentPart > videoIds.size()) {
@@ -220,7 +250,8 @@ public class LoaderPlayerActivity extends Activity {
         rlAd = (RelativeLayout)mDialogLoader.findViewById(R.id.ad_layout);
 
         animationDrawable = (AnimationDrawable) mProgressImage.getBackground();        
-
+        
+        setAd();
         /*mProgressBar = new ProgressBar(this);
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -450,4 +481,10 @@ public class LoaderPlayerActivity extends Activity {
         } else
             return super.onKeyDown(keyCode, event);
     }
+
+	@Override
+	public void adWhirlGeneric() {
+		// TODO Auto-generated method stub
+		
+	}
 }

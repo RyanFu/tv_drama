@@ -8,7 +8,7 @@
     <item >
         <shape>
             <gradient   
-                android:startColor="@color/main_color_grey_dark" 
+                android:startColor="@color/transparent50" 
                 android:centerColor="@color/tab_bg_seperate" 
                 android:endColor="@color/main_color_grey_dark"  
                 android:angle="0" />
