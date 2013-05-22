@@ -7,10 +7,15 @@ import com.jumplife.videoloader.DailymotionLoader;
 import com.jumplife.videoloader.YoutubeLoader;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
@@ -23,10 +28,13 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
@@ -46,17 +54,17 @@ public class LoaderPlayerActivity extends Activity {
 
     public final static String MSG_ERROR_TITLE = "com.keyes.video.msg.error.title";
     protected String mMsgErrorTitle = "連線錯誤";
-
-    public final static String MSG_ERROR_MSG = "com.keyes.video.msg.error.msg";
-    protected String mMsgError = "An error occurred during the retrieval of the video.  This could be due to network issues or YouTube protocols.  Please try again later.";
-
     /**
      * Background task on which all of the interaction with YouTube is done
      */
     protected QueryVideoTask mQueryVideoTask;
-    protected ProgressBar mProgressBar;
+    protected Dialog mDialogLoader;
+    //protected ProgressBar mProgressBar;
+    protected ImageView mProgressImage;
     protected TextView mProgressMessage;
-    protected VideoView mVideoView;
+	private AnimationDrawable animationDrawable;
+    private RelativeLayout rlAd;
+    private VideoView mVideoView;
     
     private int currentPart = 1;
     private ArrayList<String> videoIds = new ArrayList<String>();
@@ -64,8 +72,12 @@ public class LoaderPlayerActivity extends Activity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
+    }
+    
+    @Override  
+    public void onWindowFocusChanged(boolean hasFocus) {  
+        super.onWindowFocusChanged(hasFocus);
+        animationDrawable.start();
     }
     
     @Override
@@ -81,9 +93,12 @@ public class LoaderPlayerActivity extends Activity {
         // determine the messages to be displayed as the view loads the video
         extractMessages();
         
-        mProgressBar.bringToFront();
+        /*mProgressBar.bringToFront();
         mProgressBar.setVisibility(View.VISIBLE);
+        mProgressMessage.setText(mMsgInit);*/
+        mDialogLoader.show();
         mProgressMessage.setText(mMsgInit);
+        animationDrawable.start();
     
         Bundle extra = getIntent().getExtras();//.getStringArrayListExtra("");
         currentPart = extra.getInt("currentPart", 1);
@@ -114,10 +129,6 @@ public class LoaderPlayerActivity extends Activity {
         String lMsgErrTitle = lInvokingIntent.getStringExtra(MSG_ERROR_TITLE);
         if (lMsgErrTitle != null) {
             mMsgErrorTitle = lMsgErrTitle;
-        }
-        String lMsgErrMsg = lInvokingIntent.getStringExtra(MSG_ERROR_MSG);
-        if (lMsgErrMsg != null) {
-            mMsgError = lMsgErrMsg;
         }
     }
 
@@ -154,8 +165,10 @@ public class LoaderPlayerActivity extends Activity {
         mVideoView.setMediaController(lMediaController);
         mVideoView.setOnCompletionListener(new OnCompletionListener() {	
             public void onCompletion(MediaPlayer pMp) {
-                LoaderPlayerActivity.this.mProgressBar.setVisibility(View.VISIBLE);
-                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.VISIBLE);
+                /*LoaderPlayerActivity.this.mProgressBar.setVisibility(View.VISIBLE);
+                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.VISIBLE);*/
+            	LoaderPlayerActivity.this.animationDrawable.start();
+            	LoaderPlayerActivity.this.mDialogLoader.show();
                 currentPart+=1;
                 if(currentPart > videoIds.size()) {
                 	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
@@ -177,14 +190,38 @@ public class LoaderPlayerActivity extends Activity {
         });
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {	
             public void onPrepared(MediaPlayer pMp) {
-                LoaderPlayerActivity.this.mProgressBar.setVisibility(View.GONE);
-                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.GONE);
+                /*LoaderPlayerActivity.this.mDialogLoader.setVisibility(View.GONE);
+                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.GONE);*/
+            	LoaderPlayerActivity.this.mDialogLoader.cancel();
+            	LoaderPlayerActivity.this.animationDrawable.stop();
             }
 
         });
         
+        mDialogLoader = new Dialog(this, R.style.dialogLoader);
+        mDialogLoader.setContentView(R.layout.dialog_loader);
+        mDialogLoader.setCanceledOnTouchOutside(false);
+        mDialogLoader.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+				if(keyCode == KeyEvent.KEYCODE_BACK
+						&& event.getAction() == KeyEvent.ACTION_DOWN){
+					if(mDialogLoader != null && mDialogLoader.isShowing())
+						mDialogLoader.cancel();
+					LoaderPlayerActivity.this.finish();
+					return true;
+				}
+				return false;
+			}			    	
+        });
+        
+        mProgressImage = (ImageView)mDialogLoader.findViewById(R.id.imageview_progressbar);
+        mProgressMessage = (TextView)mDialogLoader.findViewById(R.id.textview_load);
+        rlAd = (RelativeLayout)mDialogLoader.findViewById(R.id.ad_layout);
 
-        mProgressBar = new ProgressBar(this);
+        animationDrawable = (AnimationDrawable) mProgressImage.getBackground();        
+
+        /*mProgressBar = new ProgressBar(this);
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.setEnabled(true);
@@ -205,14 +242,17 @@ public class LoaderPlayerActivity extends Activity {
         mProgressMessage.setTextColor(Color.LTGRAY);
         mProgressMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         mProgressMessage.setText("...");
-        lRelLayout.addView(mProgressMessage);
+        lRelLayout.addView(mProgressMessage);*/
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        
+        if(animationDrawable != null && animationDrawable.isRunning())
+        	animationDrawable.stop();
+        
         if (mQueryVideoTask != null) {
             mQueryVideoTask.cancel(true);
         }
