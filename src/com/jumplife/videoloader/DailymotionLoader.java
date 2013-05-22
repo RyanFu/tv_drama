@@ -41,6 +41,7 @@ public class DailymotionLoader {
 		        if (j >= k)
 		        	return null;
 		        Matcher localMatcher2 = Pattern.compile("\"(.+)\":\"(.+)\"").matcher(arrayOfString[j]);
+		        Log.d(null, arrayOfString[j]);
 		        if ((localMatcher2.find()) && ((localMatcher2.group(1).equalsIgnoreCase("stream_h264_url")) || 
 		        		(localMatcher2.group(1).equalsIgnoreCase("stream_h264_hq_url")))) {
 		        	String localurlData = null;

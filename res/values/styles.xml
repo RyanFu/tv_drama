@@ -54,10 +54,11 @@
         <item name="android:windowFrame">@null</item>
         <!-- 無標題 -->
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/transparent80</item>
+        <item name="android:windowBackground">@drawable/dialog_loader_background</item>
         <!-- 懸浮效果 -->
         <item name="android:windowIsFloating">true</item>
         <!-- 遮罩效果 -->
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowContentOverlay">@null</item>  
+        <item name="android:backgroundDimAmount">0.3</item> 
     </style>
 </resources>

@@ -32,6 +32,7 @@
     <string name="movie_timetable">Movie Timetable</string>
     <string name="tv_entertainment">TV Entertainment</string>
     <string name="notification_switch">Notification</string>
+    <string name="continuous_switch">Continuous Playback</string>
     <string name="diary">Update Diary</string>    
     <string name="clear">Clear Buffer</string>
     <string name="chapter_listing">Chapter Listing</string>

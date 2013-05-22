@@ -55,8 +55,11 @@
     <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
     <color name="transparent100">#00000000</color>
+    <color name="transparent90">#16000000</color>
     <color name="transparent80">#33000000</color>
     <color name="transparent50">#88000000</color>
+    <color name="transparent30">#aa000000</color>
+    <color name="transparent30_white">#aaffffff</color>
     
    
     <!-- Add for VPON -->

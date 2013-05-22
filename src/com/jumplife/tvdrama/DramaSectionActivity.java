@@ -203,7 +203,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 			});
     }
     
-    private void setGridClickListener() {
+    private void setPlayerGridClickListener() {
     	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -247,6 +247,67 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     	});
     }
     
+    private void setNormalGridClickListener() {
+    	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            	currentSection = chapterNo + ", " + (position + 1);
+            	dramaSectionAdapter.setCurrentSection(currentSection);
+            	dramaSectionAdapter.notifyDataSetChanged();
+            	shIO.SharePreferenceI("views", true);
+            	Uri uri;
+            	if(sectionList.get(position).getUrl() == null ||
+            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+            			sectionList.get(position).getUrl().contains("maplestage")) {
+            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+    		        dialog.setTitle(getResources().getString(R.string.no_link));
+    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
+    		            public void onClick(DialogInterface dialog, int which) {
+    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+    	            				+ chapterNo + getResources().getString(R.string.no));  
+    	            		startActivity(search);
+    		            }
+    		        });
+    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+    		            public void onClick(DialogInterface dialog, int which) {
+    		            }
+    		        });
+    		        dialog.show();            		 
+            	} else {
+            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
+            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
+	            			String url = sectionList.get(position).getUrl();
+	            			url = url.substring(39);
+	            			String[] tmpUrls = url.split("\\?");
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			} else {
+            				String url = sectionList.get(position).getUrl();
+	            			url = url.substring(33);
+	            			String[] tmpUrls = url.split("&");	            			
+	            			String tmpId = null;
+	            			if(tmpUrls.length > 0)
+	            				tmpId = tmpUrls[0];
+	            			if(tmpId != null)
+	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+            			}
+            		}
+            		
+            		uri = Uri.parse(sectionList.get(position).getUrl());
+            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+            		startActivity(it);
+            	}
+            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
+    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
+    			SQLiteTvDrama.closeDB();
+            }
+        });
+    }
+    
     // 設定畫面上的UI
     private void setViews() {
     	
@@ -273,7 +334,14 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 			}			
 		});
     	
-    	setGridClickListener();
+    	SharePreferenceIO shIO = new SharePreferenceIO(this);
+        boolean shareKey = true;;
+        shareKey = shIO.SharePreferenceO("repeat_key", shareKey);
+        if(shareKey)
+        	setPlayerGridClickListener();
+        else
+        	setNormalGridClickListener();
+    	
     	
     	DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

@@ -28,6 +28,7 @@
     <string name="liability_disclaimer">免責聲明</string>
     <string name="entertainment_news">電影報</string>
     <string name="notification_switch">通知開關</string>
+    <string name="continuous_switch">連續撥放</string>
     <string name="diary">更新日誌</string>    
     <string name="clear">清除緩衝</string>
     <string name="movie_notes">電影櫃</string>

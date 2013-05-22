@@ -50,6 +50,7 @@ public class AboutUsActivity extends Activity {
 	private LinearLayout llTvVariety;*/
 	
 	private ImageView ivNotification;
+	private ImageView ivRepeat;
 	private LinearLayout llAboutUs;
 	private ProgressBar pbInit;
 	private ArrayList<AppProject> appProject;
@@ -373,46 +374,62 @@ public class AboutUsActivity extends Activity {
 			}				
 		});
         Schedule_row_second.addView(llNotification);
+
+        
 		
-		
-		
-		TextView tvDiary = new TextView(mActivity);
-		ImageView ivDiary= new ImageView(mActivity);
-		LinearLayout llDiary = new LinearLayout(mActivity);		
+		TextView tvRepeat = new TextView(mActivity);
+		ivRepeat = new ImageView(mActivity);
+		LinearLayout llRepeat = new LinearLayout(mActivity);		
 			
-		ivDiary.setScaleType(ImageView.ScaleType.CENTER_CROP);
-		ivDiary.setImageResource(R.drawable.version);
-		llDiary.addView(ivDiary, llIvParams);
+		ivRepeat.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		setRepeatDrawable();
+		llRepeat.addView(ivRepeat, llIvParams);
 		
-		LinearLayout.LayoutParams llTvDiaryParams = new LinearLayout.LayoutParams
+		LinearLayout.LayoutParams llTvRepeatParams = new LinearLayout.LayoutParams
 				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        //rlTvDiaryParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        //rlTvDiaryParams.addRule(RelativeLayout.BELOW, ivDiary.getId());
-        //rlTvDiaryParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        llTvDiaryParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+        //rlTvRepeatParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvRepeatParams.addRule(RelativeLayout.BELOW, ivRepeat.getId());
+        //rlTvRepeatParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvRepeatParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
-        tvDiary.setText(mActivity.getResources().getString(R.string.diary));
-        tvDiary.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
-        //tvDiary.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
-        llDiary.addView(tvDiary, llTvDiaryParams);		
+        tvRepeat.setText(mActivity.getResources().getString(R.string.continuous_switch));
+        tvRepeat.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
+        //tvRepeat.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
+        llRepeat.addView(tvRepeat, llTvRepeatParams);		
 		
-        llDiary.setBackgroundResource(R.drawable.button_aboutus_bg);
-        llDiary.setOrientation(LinearLayout.VERTICAL);
-        llDiary.setGravity(Gravity.CENTER_HORIZONTAL);
-        llDiary.setLayoutParams(Params);
-        llDiary.setOnClickListener(new OnClickListener(){
-        	
+        llRepeat.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llRepeat.setOrientation(LinearLayout.VERTICAL);
+        llRepeat.setGravity(Gravity.CENTER_HORIZONTAL);
+        llRepeat.setLayoutParams(Params);
+        llRepeat.setOnClickListener(new OnClickListener(){
         	public void onClick(View arg0) {
-        		diaryDataTask = new DiaryDataTask();
-        	    if(Build.VERSION.SDK_INT < 11)
-        	    	diaryDataTask.execute();
+        		String message;
+        		boolean shareKey = true;;
+                shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+                if(shareKey)
+                	message = "目前狀態 : 連續撥放開啟";
                 else
-                	diaryDataTask.executeOnExecutor(DiaryDataTask.THREAD_POOL_EXECUTOR, 0);
+                	message = "目前狀態 : 連續撥放關閉";
+                
+        		new AlertDialog.Builder(AboutUsActivity.this).setTitle("連續撥放開關")
+        		.setMessage(message)
+	            .setPositiveButton(getResources().getString(R.string.open), new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	shIO.SharePreferenceI("repeat_key", true);
+	                	setRepeatDrawable();
+	                }
+	            }).setNegativeButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface arg0, int arg1) {
+	                	shIO.SharePreferenceI("repeat_key", false);
+	                	setRepeatDrawable();
+	                }
+	            })
+	            .show();
 			}				
 		});
-        Schedule_row_second.addView(llDiary);
+        Schedule_row_second.addView(llRepeat);
 		
 		
 		
@@ -460,10 +477,49 @@ public class AboutUsActivity extends Activity {
 		Schedule_row_third.addView(llClear);
         
 
-		RelativeLayout rltmps1 = new RelativeLayout(mActivity);
-		rltmps1.setBackgroundResource(R.drawable.button_aboutus_bg);	
-		rltmps1.setLayoutParams(Params);
-		Schedule_row_third.addView(rltmps1);
+
+		
+		
+		
+		TextView tvDiary = new TextView(mActivity);
+		ImageView ivDiary= new ImageView(mActivity);
+		LinearLayout llDiary = new LinearLayout(mActivity);		
+			
+		ivDiary.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		ivDiary.setImageResource(R.drawable.version);
+		llDiary.addView(ivDiary, llIvParams);
+		
+		LinearLayout.LayoutParams llTvDiaryParams = new LinearLayout.LayoutParams
+				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //rlTvDiaryParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvDiaryParams.addRule(RelativeLayout.BELOW, ivDiary.getId());
+        //rlTvDiaryParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvDiaryParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				0, 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
+        tvDiary.setText(mActivity.getResources().getString(R.string.diary));
+        tvDiary.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
+        //tvDiary.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
+        llDiary.addView(tvDiary, llTvDiaryParams);		
+		
+        llDiary.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llDiary.setOrientation(LinearLayout.VERTICAL);
+        llDiary.setGravity(Gravity.CENTER_HORIZONTAL);
+        llDiary.setLayoutParams(Params);
+        llDiary.setOnClickListener(new OnClickListener(){
+        	
+        	public void onClick(View arg0) {
+        		diaryDataTask = new DiaryDataTask();
+        	    if(Build.VERSION.SDK_INT < 11)
+        	    	diaryDataTask.execute();
+                else
+                	diaryDataTask.executeOnExecutor(DiaryDataTask.THREAD_POOL_EXECUTOR, 0);
+			}				
+		});
+		Schedule_row_third.addView(llDiary);
+		
+		
 		RelativeLayout rltmps2 = new RelativeLayout(mActivity);
 		rltmps2.setBackgroundResource(R.drawable.button_aboutus_bg);	
 		rltmps2.setLayoutParams(Params);
@@ -483,6 +539,17 @@ public class AboutUsActivity extends Activity {
         	ivNotification.setImageResource(R.drawable.notification);
         else
         	ivNotification.setImageResource(R.drawable.no_notification);
+        
+	}
+	
+	private void setRepeatDrawable() {
+		SharePreferenceIO shIO = new SharePreferenceIO(this);
+        boolean shareKey = true;;
+        shareKey = shIO.SharePreferenceO("repeat_key", shareKey);
+        if(shareKey)
+        	ivRepeat.setImageResource(R.drawable.repeat_on);
+        else
+        	ivRepeat.setImageResource(R.drawable.repeat_off);
         
 	}
 	
