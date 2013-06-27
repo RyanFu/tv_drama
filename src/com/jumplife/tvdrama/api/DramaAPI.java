@@ -23,7 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.entity.Chapter;
 import com.jumplife.tvdrama.entity.Drama;
@@ -33,6 +33,7 @@ import com.jumplife.tvdrama.entity.Section;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -279,9 +280,9 @@ public class DramaAPI {
 		return sectionList;
 	}
 		
-	public void AddDramasFromInfo(String idlst) {
+	public void AddDramasFromInfo(SQLiteTvDramaHelper instance, SQLiteDatabase db, String idlst) {
+		Log.d(TAG, "id list : " + idlst);
 		String message = getMessageFromServer("GET", "api/v1/dramas/new_dramas_info.json?dramas_id=" + idlst, null);
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(mActivity);
 		
 		if(message != null) {
 			try {
@@ -295,7 +296,7 @@ public class DramaAPI {
 				}
 				if(dramas != null && dramas.size() > 0) {
 					Log.d(TAG, "Insert New Drama.");
-					sqlTvDrama.insertDramas(dramas);
+					instance.insertDramas(db, dramas);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -456,7 +457,7 @@ public class DramaAPI {
 
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String url = "http://drama.jumplife.com.tw/api/v1/dramas/" + DramaId + ".json";						
+			String url = urlAddress + "api/v1/dramas/" + DramaId + ".json";						
 			if(DEBUG)
 				Log.d(TAG, "URL : " + url);
 			
@@ -494,7 +495,7 @@ public class DramaAPI {
 		
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String url = "http://drama.jumplife.com.tw/api/v1/dramas/update_device_watch.json?" +
+			String url = urlAddress + "api/v1/dramas/update_device_watch.json?" +
 					"registration_id=" + DeviceId + 
 					"&drama_id=" + DramaId +
 					"&ep_num=" + epId;						
@@ -694,7 +695,7 @@ public class DramaAPI {
 		
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			HttpPost httpPost = new HttpPost("http://drama.jumplife.com.tw/api/v1/devices?registration_id=" 
+			HttpPost httpPost = new HttpPost(urlAddress + "api/v1/devices?registration_id=" 
 					+ regId + "&device_id=" + deviceId);			
 			HttpResponse response = httpClient.execute(httpPost);
 

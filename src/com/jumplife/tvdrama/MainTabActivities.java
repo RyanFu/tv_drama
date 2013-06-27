@@ -8,6 +8,7 @@ import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
@@ -68,6 +69,8 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maintab);
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
+        
         long startTime = System.currentTimeMillis();
         topbarLayout = (LinearLayout) findViewById(R.id.topbar);
         
@@ -223,12 +226,14 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     @Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
     

@@ -18,7 +18,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/background">
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout 
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
 		    android:padding="5dp"
@@ -171,6 +171,26 @@
                 android:textStyle="bold"
 		        android:text="@string/report_descriptionA4"
 		        />
+		    <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:padding="2dp"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:text="@string/report_descriptionQ5"
+                />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:text="@string/report_descriptionA5"
+                />
 		    <TextView
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"

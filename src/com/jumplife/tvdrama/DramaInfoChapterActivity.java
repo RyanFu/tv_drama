@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.res.Resources;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,11 +31,12 @@ import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Drama;
 import com.kuad.KuBanner;
@@ -47,9 +49,10 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 public class DramaInfoChapterActivity extends Activity implements AdWhirlInterface{
 
 	private ImageButton imageButtonRefresh;
-	private ImageView[] mark;
+	//private ImageView[] mark;
 	private ImageView poster;
 	private ImageView like;
+	private TextView[] mark_2;
 	private TextView textviewDramaContent;
 	private TextView textviewChapter;
 	private TextView textviewIntro;
@@ -83,6 +86,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drama_info_chapter);
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
         
         options = new DisplayImageOptions.Builder()
 		.showStubImage(R.drawable.stub)
@@ -90,7 +94,6 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
 		.cacheOnDisc()
-		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
         
@@ -112,6 +115,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	@Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     
@@ -124,6 +128,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
 	
@@ -213,20 +218,30 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
     }
 	
 	private String fetchData(){
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
 		
-		Log.d(null, "drama id : " + dramaId);
-		
+		Log.d(null, "drama id : " + dramaId);		
 		drama = new Drama();
-        drama = sqlTvDrama.getDrama(dramaId);
+		
+        //SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
+		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getReadableDatabase();
+        db.beginTransaction();
+        /*drama = sqlTvDrama.getDrama(dramaId);
         String tmp = sqlTvDrama.getDramaChapter(dramaId);
-        currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);
-        if(tmp != null && !tmp.equals("")) {
+        currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);        
+        sqlTvDrama.closeDB();*/
+        drama = instance.getDrama(db, dramaId);
+        String tmp = instance.getDramaChapter(db, dramaId);
+        currentChapter = instance.getDramaChapterRecord(db, dramaId);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        instance.closeHelper();
+        
+		if(tmp != null && !tmp.equals("")) {
         	chapters = tmp.split(",");
         	chapterCount = chapters.length;
         }
-        
-        SQLiteTvDrama.closeDB();
         
 		return "progress end";
 	}
@@ -235,18 +250,26 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		DramaAPI dramaAPI = new DramaAPI(this);
 		String eps = dramaAPI.getDramaEps(dramaId);
 		
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);		
+		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
+		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
+		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getWritableDatabase();
+        db.beginTransaction();
 		
-		currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);
+		//currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);
+        currentChapter = instance.getDramaChapterRecord(db, dramaId);
         if(eps != null && !eps.equals("")) {
         	chapters = eps.split(",");
         	chapterCount = chapters.length;
         	drama.setEps(eps);    		
-        	sqlTvDrama.updateDramaEps(dramaId, eps);
-        }
-        
-        SQLiteTvDrama.closeDB();
-        
+        	//sqlTvDrama.updateDramaEps(dramaId, eps);
+        	instance.updateDramaEps(db, dramaId, eps);
+        }        
+        //sqlTvDrama.closeDB();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        instance.closeHelper();        
         
 		return "progress end";
 	}
@@ -351,25 +374,28 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		
 	}
 
-	@SuppressWarnings("deprecation")
 	private void setFakeGrid() {
-		mark = new ImageView[chapterCount];
-		for(int i=0; i<chapterCount; i+=3) {
+		//mark = new ImageView[chapterCount];
+		mark_2 = new TextView[chapterCount];
+		for(int i=0; i<chapterCount; i+=4) {
 			TableRow Schedule_row = new TableRow(this);
-			for(int j=0; j<3; j++) {
+			for(int j=0; j<4; j++) {
 				int index = i + j;
 				RelativeLayout rl = new RelativeLayout(this);
-				TextView tv = new TextView(this);
+				//TextView tv = new TextView(this);
+				
 				
 				if(index < chapterCount) {
-					tv.setText(chapters[index]);				
-					tv.setId(index);
-					tv.setBackgroundResource(R.drawable.grid_item_dramachapter_bg);
-					tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-					tv.setTextColor(getResources().getColor(R.drawable.grid_item_dramachapter_textcolor));
-					tv.setGravity(Gravity.CENTER);
-					tv.setPadding(5, 10, 5, 10);
-					tv.setOnClickListener(new OnClickListener() {
+					mark_2[index] = new TextView(this);
+					//mark_2[index].setId(index + chapterCount);
+					mark_2[index].setText(chapters[index]);				
+					mark_2[index].setId(index);
+					mark_2[index].setBackgroundResource(R.drawable.grid_item_dramachapter_bg);
+					mark_2[index].setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+					mark_2[index].setTextColor(getResources().getColor(R.drawable.grid_item_dramachapter_textcolor));
+					mark_2[index].setGravity(Gravity.CENTER);
+					mark_2[index].setPadding(5, 10, 5, 10);
+					mark_2[index].setOnClickListener(new OnClickListener() {
 						public void onClick(View arg0) {
 							int position = arg0.getId();
 							currentChapter = position;
@@ -377,9 +403,14 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 							setFakeMark();  
 				        
 							Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-				        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaInfoChapterActivity.this);
-							sqlTvDrama.updateDramaChapterRecord(dramaId, currentChapter);
-							SQLiteTvDrama.closeDB();
+				        	//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaInfoChapterActivity.this);
+							SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(DramaInfoChapterActivity.this);
+					        SQLiteDatabase db = instance.getWritableDatabase();
+					        /*sqlTvDrama.updateDramaChapterRecord(dramaId, currentChapter);        
+					        sqlTvDrama.closeDB();*/
+					        instance.updateDramaChapterRecord(db, dramaId, currentChapter);
+					        db.close();
+					        instance.closeHelper();
 							
 							Intent newAct = new Intent();
 							//newAct.putExtra("chapter", chapters);
@@ -387,37 +418,37 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 							newAct.putExtra("drama_id", dramaId);
 							newAct.putExtra("drama_name", dramaName);
 			                newAct.setClass(DramaInfoChapterActivity.this, DramaSectionActivity.class);
-			                startActivity(newAct);
+			                DramaInfoChapterActivity.this.startActivity(newAct);			                
+			                //DramaInfoChapterActivity.this.overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
 						}					
 					});
 					RelativeLayout.LayoutParams rlTextParams = new RelativeLayout.LayoutParams
-							(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-					rlTextParams.setMargins(15, 15, 15, 15);
-					tv.setLayoutParams(rlTextParams);
-					rl.addView(tv);
+							(RelativeLayout.LayoutParams.MATCH_PARENT, (int) (mark_2[index].getTextSize() + 60));
+					rlTextParams.setMargins(16, 16, 16, 16);
+					mark_2[index].setLayoutParams(rlTextParams);
+					rl.addView(mark_2[index]);
 					
-					mark[index] = new ImageView(this);
+					/*mark[index] = new ImageView(this);
 					mark[index].setId(index + chapterCount);
-					mark[index].setImageResource(R.drawable.mark);
-					RelativeLayout.LayoutParams rlMarkParams = new RelativeLayout.LayoutParams
+					mark[index].setImageResource(R.drawable.mark);RelativeLayout.LayoutParams rlMarkParams = new RelativeLayout.LayoutParams
 							(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 					rlMarkParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 					rlMarkParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-					rlMarkParams.setMargins(16, 16, 16, 16);
-					rlMarkParams.width = 20;
-					rlMarkParams.height = 20;
+					rlMarkParams.setMargins(26, 26, 26, 26);
+					rlMarkParams.width = 22;
+					rlMarkParams.height = 22;
 					mark[index].setLayoutParams(rlMarkParams);				
-					rl.addView(mark[index]);
+					rl.addView(mark[index]);*/
 				}				
 				
 				TableRow.LayoutParams Params = new TableRow.LayoutParams
-						(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.333f);
+						(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.25f);
 				rl.setLayoutParams(Params);
 				
 				Schedule_row.addView(rl);				
 			}
 			Schedule_row.setLayoutParams(new LayoutParams
-					(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));  
+					(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));  
 			llChapter.addView(Schedule_row);
 		}
 		
@@ -445,7 +476,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	
 	private void setFakeMark() {
 		for(int i=0; i<chapterCount; i+=1) {
-			if(currentChapter < 0) {
+			/*if(currentChapter < 0) {
 				if(i == 0)
 					mark[i].setVisibility(View.VISIBLE);
 				else
@@ -455,6 +486,23 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 					mark[i].setVisibility(View.VISIBLE);
 				else
 					mark[i].setVisibility(View.GONE);
+			}*/
+			if(currentChapter < 0) {				
+				if(i == 0) {
+					mark_2[i].setBackgroundResource(R.drawable.grid_item_dramachapter_mark_bg);
+					mark_2[i].setTextColor(getResources().getColor(R.color.white));
+				} else {
+					mark_2[i].setBackgroundResource(R.drawable.grid_item_dramachapter_bg);
+					mark_2[i].setTextColor(getResources().getColor(R.drawable.grid_item_dramachapter_textcolor));
+				}
+			} else {
+				if(i == currentChapter) {
+					mark_2[i].setBackgroundResource(R.drawable.grid_item_dramachapter_mark_bg);
+					mark_2[i].setTextColor(getResources().getColor(R.color.white));
+				} else {
+					mark_2[i].setBackgroundResource(R.drawable.grid_item_dramachapter_bg);
+					mark_2[i].setTextColor(getResources().getColor(R.drawable.grid_item_dramachapter_textcolor));
+				}
 			}
 		}
 	}
@@ -581,35 +629,6 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
         }
-    }
-
-	class UpdateDramaChapterRecordTask extends AsyncTask<Integer, Integer, String>{  
-        
-		@Override  
-        protected void onPreExecute() {
-			setFakeMark();
-			super.onPreExecute();  
-        }  
-          
-        @Override  
-        protected String doInBackground(Integer... params) {
-        	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaInfoChapterActivity.this);
-			sqlTvDrama.updateDramaChapterRecord(dramaId, currentChapter);
-			return "progress end";
-        }  
- 
-
-		@Override  
-        protected void onProgressUpdate(Integer... progress) {    
-            super.onProgressUpdate(progress);  
-        }  
-  
-        @Override  
-        protected void onPostExecute(String result) {
-        	super.onPostExecute(result);  
-        }  
-          
     }
 	
 	public void showHodoAd() {

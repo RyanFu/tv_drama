@@ -2,10 +2,11 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
 
@@ -16,6 +17,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -46,14 +50,14 @@ public class MyFavoriteWaterFallActivity extends Activity {
     private LoadDataTask     loadTask;
     private DramaGridAdapter adapter;
     private SharePreferenceIO shIO;
-    private SQLiteTvDrama sqlTvDrama;
     private ArrayList<Drama> dramaList;
+	private Animation animation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myfavoritewaterfall);
-        
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
         initViews();        
     }
 
@@ -91,8 +95,8 @@ public class MyFavoriteWaterFallActivity extends Activity {
     }
 
     private void initViews() {
-    	sqlTvDrama = new SQLiteTvDrama(this);
-    	
+    	animation = AnimationUtils.loadAnimation(MyFavoriteWaterFallActivity.this, R.anim.item_movies_anim);
+		
     	rlWaterfall = (RelativeLayout)findViewById(R.id.rl_waterfall);
         llNoMyfavorite = (LinearLayout)findViewById(R.id.ll_no_myfavorite);
         
@@ -147,13 +151,8 @@ public class MyFavoriteWaterFallActivity extends Activity {
         dramaGridView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	EasyTracker.getTracker().trackEvent("我的收藏", dramaList.get(position).getChineseName(), "播放", (long)0);
-                Intent newAct = new Intent();
-                newAct.putExtra("drama_id", dramaList.get(position).getId());
-                newAct.putExtra("drama_name", dramaList.get(position).getChineseName());
-                newAct.putExtra("drama_poster", dramaList.get(position).getPosterUrl());
-                //newAct.setClass(MyFavoriteWaterFallActivity.this, DramaTabActivities.class);
-                newAct.setClass(MyFavoriteWaterFallActivity.this, DramaInfoChapterActivity.class);
-                startActivity(newAct);
+            	view.startAnimation(animation);
+    			view.postDelayed(createRunnable(position, view), 30);
             }
         });
         
@@ -166,11 +165,35 @@ public class MyFavoriteWaterFallActivity extends Activity {
         
         dramaGridView.setAdapter(adapter);
     }
+	
+	private Runnable createRunnable(final int position, final View view){
+	    Runnable aRunnable = new Runnable(){
+	        public void run(){
+                Intent newAct = new Intent();
+                newAct.putExtra("drama_id", dramaList.get(position).getId());
+                newAct.putExtra("drama_name", dramaList.get(position).getChineseName());
+                newAct.putExtra("drama_poster", dramaList.get(position).getPosterUrl());
+                //newAct.setClass(MyFavoriteWaterFallActivity.this, DramaTabActivities.class);
+                newAct.setClass(MyFavoriteWaterFallActivity.this, DramaInfoChapterActivity.class);
+                startActivity(newAct);
+	        }
+	    };
+	    return aRunnable;
+	}
     
     private void fetchData() {
     	shIO = new SharePreferenceIO(MyFavoriteWaterFallActivity.this);
     	dramaList = new ArrayList<Drama>(30); 	
+    	
+
+        /*SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);    	
     	dramaList = sqlTvDrama.getDramaList(shIO.SharePreferenceO("like_drama", ""));
+    	sqlTvDrama.closeDB();*/
+    	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getWritableDatabase();
+        dramaList = instance.getDramaList(db, shIO.SharePreferenceO("like_drama", ""));
+        db.close();
+        instance.closeHelper();
     }
 
     class LoadDataTask extends AsyncTask<Integer, Integer, String> {
@@ -260,6 +283,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     @Override
@@ -273,6 +297,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
 }

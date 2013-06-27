@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jumplife.tvdrama"
-    android:versionCode="27"
-    android:versionName="1.0.26">
+    android:versionCode="33"
+    android:versionName="1.0.32">
     
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,10 +13,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     
     <!-- GCM Permission -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.jumplife.tvdrama.permission.C2D_MESSAGE" /> 
     <permission android:name="com.jumplife.tvdrama.permission.C2D_MESSAGE" 
         android:protectionLevel="signature" />
@@ -68,7 +68,8 @@
         <activity android:name=".NewsPic" 
             android:screenOrientation="portrait"></activity>
         <activity android:name=".DramaSectionActivity"
-            android:windowSoftInputMode="stateHidden" ></activity>
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="sensor" ></activity>
         <activity android:name="com.jumplife.youtubeapi.PlayerControlsActivity"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity android:name="com.jumplife.youtubeapi.FullscreenDemoActivity"></activity>
@@ -111,11 +112,25 @@
             android:screenOrientation="portrait" ></activity>
         
         <!-- Used for install referrer tracking-->
+        
 	    <receiver android:name="com.google.analytics.tracking.android.AnalyticsReceiver" android:exported="true">
 	      <intent-filter>
 	        <action android:name="com.android.vending.INSTALL_REFERRER" />
 	      </intent-filter>
 	    </receiver>
+       
+        <!-- Used for install referral measurement-->
+        <!-- for google analytics campaign tracking -->
+        <service android:name="com.google.analytics.tracking.android.CampaignTrackingService"/>
+        <receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
+            <meta-data android:name="forward.GoogleAnalytics"
+              android:value="com.google.android.apps.analytics.AnalyticsReceiver" />
+            <meta-data android:name="forward.CampaignTrackingReceiver"
+              android:value="com.google.analytics.tracking.android.CampaignTrackingReceiver" />
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
 	    
 	    
 	    <!-- GCM Setting -->
@@ -137,8 +152,12 @@
             android:name="com.hodo.SplashaActivity"
             android:theme="@android:style/Theme.Translucent"/>
         <activity android:name="LoaderPlayerActivity"
+            android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode" ></activity>
-       
+        <activity android:name="com.jumplife.customplayer.CustomPlayerActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode" ></activity>
+        
     </application>
     
     

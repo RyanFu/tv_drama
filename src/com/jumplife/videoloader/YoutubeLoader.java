@@ -25,6 +25,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import android.os.Build;
 import android.util.Log;
 
 
@@ -33,7 +34,7 @@ public class YoutubeLoader {
 	static final String YOUTUBE_VIDEO_INFORMATION_URL = "http://www.youtube.com/get_video_info?video_id=";
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String Loader(String pYouTubeFmtQuality, boolean pFallback, String pYouTubeVideoId) {
+	public static HashMap<String, String> Loader(String pYouTubeFmtQuality, boolean pFallback, String pYouTubeVideoId) {
 		InputStream ins = null;
 		List<NameValuePair> params = new ArrayList();
 		String video_info = "";
@@ -58,30 +59,71 @@ public class YoutubeLoader {
 	    }
 	    
 	    HashMap localHashMap1 = new HashMap();
-	    Log.d("player", "video info : " + parse_str(video_info));
-	    String[] arrayOfString1 = ((String)parse_str(video_info).get("url_encoded_fmt_stream_map")).split(",");
-	    for (int i = 0; ; i++) {
-	      if (i >= arrayOfString1.length)
-	        return (String) localHashMap1.get("medium");
-	      HashMap localHashMap2 = parse_str(arrayOfString1[i]);
-	      String str1 = (String)localHashMap2.get("type");
-	      String str2 = (String)localHashMap2.get("quality");
-
-	      String[] arrayOfString2 = str1.split(";");
-	      if (arrayOfString2.length > 1)
-	        str1 = arrayOfString2[0];
-	      if ((str1.equals("video/mp4")) && ((str2.equals("hd1080")) || (str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")) || (str2.equals("small"))))
-	      {
-	        String str3 = (String)localHashMap2.get("quality");
-	        String str4 = (String)localHashMap2.get("url") + "&signature=" + (String)localHashMap2.get("sig");
-	        localHashMap1.put(str3, str4);
-	      }
+	    HashMap tmp = parse_str(video_info);
+	    String currentType = "";
+	    String currentQuality = "";
+	    Log.d("player", "video info : " + tmp);
+	    
+	    if(tmp.containsKey("url_encoded_fmt_stream_map")) {
+		    String[] arrayOfString1 = ((String)tmp.get("url_encoded_fmt_stream_map")).split(",");
+		    for (int i=0; i<arrayOfString1.length; i++) {
+		      HashMap localHashMap2 = parse_str(arrayOfString1[i]);
+		      String str1 = (String)localHashMap2.get("type");
+		      String str2 = (String)localHashMap2.get("quality");
+		      
+		      Log.d("player", "type : " + str1 + " quality : " + str2);
+		      
+		      if(str1 != null && str2 != null) {
+			      String[] arrayOfString2 = str1.split(";");
+			      if (arrayOfString2.length > 1)
+			    	  str1 = arrayOfString2[0];
+			      if(Build.VERSION.SDK_INT < 11) {
+				      if (((str1.equals("video/mp4")) || (str1.equals("video/3gpp"))) && 
+				    		  ((str2.equals("hd1080")) || (str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")))) {
+				    	  if(str2.equals(currentQuality) && currentType.equals("video/mp4")) {
+			    			  
+			    		  } else {
+			    			  currentType = str1;
+			    			  currentQuality = str2;
+				    		  String str3 = (String)localHashMap2.get("quality");
+					    	  String str4 = (String)localHashMap2.get("url") + "&signature=" + (String)localHashMap2.get("sig");
+					    	  if(localHashMap1.containsKey(str3))
+					    		  localHashMap1.remove(str3);
+						      localHashMap1.put(str3, str4);
+						      
+						      Log.d("player", "quality : " + str3 + " url : " + str4);
+			    		  }
+				      }
+			      } else {
+			    	  if (((str1.equals("video/mp4")) || (str1.equals("video/webm")) || (str1.equals("video/3gpp"))) && 
+				    		  ((str2.equals("hd1080")) || (str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")))) {
+			    		  if(str2.equals(currentQuality) && currentType.equals("video/mp4")) {
+			    			  
+			    		  } else {
+			    			  currentType = str1;
+			    			  currentQuality = str2;
+				    		  String str3 = (String)localHashMap2.get("quality");
+					    	  String str4 = (String)localHashMap2.get("url") + "&signature=" + (String)localHashMap2.get("sig");
+					    	  if(localHashMap1.containsKey(str3))
+					    		  localHashMap1.remove(str3);
+						      localHashMap1.put(str3, str4);
+						      
+						      Log.d("player", "quality : " + str3 + " url : " + str4);
+			    		  }
+				      }
+			      }
+		      }
+		    }
 	    }
+	    return localHashMap1;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static HashMap<String, String> parse_str(String paramString) {
 		HashMap localHashMap = new HashMap();
+		if(paramString == null)
+		    return localHashMap;
+		
 	    try {
 	    	String[] arrayOfString1 = paramString.split("&");
 	    	for (int i = 0; ; i++) {

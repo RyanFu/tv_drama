@@ -11,10 +11,11 @@ import java.util.List;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.ViewPagerAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
 
@@ -24,6 +25,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -69,7 +71,6 @@ public class TvChannelViewPagerActivity extends Activity {
     private static List<ArrayList<Drama>> thirteenDramaLists;
     private static List<ArrayList<Drama>> twelveDramaLists;
     private static List<ArrayList<Drama>> beforeDramaLists;
-    private SQLiteTvDrama sqliteTvDrama;
     private SharePreferenceIO shIO;
     
     private final int FLAG_HOT = 0;
@@ -84,7 +85,8 @@ public class TvChannelViewPagerActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvchannelviewpager);
-
+		BugSenseHandler.initAndStartSession(this, "72a249b7");
+		
 		Bundle extras = getIntent().getExtras();
 		currIndex = extras.getInt("type_id", 0);
 		if(currIndex > listnumber)
@@ -151,8 +153,7 @@ public class TvChannelViewPagerActivity extends Activity {
         topbar_text = (TextView)findViewById(R.id.topbar_text);
         topbar_text.setText(getResources().getString(R.string.app_name));
         
-		sqliteTvDrama = new SQLiteTvDrama(this);
-        shIO = new SharePreferenceIO(this);
+		shIO = new SharePreferenceIO(this);
         shIO.SharePreferenceO("tvchannel_flag", 1);
     	
 		DisplayMetrics dm = new DisplayMetrics();
@@ -193,12 +194,18 @@ public class TvChannelViewPagerActivity extends Activity {
         
         viewpager.setAdapter(new ViewPagerAdapter(this, dramaLists));
 		viewpager.setCurrentItem(currIndex);
-		
+		viewpager.getAdapter().notifyDataSetChanged();
 		viewpager.setOnPageChangeListener(new ListOnPageChangeListener());
     }
 
     @SuppressWarnings("unchecked")
 	private void fetchData() {
+        
+    	//SQLiteTvDrama sqliteTvDrama = new SQLiteTvDrama(this);
+    	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+    	SQLiteDatabase db = instance.getReadableDatabase();
+        db.beginTransaction();
+        
     	dramaLists = new ArrayList<ArrayList<Drama>>();
     	hotDramaLists = new ArrayList<ArrayList<Drama>>();
         newDramaLists = new ArrayList<ArrayList<Drama>>();
@@ -208,7 +215,8 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	ArrayList<Drama> dramaList = new ArrayList<Drama>(30);
     	ArrayList<Drama> newDramaList = new ArrayList<Drama>(30);
-    	dramaList = sqliteTvDrama.getDramaList(1);
+    	//dramaList = sqliteTvDrama.getDramaList(1);
+    	dramaList = instance.getDramaList(db, 1);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	
     	hotSort(dramaList);
@@ -219,7 +227,8 @@ public class TvChannelViewPagerActivity extends Activity {
         twelveDramaLists.add(yearSort(dramaList, 2012));
         beforeDramaLists.add(yearBeforeSort(dramaList, 2011));
         
-    	dramaList = sqliteTvDrama.getDramaList(3);
+    	//dramaList = sqliteTvDrama.getDramaList(3);
+    	dramaList = instance.getDramaList(db, 3);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -229,7 +238,8 @@ public class TvChannelViewPagerActivity extends Activity {
         twelveDramaLists.add(yearSort(dramaList, 2012));
         beforeDramaLists.add(yearBeforeSort(dramaList, 2011));
         
-    	dramaList = sqliteTvDrama.getDramaList(4);
+    	//dramaList = sqliteTvDrama.getDramaList(4);
+    	dramaList = instance.getDramaList(db, 4);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -239,7 +249,8 @@ public class TvChannelViewPagerActivity extends Activity {
         twelveDramaLists.add(yearSort(dramaList, 2012));
         beforeDramaLists.add(yearBeforeSort(dramaList, 2011));
         
-    	dramaList = sqliteTvDrama.getDramaList(2);
+    	//dramaList = sqliteTvDrama.getDramaList(2);
+    	dramaList = instance.getDramaList(db, 2);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -248,8 +259,14 @@ public class TvChannelViewPagerActivity extends Activity {
         thirteenDramaLists.add(yearSort(dramaList, 2013));
         twelveDramaLists.add(yearSort(dramaList, 2012));
         beforeDramaLists.add(yearBeforeSort(dramaList, 2011));
-        
+
         setSortList();
+        
+        //sqliteTvDrama.closeDB();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        instance.closeHelper();
     }
     
     private void setSortList() {
@@ -581,8 +598,9 @@ public class TvChannelViewPagerActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
 
-        	if (dramaLists.get(0) == null || dramaLists.get(1) == null || 
-        			dramaLists.get(2) == null || dramaLists.get(3) == null) {
+        	if (dramaLists != null && 
+        			(dramaLists.get(0) == null || dramaLists.get(1) == null || 
+        			dramaLists.get(2) == null || dramaLists.get(3) == null)) {
             	viewpager.setVisibility(View.GONE);
                 imageButtonRefresh.setVisibility(View.VISIBLE);
             } else {
@@ -627,6 +645,7 @@ public class TvChannelViewPagerActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+        BugSenseHandler.startSession(this);
         EasyTracker.getInstance().activityStart(this);
     }
 
@@ -646,6 +665,7 @@ public class TvChannelViewPagerActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        BugSenseHandler.closeSession(this);
         EasyTracker.getInstance().activityStop(this);
     }
 

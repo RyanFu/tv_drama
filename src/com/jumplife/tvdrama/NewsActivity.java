@@ -11,6 +11,7 @@ import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
@@ -61,6 +62,8 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_news);
+	    BugSenseHandler.initAndStartSession(this, "72a249b7");
+	    
 		findViews();
 		
 		/*
@@ -370,6 +373,7 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	@Override
 	protected void onStart() {
 	    super.onStart();
+	    BugSenseHandler.startSession(this);
 	}
 	@Override
 	protected void onDestroy(){
@@ -380,11 +384,12 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	@Override
 	protected void onStop() {
 	    super.onStop();
-    }
+	    BugSenseHandler.closeSession(this);
+	}
 	@Override
 	protected void onResume(){
         super.onResume();
-   }
+	}
 	public void adWhirlGeneric()
 	{
 		// TODO Auto-generated method stub

@@ -61,6 +61,8 @@
     <string name="report_descriptionA33">c. 觀看時選擇內建的瀏覽器</string>
     <string name="report_descriptionQ4">3. 為什麼常常出影片失效？</string>
     <string name="report_descriptionA4">Q:由於部分影片侵犯著作權，所以電視台將會提出要求予以下架，此時請回報給JumpLife團隊，若有搜尋正常連結，將會盡速更新。</string>
+    <string name="report_descriptionQ5">4. 連續撥放時出現[此段影片播放錯誤]？</string>
+    <string name="report_descriptionA5">Q:線上串流有時後撥放不穩定，會出現[此段影片撥放錯誤]訊息，建議使用[外部撥放]選項，開啟外部撥放程式撥放，以取得較好的撥放品質。由於目前發現部分裝置無法使用連續撥放功能，若想恢復成舊版撥放方式，可至[關於我們]關閉[連續撥放]，即可恢復成舊版撥放方式。</string>
     <string name="report_descriptionfinal">若依舊無法解決你的問題，請使用回報按鈕，電視綜藝感謝你的使用</string>
     
     <string name="episode">Episode</string>

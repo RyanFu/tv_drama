@@ -9,6 +9,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
@@ -16,12 +18,15 @@ import android.widget.GridView;
 import com.jumplife.tvdrama.DramaInfoChapterActivity;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.entity.Drama;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 
 public class ViewPagerAdapter extends PagerAdapter{
 
 	private Activity mActivty;
 	private List<ArrayList<Drama>> mDramaLists;
-
+	private Animation animation;
+	
 	public ViewPagerAdapter(Activity activty, List<ArrayList<Drama>> dramaLists) {
 		this.mActivty = activty;
 		this.mDramaLists = dramaLists;
@@ -43,8 +48,14 @@ public class ViewPagerAdapter extends PagerAdapter{
 	}	
 	
 	@Override
+	public int getItemPosition(Object object) {
+	    return POSITION_NONE;
+	}
+	
+	@Override
 	public Object instantiateItem(View pager, int pos) {
         
+		animation = AnimationUtils.loadAnimation(mActivty, R.anim.item_movies_anim);
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		mActivty.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels;
@@ -56,6 +67,7 @@ public class ViewPagerAdapter extends PagerAdapter{
         varietyGridView.setAdapter(adapter);
         itemOnClickListener itemclick = new itemOnClickListener(pos);
         varietyGridView.setOnItemClickListener(itemclick);
+        varietyGridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
         
         //((ViewPager)pager).addView(view, pos);
         ((ViewPager)pager).addView(view, ((ViewPager)pager).getChildCount() > pos ? pos : ((ViewPager)pager).getChildCount());
@@ -70,12 +82,32 @@ public class ViewPagerAdapter extends PagerAdapter{
 		}
 		
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			Intent newAct = new Intent();
+			view.startAnimation(animation);
+			view.postDelayed(createRunnable(position, view), 30);
+			/*Intent newAct = new Intent();
 			newAct.putExtra("drama_id", mDramaLists.get(index).get(position).getId());
             newAct.putExtra("drama_name", mDramaLists.get(index).get(position).getChineseName());
             newAct.putExtra("drama_poster", mDramaLists.get(index).get(position).getPosterUrl());
             newAct.setClass(mActivty, DramaInfoChapterActivity.class);
-            mActivty.startActivity(newAct);
+            mActivty.startActivity(newAct);*/
+		}
+		
+		private Runnable createRunnable(final int position, final View view){
+		    Runnable aRunnable = new Runnable(){
+		        public void run(){
+		        	Intent newAct = new Intent();
+					newAct.putExtra("drama_id", mDramaLists.get(index).get(position).getId());
+		            newAct.putExtra("drama_name", mDramaLists.get(index).get(position).getChineseName());
+		            newAct.putExtra("drama_poster", mDramaLists.get(index).get(position).getPosterUrl());
+		            newAct.setClass(mActivty, DramaInfoChapterActivity.class);
+		            mActivty.startActivity(newAct);
+		            mActivty.overridePendingTransition(android.R.anim.fade_out, android.R.anim.fade_in);
+		            //view.clearAnimation();
+		        }
+		    };
+		    return aRunnable;
 		}
 	};
+	
+	
 }

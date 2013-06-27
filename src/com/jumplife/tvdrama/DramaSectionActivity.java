@@ -7,16 +7,19 @@ import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
 import com.jumplife.sectionlistview.DramaSectionAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Section;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,8 +29,11 @@ import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -53,20 +59,21 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     private TextView		textViewFeedback;
     private TextView 		tvChapterNO;
     private TextView 		tvNotify;
-    private String currentSection = "";
+    private static String currentSection = "";
     private int screenWidth;
     private int screenHeight;
     private LoadDataTask    loadTask;
     private TextView topbar_text;
 	private ArrayList<Section> sectionList;
 
-	private int dramaId = 0;
-	private String dramaName = "";
-	private int chapterNo = 0;
+	private static int dramaId = 0;
+	private static String dramaName = "";
+	private static int chapterNo = 0;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
 	private static String TAG = "DramaSectionActivity";
 	private AdWhirlLayout adWhirlLayout;
+	//private SQLiteTvDrama sqlTvDrama;
 	
 	private final static int LOADERPLAYER = 100;
 	public final static int LOADERPLAYER_CHANGE = 101;
@@ -76,8 +83,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_dramasection);
-        
-        Log.d(TAG, "init view begin");
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
         
         initViews();
         /*
@@ -99,14 +105,26 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+		
+        int currentPart = -1;
+        if(data != null && data.hasExtra("currentPart"))
+        	currentPart = data.getIntExtra("currentPart", -1);
+        if(currentPart > 0)
+        	currentSection = chapterNo + ", " + currentPart;
+        if(currentSection != null && dramaId > 0) {
+			shIO.SharePreferenceI("views", true);
+			/*sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
+	    	sqlTvDrama.closeDB();*/
+			SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+	        SQLiteDatabase db = instance.getWritableDatabase();
+	        instance.updateDramaSectionRecord(db, dramaId, currentSection);
+	        db.close();
+	        instance.closeHelper();
+        }
+		
         switch (requestCode) {
         case LOADERPLAYER:
         	if (resultCode == LOADERPLAYER_CHANGE) {
-        		currentSection = chapterNo + ", " + data.getIntExtra("currentPart", 1);
-        		shIO.SharePreferenceI("views", true);            	
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
     			
         		if(dramaSectionAdapter == null || sectioGridView == null) {
         			loadTask = new LoadDataTask();
@@ -125,6 +143,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     
     private void initViews() {
     	shIO = new SharePreferenceIO(this);
+    	//sqlTvDrama = new SQLiteTvDrama(this);
     	
     	Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -212,10 +231,6 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             	dramaSectionAdapter.notifyDataSetChanged();
             	shIO.SharePreferenceI("views", true);
             	
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
-            	
             	if(sectionList.get(position).getUrl() == null ||
             			sectionList.get(position).getUrl().equalsIgnoreCase("")) {
             		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
@@ -239,6 +254,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             		for(int i = 0; i < sectionList.size(); i++)
             			videoIds.add(sectionList.get(i).getUrl());
             		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
+            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class);            		
             		newAct.putExtra("currentPart", position + 1);
             		newAct.putStringArrayListExtra("videoIds", videoIds);
             		startActivityForResult(newAct, LOADERPLAYER);            		
@@ -301,9 +317,6 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
             		startActivity(it);
             	}
-            	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-    			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
             }
         });
     }
@@ -320,12 +333,28 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 	            ((Button)viewFeedBack.findViewById(R.id.dialog_button_feedback)).setOnClickListener(
 	                new OnClickListener(){
 	                    public void onClick(View v) {
+	                    	PackageInfo packageInfo = null;
+	                    	int tmpVersionCode = -1;
+	            			try {
+	            				packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+	            			} catch (NameNotFoundException e) {
+	            				// TODO Auto-generated catch block
+	            				e.printStackTrace();
+	            			}
+	            			if(packageInfo != null)
+	            				tmpVersionCode = packageInfo.versionCode;
+	            			
 	                    	Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
 	        				String[] ccs={"abooyaya@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
 	        				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
 	        				it.putExtra(Intent.EXTRA_CC, ccs); 
 	        				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋(" + dramaName + "第" + chapterNo + "集)"); 
-	        				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集 \n\n發生於 Part___ \n\n請詳述發生情況 : ");      
+	        				it.putExtra(Intent.EXTRA_TEXT, dramaName + "第" + chapterNo + "集 " +
+	        						"\n\n發生於 Part___ " +
+	        						"\n\n請詳述發生情況 : " +
+	        						"\n\n\n\nAPP版本號 : " + tmpVersionCode +
+	        						"\n\nAndroid版本號 : " + Build.VERSION.RELEASE +
+	        						"\n\n裝置型號 : " + Build.MANUFACTURER + " " + Build.PRODUCT + "(" + Build.MODEL + ")");      
 	        				startActivity(it);  
 	                    }
 	                }
@@ -349,6 +378,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
         		screenHeight, currentSection, chapterNo);
         sectioGridView.setAdapter(dramaSectionAdapter);
+        sectioGridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
         
         Boolean notify = false;
         for(int i=0; i<sectionList.size(); i++) {
@@ -368,8 +398,13 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     	DramaAPI dramaAPI = new DramaAPI(this);
     	sectionList = new ArrayList<Section>();
     	sectionList = dramaAPI.getChapterSectionNew(dramaId, chapterNo);
-    	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
-    	currentSection = sqlTvDrama.getDramaSectionRecord(dramaId);
+    	/*currentSection = sqlTvDrama.getDramaSectionRecord(dramaId);
+    	sqlTvDrama.closeDB();*/
+    	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getReadableDatabase();
+        currentSection = instance.getDramaSectionRecord(db, dramaId);
+        db.close();
+        instance.closeHelper();
     }
 
     class LoadDataTask extends AsyncTask<Integer, Integer, String> {
@@ -377,9 +412,11 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         private ProgressDialog         progressdialogInit;
         private final OnCancelListener cancelListener = new OnCancelListener() {
 	          public void onCancel(DialogInterface arg0) {
+	        	  closeProgressDilog();
 	              LoadDataTask.this.cancel(true);
 	              imageButtonRefresh.setVisibility(View.VISIBLE);
 	              finish();
+	              //DramaSectionActivity.this.overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right);
 	          }
 	      };
 
@@ -413,9 +450,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 
         @Override
         protected void onPostExecute(String result) {
-        	if(DramaSectionActivity.this != null && !DramaSectionActivity.this.isFinishing() 
-        			&& progressdialogInit != null && progressdialogInit.isShowing())
-        		progressdialogInit.dismiss();
+        	closeProgressDilog();
 
             if (sectionList == null) {
             	sectioGridView.setVisibility(View.GONE);
@@ -446,7 +481,6 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
 
         @Override
         protected String doInBackground(Integer... params) {
-        	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         	if(shIO.SharePreferenceO("views", false)) {
         		DramaAPI dramaAPI = new DramaAPI(DramaSectionActivity.this);
         		//dramaAPI.updateViews(dramaId);
@@ -478,37 +512,16 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
         return super.onKeyDown(keyCode, event);
     }
     
-    class UpdateDramaSectionRecordTask extends AsyncTask<Integer, Integer, String>{  
-        
-		@Override  
-        protected void onPreExecute() {
-			super.onPreExecute();  
-        }  
-          
-        @Override  
-        protected String doInBackground(Integer... params) {
-        	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-        	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity.this);
-			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-			return "progress end";
-        }  
- 
-
-		@Override  
-        protected void onProgressUpdate(Integer... progress) {    
-            super.onProgressUpdate(progress);  
-        }  
-  
-        @Override  
-        protected void onPostExecute(String result) {
-        	super.onPostExecute(result);  
-        }  
-          
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //DramaSectionActivity.this.overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right);
     }
 
     @Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     
@@ -529,6 +542,7 @@ public class DramaSectionActivity extends Activity implements AdWhirlInterface{
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
 

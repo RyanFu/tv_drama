@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="dexedLibs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/kuAD1.4.3-6c0714e3011a33c0e566a158b7e67e88.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/gcm-3f04bb4c88081c7714f3b05f39b4a6d1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/adOn-3.2.6-4bd56d535b3a82896502887be2e40551.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/libGoogleAnalyticsV2-a25f39085c17c2f529027e0895947c60.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/universal-image-loader-1.8.4-with-sources-279a105180348afb3a72941c0fe35fd0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/YouTubeAndroidPlayerApi-f72e0d58cab0930450be94d11c611fff.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/httpmime-4.1.2-f7b921c84ce11f4aeaaf54a04d958e53.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/GoogleAdMobAdsSdk-6.2.1-b9dee1ef6be8be50d283c39ab311ed57.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/android-support-v4-e3d820b73a36ccc370765a43e60ad8ce.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/HODoAD_1.2.0-6a2368a4dc853615e9d7143ce041254b.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

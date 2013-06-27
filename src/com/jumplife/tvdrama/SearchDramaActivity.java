@@ -2,9 +2,10 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.SearchListAdapter;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
 
@@ -12,6 +13,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,13 +38,23 @@ public class SearchDramaActivity extends Activity {
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_searchdrama);
+		BugSenseHandler.initAndStartSession(this, "72a249b7");
+		
 		initView();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initView() {
-		SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this); 
+		
+		/*SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this); 
 		dramas = sqlTvDrama.getDramaList();
+		sqlTvDrama.closeDB();*/
+		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getWritableDatabase();
+        dramas = instance.getDramaList(db);
+        db.close();
+        instance.closeHelper();
+        
 		temps = (ArrayList<Drama>) dramas.clone();
 		for(int i=0; i<dramas.size(); i++)
 			arr_sort.add(dramas.get(i).getChineseName());
@@ -134,12 +146,14 @@ public class SearchDramaActivity extends Activity {
     @Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);      
       EasyTracker.getInstance().activityStop(this);
     }
 }

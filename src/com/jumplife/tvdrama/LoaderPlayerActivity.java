@@ -1,49 +1,58 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
+import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.jumplife.customplayer.VideoControllerView;
+import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.DramaSectionActivity.LoadDataTask;
 import com.jumplife.videoloader.DailymotionLoader;
 import com.jumplife.videoloader.YoutubeLoader;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-import android.widget.LinearLayout.LayoutParams;
 
-public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  {
+@SuppressLint("InlinedApi")
+public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, VideoControllerView.MediaPlayerControl {
 
     public final static String MSG_INIT = "com.keyes.video.msg.init";
     protected String mMsgInit = "初始化";
@@ -65,13 +74,19 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
     private RelativeLayout rlAd;
 	private AdWhirlLayout adWhirlLayout;
     private VideoView mVideoView;
+    VideoControllerView controller;
+    //private Button imYoutubeQualitySwitch;
+    //private ButtonMediaController lMediaController;
     
+    private boolean youtubeHightQuality = false;
+    private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
     private int currentPart = 1;
+    private static int stopPosition = 0;
     private ArrayList<String> videoIds = new ArrayList<String>();
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+        super.onConfigurationChanged(newConfig);        	
     }
     
     @Override
@@ -81,10 +96,13 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        // create the layout of the view
+        //LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		//LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+        
+        setContentView(R.layout.activity_loader_player);
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
+        
         initView();
-        // determine the messages to be displayed as the view loads the video
         extractMessages();
         
         /*mProgressBar.bringToFront();
@@ -137,51 +155,38 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
     	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
+        AdWhirlTargeting.setTestMode(false);   		
+        adWhirlLayout = new AdWhirlLayout(this, adwhirlKey);        
+        adWhirlLayout.setAdWhirlInterface(this);    	
+        adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);	 	
+        rlAd.addView(adWhirlLayout);   	
 
-        AdWhirlTargeting.setTestMode(false);
-   		
-        adWhirlLayout = new AdWhirlLayout(this, adwhirlKey);
-        
-        adWhirlLayout.setAdWhirlInterface(this);
-    	
-        adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-	 	
-        rlAd.addView(adWhirlLayout);
-    	
-
+    }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+    	if(event.getAction() == MotionEvent.ACTION_UP) {
+    		if(!controller.isShowing()) {
+	    		controller.show();
+	    	} else {
+	    		controller.hide();
+	    	}
+	    	return true;
+    	}
+        return false;
     }
 
     private void initView() {
-        LinearLayout lLinLayout = new LinearLayout(this);
-        lLinLayout.setId(1);
-        lLinLayout.setOrientation(LinearLayout.VERTICAL);
-        lLinLayout.setGravity(Gravity.CENTER);
-        lLinLayout.setBackgroundResource(R.color.background);
-        LayoutParams lLinLayoutParms = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lLinLayout.setLayoutParams(lLinLayoutParms);
 
-        this.setContentView(lLinLayout);
+		SharePreferenceIO sharePreferenceIO = new SharePreferenceIO(LoaderPlayerActivity.this);
+		youtubeHightQuality = sharePreferenceIO.SharePreferenceO("youtube_quality", youtubeHightQuality);
 
+        controller = new VideoControllerView(this);
+        mVideoView = (VideoView)findViewById(R.id.videoview);
+        
+        controller.setMediaPlayer(mVideoView);
+        controller.setAnchorView((FrameLayout)findViewById(R.id.videoSurfaceContainer));
 
-        RelativeLayout lRelLayout = new RelativeLayout(this);
-        lRelLayout.setId(2);
-        lRelLayout.setGravity(Gravity.CENTER);
-        lRelLayout.setBackgroundColor(Color.BLACK);
-        android.widget.RelativeLayout.LayoutParams lRelLayoutParms = 
-        		new android.widget.RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lRelLayout.setLayoutParams(lRelLayoutParms);
-        lLinLayout.addView(lRelLayout);
-
-        mVideoView = new VideoView(this);
-        mVideoView.setId(3);
-        android.widget.RelativeLayout.LayoutParams lVidViewLayoutParams = 
-        		new android.widget.RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lVidViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        mVideoView.setLayoutParams(lVidViewLayoutParams);
-        lRelLayout.addView(mVideoView);
-    	
-        final MediaController lMediaController = new MediaController(LoaderPlayerActivity.this);
-        mVideoView.setMediaController(lMediaController);
         mVideoView.setOnCompletionListener(new OnCompletionListener() {	
             public void onCompletion(MediaPlayer pMp) {
                 /*LoaderPlayerActivity.this.mProgressBar.setVisibility(View.VISIBLE);
@@ -221,6 +226,89 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
             }
 
         });
+        mVideoView.setOnErrorListener(new OnErrorListener() {
+        	@Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+        		if(mVideoView.isPlaying())
+        			mVideoView.stopPlayback();
+        		/*Builder alertDialog = new AlertDialog.Builder(LoaderPlayerActivity.this);
+        		alertDialog.setTitle("此段影片播放錯誤")
+					.setPositiveButton("下一段", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "下一段", (long)0);
+							mProgressImage.post(new Runnable() {
+			        		    @Override
+			        		    public void run() {
+			        		        animationDrawable.start();
+			        		    }
+			        		});
+			            	LoaderPlayerActivity.this.mDialogLoader.show();
+			                currentPart+=1;
+			                if(currentPart > videoIds.size()) {
+			                	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
+			                	Bundle bundle = new Bundle();  
+			                    bundle.putInt("currentPart", currentPart);  
+			                    Intent intent = new Intent();  
+			                    intent.putExtras(bundle);  
+			                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
+			                	LoaderPlayerActivity.this.finish();
+			                } else {
+			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
+			                    mQueryVideoTask = new QueryVideoTask();
+			                    if(Build.VERSION.SDK_INT < 11)
+			                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
+			                    else
+			                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1));
+			                }
+						}        						
+					})
+					.setNeutralButton("外部撥放",  new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "外部撥放", (long)0);
+							
+							Uri uri = Uri.parse(videoIds.get(currentPart-1));
+		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+		            		startActivity(it);
+		            		
+		        			Bundle bundle = new Bundle();  
+		                    bundle.putInt("currentPart", currentPart);  
+		                    Intent intent = new Intent();  
+		                    intent.putExtras(bundle);  
+		                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
+		                    LoaderPlayerActivity.this.finish(); 
+						}
+					})
+					.setNegativeButton("段落列表", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "段落列表", (long)0);
+							Bundle bundle = new Bundle();  
+				            bundle.putInt("currentPart", currentPart);  
+				            Intent intent = new Intent();  
+				            intent.putExtras(bundle);  
+				            setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
+				            LoaderPlayerActivity.this.finish(); 
+						}        						
+					})
+					.show();*/
+            
+        		//Uri uri = Uri.parse("http://www.youtube.com/watch?v=JW8DbZ49mEM");
+        		Uri uri = Uri.parse(videoIds.get(currentPart-1));
+        		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+        		startActivity(it);
+        		
+    			Bundle bundle = new Bundle();  
+                bundle.putInt("currentPart", currentPart);  
+                Intent intent = new Intent();  
+                intent.putExtras(bundle);  
+                setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
+                LoaderPlayerActivity.this.finish(); 
+        					
+                return true;
+        	}
+        });
         
         mDialogLoader = new Dialog(this, R.style.dialogLoader);
         mDialogLoader.setContentView(R.layout.dialog_loader);
@@ -230,6 +318,8 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
 			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 				if(keyCode == KeyEvent.KEYCODE_BACK
 						&& event.getAction() == KeyEvent.ACTION_DOWN){
+					if(mVideoView.isPlaying())
+						mVideoView.stopPlayback();
 					if(mDialogLoader != null && mDialogLoader.isShowing())
 						mDialogLoader.cancel();
 					LoaderPlayerActivity.this.finish();
@@ -246,28 +336,6 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
         animationDrawable = (AnimationDrawable) mProgressImage.getBackground();        
         
         setAd();
-        /*mProgressBar = new ProgressBar(this);
-        mProgressBar.setIndeterminate(true);
-        mProgressBar.setVisibility(View.VISIBLE);
-        mProgressBar.setEnabled(true);
-        mProgressBar.setId(4);
-        android.widget.RelativeLayout.LayoutParams lProgressBarLayoutParms = 
-        		new android.widget.RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lProgressBarLayoutParms.addRule(RelativeLayout.CENTER_IN_PARENT);
-        mProgressBar.setLayoutParams(lProgressBarLayoutParms);
-        lRelLayout.addView(mProgressBar);
-
-        mProgressMessage = new TextView(this);
-        mProgressMessage.setId(5);
-        android.widget.RelativeLayout.LayoutParams lProgressMsgLayoutParms = 
-        		new android.widget.RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lProgressMsgLayoutParms.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        lProgressMsgLayoutParms.addRule(RelativeLayout.BELOW, 4);
-        mProgressMessage.setLayoutParams(lProgressMsgLayoutParms);
-        mProgressMessage.setTextColor(Color.LTGRAY);
-        mProgressMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        mProgressMessage.setText("...");
-        lRelLayout.addView(mProgressMessage);*/
 
     }
 
@@ -282,7 +350,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
             mQueryVideoTask.cancel(true);
         }
 
-        if (mVideoView != null) {
+        if (mVideoView != null && mVideoView.isPlaying()) {
             mVideoView.stopPlayback();
         }
 
@@ -291,7 +359,6 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
 
         this.mQueryVideoTask = null;
         this.mVideoView = null;
-
     }
 
     public void updateProgress(String pProgressMsg) {
@@ -355,7 +422,10 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
 
             Log.d("player", "videoUrl : " + videoUrl);
             // calculate the actual URL of the video, encoded with proper YouTube token
-            if (videoUrl.contains("dailymotion.com/")) {
+            if (videoUrl.contains("dailymotion")) {
+            	controller.mYoutubeQualitySwitch.setVisibility(View.INVISIBLE);
+            	controller.mYoutubeQualitySwitch.setClickable(false);
+            	//lMediaController.imYoutubeQualitySwitch.setVisibility(View.GONE);
     			if(videoUrl.contains("embed/video/")) {
     				String url = videoUrl.substring(39);
         			String[] tmpUrls = url.split("\\?");	            			
@@ -376,16 +446,31 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
     				videoUrl = "http://www.dailymotion.com/embed/video/" + videoId;
     				lUriStr = DailymotionLoader.Loader(videoUrl);
     			}
-    		} else if (videoUrl.contains("http://www.youtube.com/")) {
-    			String[] tmpUrls = videoUrl.split("v=");
-    			Log.d("player", tmpUrls[1]);
-    			if(tmpUrls.length > 1)
-    				videoId = tmpUrls[1];
-    			if(videoId != null)
-    				//lUriStr = YoutubeLoader.Loader(lYouTubeFmtQuality, true, videoId);
-    				lUriStr = YoutubeLoader.calculateYouTubeUrl(lYouTubeFmtQuality, true, videoId);
+    		} else if (videoUrl.contains("youtube")) {
+    			if(videoUrl.contains("youtube-nocookie")) {
+    				String[] tmpUrls = videoUrl.split("\\/");
+	    			if(tmpUrls.length > 0)
+	    				videoId = tmpUrls[tmpUrls.length-1];
+    			} else if(videoUrl.contains("embed")) {
+    				String[] tmpUrls = videoUrl.split("\\/");	            			
+        			if(tmpUrls.length > 0) {
+        				String[] tmpId = tmpUrls[tmpUrls.length-1].split("\\?");
+        				if(tmpId.length > 0)
+        					videoId = tmpId[0];
+        			}
+    			} else {
+	    			String[] tmpUrls = videoUrl.split("v=");
+	    			if(tmpUrls.length > 1)
+	    				videoId = tmpUrls[1];
+    			}
+    			if(videoId != null) {
+    				YoutubeQuiltyLink.clear();
+    				YoutubeQuiltyLink = YoutubeLoader.Loader(lYouTubeFmtQuality, true, videoId);
+    				if(YoutubeQuiltyLink != null && YoutubeQuiltyLink.size() > 0)
+    					lUriStr = YoutubeQuiltyLink.get("medium");
+    				//lUriStr = YoutubeLoader.calculateYouTubeUrl(lYouTubeFmtQuality, true, videoId);
+    			}
     		}
-            Log.d("player", "videoId : " + videoId);
             
             if (lUriStr != null) {
             	return Uri.parse(lUriStr);
@@ -414,13 +499,83 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
                     Uri uri = Uri.parse(videoUrl);
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
             		startActivity(it);
+            		
+        			Bundle bundle = new Bundle();  
+                    bundle.putInt("currentPart", currentPart);  
+                    Intent intent = new Intent();  
+                    intent.putExtras(bundle);  
+                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
+                    LoaderPlayerActivity.this.finish(); 
                     throw new RuntimeException("Invalid NULL Url.");
                 } else {
 
+                    if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1) {
+                    	controller.mYoutubeQualitySwitch.setVisibility(View.VISIBLE);
+                    	controller.mYoutubeQualitySwitch.setClickable(true);
+                    	controller.mYoutubeQualitySwitch.setOnClickListener(new OnClickListener() {
+    					/*lMediaController.imYoutubeQualitySwitch.setVisibility(View.VISIBLE);
+    					lMediaController.imYoutubeQualitySwitch.setOnClickListener(new OnClickListener() {*/
+							@Override
+							public void onClick(View arg0) {
+								// show loading dialog
+				            	mProgressImage.post(new Runnable() {
+				        		    @Override
+				        		    public void run() {
+				        		        animationDrawable.start();
+				        		    }
+				        		});
+				            	LoaderPlayerActivity.this.mDialogLoader.show();
+				            	
+				            	// change quailty
+				            	int msec = mVideoView.getCurrentPosition();
+								if(!youtubeHightQuality) {
+									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_press);
+									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
+									if(YoutubeQuiltyLink.containsKey("hd1080")) {
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")), msec);
+									} else if(YoutubeQuiltyLink.containsKey("hd720")) {
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")), msec);
+									} else if(YoutubeQuiltyLink.containsKey("large")) {
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("large")), msec);
+									}
+								} else {
+									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_normal);
+									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
+									playVideo(Uri.parse(YoutubeQuiltyLink.get("medium")), msec);
+								}
+								youtubeHightQuality = !youtubeHightQuality;
+								SharePreferenceIO sharePreferenceIO = new SharePreferenceIO(LoaderPlayerActivity.this);
+						    	sharePreferenceIO.SharePreferenceI("youtube_quality", youtubeHightQuality);
+							}    						
+    					});
+    				} else {
+    					//lMediaController.imYoutubeQualitySwitch.setVisibility(View.GONE);
+    					controller.mYoutubeQualitySwitch.setVisibility(View.INVISIBLE);
+    	            	controller.mYoutubeQualitySwitch.setClickable(false);
+    				}
+
+                    controller.mFullscreenButton.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							toggleFullScreen();
+						}
+                    });
+		            	
                 	if (isCancelled())
 	                    return;
                 	
-                	playVideo(pResult);
+                	if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1 && youtubeHightQuality) {
+                		controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
+						if(YoutubeQuiltyLink.containsKey("hd1080")) {
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")), 0);
+						} else if(YoutubeQuiltyLink.containsKey("hd720")) {
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")), 0);
+						} else if(YoutubeQuiltyLink.containsKey("large")) {
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("large")), 0);
+						} else
+		                	playVideo(pResult, 0);
+                	} else
+                    	playVideo(pResult, 0);
                 }
             } catch (Exception e) {
                 Log.e(this.getClass().getSimpleName(), "Error playing video!", e);
@@ -434,31 +589,43 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
         }
     }
 
-    private void playVideo(Uri uri) {
-    	mVideoView.stopPlayback();
-    	mVideoView.clearFocus();	                            
+    private void playVideo(Uri uri, int msec) {
+    	if(mVideoView.isPlaying())
+    		mVideoView.stopPlayback();
+    	mVideoView.clearFocus();
     	mVideoView.setVideoURI(uri);    
         mVideoView.requestFocus();
         mVideoView.start();
+        mVideoView.seekTo(msec);
      }
     
     @Override
     protected void onStart() {
         super.onStart();
+        BugSenseHandler.startSession(this);
+        EasyTracker.getInstance().activityStart(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        BugSenseHandler.closeSession(this);
+        EasyTracker.getInstance().activityStop(this);
     }
     
     protected void onPause() {
-    	mVideoView.suspend();
+    	if(mVideoView != null) {
+    		stopPosition = mVideoView.getCurrentPosition();
+    		mVideoView.pause();
+    	}
     	super.onPause();
     }
 
     protected void onResume() {
-    	mVideoView.resume();
+    	if(mVideoView != null) {
+    	    mVideoView.seekTo(stopPosition);    
+    	    mVideoView.start();
+    	}
     	super.onResume();
     }
     
@@ -480,5 +647,81 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface  
 	public void adWhirlGeneric() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void start() {
+		mVideoView.start();		
+	}
+
+	@Override
+	public void pause() {
+		mVideoView.pause();
+	}
+
+	@Override
+	public int getDuration() {
+        return mVideoView.getDuration();
+	}
+
+	@Override
+	public int getCurrentPosition() {
+		return mVideoView.getCurrentPosition();
+	}
+
+	@Override
+	public void seekTo(int pos) {
+		mVideoView.seekTo(pos);
+	}
+
+	@Override
+	public boolean isPlaying() {
+		return mVideoView.isPlaying();
+	}
+
+	@Override
+	public int getBufferPercentage() {
+		return mVideoView.getBufferPercentage();
+	}
+
+	@Override
+	public boolean canPause() {
+		return true;
+	}
+
+	@Override
+	public boolean canSeekBackward() {
+		return true;
+	}
+
+	@Override
+	public boolean canSeekForward() {
+		return true;
+	}
+
+	@Override
+	public boolean isFullScreen() {
+		if(LoaderPlayerActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+    		return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public void toggleFullScreen() {
+		if(LoaderPlayerActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+			LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			}
+		}, 2000);
 	}
 }

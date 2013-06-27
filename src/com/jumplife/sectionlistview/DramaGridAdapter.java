@@ -10,6 +10,7 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap.Config;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +47,8 @@ public class DramaGridAdapter extends BaseAdapter{
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
+		.bitmapConfig(Config.RGB_565)
 		.cacheOnDisc()
-		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}
@@ -64,9 +65,9 @@ public class DramaGridAdapter extends BaseAdapter{
 		.showStubImage(R.drawable.stub)
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.imageScaleType(ImageScaleType.EXACTLY)
+		.bitmapConfig(Config.RGB_565)
 		.cacheOnDisc()
-		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}

@@ -2,6 +2,7 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
@@ -19,7 +20,9 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -69,6 +72,7 @@ public class AboutUsActivity extends Activity {
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_aboutme);
+		BugSenseHandler.initAndStartSession(this, "72a249b7");
 		
 		mActivity = this;
 		
@@ -95,12 +99,14 @@ public class AboutUsActivity extends Activity {
 	@Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(mActivity);
     }
     
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(mActivity);
     }
 
@@ -172,12 +178,27 @@ public class AboutUsActivity extends Activity {
 		llFeed.setLayoutParams(Params);
 		llFeed.setOnClickListener(new OnClickListener(){
 			public void onClick(View arg0) {
+				PackageInfo packageInfo = null;
+            	int tmpVersionCode = -1;
+    			try {
+    				packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+    			} catch (NameNotFoundException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			if(packageInfo != null)
+    				tmpVersionCode = packageInfo.versionCode;
+    			
 				//EasyTracker.getTracker().sendEvent("關於我們", "點擊", "建議回饋", (long)0);
 				Uri uri = Uri.parse("mailto:jumplives@gmail.com");  
 				String[] ccs={"abooyaya@gmail.com, raywu07@gmail.com, supermfb@gmail.com, form.follow.fish@gmail.com"};
 				Intent it = new Intent(Intent.ACTION_SENDTO, uri);
 				it.putExtra(Intent.EXTRA_CC, ccs); 
-				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋"); 
+				it.putExtra(Intent.EXTRA_SUBJECT, "[電視連續劇] 建議回饋");
+				it.putExtra(Intent.EXTRA_TEXT, "\n\n請詳述發生情況 : " +
+									"\n\n\n\nAPP版本號 : " + tmpVersionCode +
+	        						"\n\nAndroid版本號 : " + Build.VERSION.RELEASE +
+	        						"\n\n裝置型號 : " + Build.MANUFACTURER + " " + Build.PRODUCT + "(" + Build.MODEL + ")");
 				startActivity(it);  
 			}			
 		});

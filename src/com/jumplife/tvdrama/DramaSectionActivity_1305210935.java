@@ -327,7 +327,7 @@ public class DramaSectionActivity_1305210935 extends Activity implements AdWhirl
             	//new UpdateDramaSectionRecordTask().execute();
             	SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaSectionActivity_1305210935.this);
     			sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-    			SQLiteTvDrama.closeDB();
+    			sqlTvDrama.closeDB();
             }
         });
     	

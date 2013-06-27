@@ -17,12 +17,7 @@ package com.jumplife.tvdrama;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Build;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.cache.memory.MemoryCacheAware;
-import com.nostra13.universalimageloader.cache.memory.impl.LRULimitedMemoryCache;
-import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -41,14 +36,14 @@ public class TvDramaAppliccation extends Application {
 	}
 
 	public static void initImageLoader(Context context) {
-		int memoryCacheSize = (int) (Runtime.getRuntime().freeMemory() * 2 / 3);
+		/*int memoryCacheSize = (int) (Runtime.getRuntime().freeMemory() * 2 / 3);
 
 		MemoryCacheAware<String, Bitmap> memoryCache;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			memoryCache = new LruMemoryCache(memoryCacheSize);
 		} else {
 			memoryCache = new LRULimitedMemoryCache(memoryCacheSize);
-		}
+		}*/
 
 		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
 		// or you can create default configuration by
@@ -59,7 +54,6 @@ public class TvDramaAppliccation extends Application {
 			.threadPoolSize(2)
 			.threadPriority(Thread.NORM_PRIORITY)
 			.memoryCache(new WeakMemoryCache())
-			.denyCacheImageMultipleSizesInMemory()
 			.discCacheFileNameGenerator(new Md5FileNameGenerator())
 			.build();
 		ImageLoader.getInstance().init(config);

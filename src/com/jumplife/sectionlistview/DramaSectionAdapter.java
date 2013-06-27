@@ -20,6 +20,7 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap.Config;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,8 +62,8 @@ public class DramaSectionAdapter extends BaseAdapter{
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
+		.bitmapConfig(Config.RGB_565)
 		.cacheOnDisc()
-		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}
@@ -81,9 +82,9 @@ public class DramaSectionAdapter extends BaseAdapter{
 		.showStubImage(R.drawable.stub)
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.imageScaleType(ImageScaleType.EXACTLY)
+		.bitmapConfig(Config.RGB_565)
 		.cacheOnDisc()
-		.cacheInMemory()
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}
@@ -127,7 +128,6 @@ public class DramaSectionAdapter extends BaseAdapter{
 		}
 			
 		itemView.poster.setScaleType(ImageView.ScaleType.FIT_CENTER);
-		itemView.name = (TextView)convertView.findViewById(R.id.drama_name);
 		itemView.poster.getLayoutParams().height = height;
 		itemView.poster.getLayoutParams().width = width;
 		
@@ -152,19 +152,14 @@ public class DramaSectionAdapter extends BaseAdapter{
 				youtubeId = sectionList.get(position).getUrl().split("\\=");
 				if(youtubeId.length > 1) 
 					imageLoader.displayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, options);
-				else
-					imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 			} else if(sectionList.get(position).getUrl().contains("embed")) {
 				String[] tmp = sectionList.get(position).getUrl().split("embed");
 				if(tmp.length > 1) {
 					youtubeId = tmp[1].split("\\/");
 					if(youtubeId.length > 1) 
 						imageLoader.displayImage("http://img.youtube.com/vi/" + youtubeId[1] +"/0.jpg", itemView.poster, options);
-					else
-						imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
 				}
-			}else
-				imageLoader.displayImage(sectionList.get(position).getUrl(), itemView.poster, options);
+			}
 		} else if (sectionList.get(position).getUrl().contains("dailymotion")) {
 			LoadThumbnailTask task = new LoadThumbnailTask(sectionList.get(position).getUrl(), itemView.poster);
 			task.execute();			

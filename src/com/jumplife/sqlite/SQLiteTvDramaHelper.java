@@ -7,169 +7,128 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 import android.util.Log;
 
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.entity.Drama;
 
-public class SQLiteTvDrama extends SQLiteOpenHelper {
+public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     private static final String   DramaTable          = "dramas";
-    private static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
-    private static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
-    private static final int      DATABASE_VERSION    = 6; 
-    private static String DB_PATH_DATA;                                         // 資料庫版本
-    private SQLiteDatabase db;
+    public  static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
+    public  static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
+    private static final int      DATABASE_VERSION    = 44;
+    private final  Context 		  mContext;
+    public  static String 		  DB_PATH_DATA;                                         // 資料庫版本
+    private static SQLiteTvDramaHelper helper;
 
-    public SQLiteTvDrama(Activity mActivity) {
-    	super(mActivity, "dramas", null, DATABASE_VERSION);
-    	
-    	DB_PATH_DATA = Environment.getDataDirectory() + DB_PATH;
-        if (mActivity != null) {
-            SharePreferenceIO shareIO = new SharePreferenceIO(mActivity);
-            if (shareIO != null) {
-            	int checkVersion = DATABASE_VERSION;
-            	if(shareIO.SharePreferenceO("checkversion", 0) < checkVersion) {
-            		Log.d(DramaTable, "delete database");
-                    shareIO.SharePreferenceI("checkversion", checkVersion);
-            		shareIO.SharePreferenceI("checkfile", true);
-            		mActivity.deleteDatabase(DB_NAME);
-            	}
-                boolean checkFile = shareIO.SharePreferenceO("checkfile", true);
-                if (checkFile || !checkDataBase()) {
-                	Log.d(DramaTable, "check file");
-                	db = this.getWritableDatabase();
-                    closeDB();
-                    checkFileSystem(mActivity);
-                    shareIO.SharePreferenceI("checkfile", false);
-                }
-            }
+    public static synchronized SQLiteTvDramaHelper getInstance(Context context) {
+        if(helper == null) {
+            helper = new SQLiteTvDramaHelper(context);
         }
 
-        if (!checkDataBase()) {
-            db = this.getWritableDatabase();
-        }
+        return helper;
+    }
+    
+    public SQLiteTvDramaHelper(Context context) {
+    	super(context, DB_NAME, null, DATABASE_VERSION);
+    	this.mContext = context;
+    	//DB_PATH_DATA = Environment.getDataDirectory() + DB_PATH;
+    	DB_PATH_DATA = context.getFilesDir().getAbsolutePath().replace("files", "databases") + "/";
+    	Log.d(null, "data path : " + DB_PATH_DATA);
     }
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        // TODO Auto-generated method stub
-    	createDrama(database);
+        Log.d(null, "onCreate");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO Auto-generated method stub
-        db.execSQL("DROP TABLE IF EXISTS " + DramaTable);
-        Log.d("SQLiteTvDrama", "Delete old Database");
-        onCreate(db);
+        Log.d(null, "onUpgrade");
     }
 
-    public SQLiteDatabase GetDB() {
-        openDataBase();
-        return db;
+    public void closeHelper() {
+        if(helper != null)
+        	helper.close();
     }
 
-    public void openDataBase() {
-        if (db == null || !db.isOpen())
-            db = SQLiteDatabase.openOrCreateDatabase(DB_PATH_DATA + DB_NAME, null);
-        //db = this.getWritableDatabase();
-    }
+    public void createDataBase() {
 
-    public void closeDB() {
-        if (db != null)
-            db.close();
-    }
-
-    private boolean checkDataBase() {
-        File dbtest = new File(DB_PATH_DATA + DB_NAME);
-        if (dbtest.exists())
-            return true;
-        else
-            return false;
-    }
-
-    private void checkFileSystem(Activity mActivity) {
-        // if((new File(DB_PATH + DB_NAME)).exists() == false) {
-        // 如 SQLite 数据库文件不存在，再检查一下 database 目录是否存在
-        File f = new File(DB_PATH_DATA);
-        // 如 database 目录不存在，新建该目录
-        if (!f.exists()) {
-            f.mkdir();
+    	SharePreferenceIO shareIO = new SharePreferenceIO(mContext);
+        if (shareIO != null) {
+        	int checkVersion = DATABASE_VERSION;
+        	if(shareIO.SharePreferenceO("checkversion", 0) < checkVersion) {
+		        File dbf = new File(DB_PATH_DATA + DB_NAME);
+				if(dbf.exists()){
+				    dbf.delete();
+				    shareIO.SharePreferenceI("checkversion", checkVersion);
+					Log.d(null, "delete dbf");
+				}
+        	}
         }
-
-        try {
-            // 得到 assets 目录下我们实现准备好的 SQLite 数据库作为输入流
-            InputStream is = mActivity.getBaseContext().getAssets().open(DB_NAME);
-            // 输出流
+		
+    	boolean dbExist = checkDataBase();
+        if(dbExist){
+            Log.d(null, "db exist");
+        }else{
+            File dir = new File(DB_PATH_DATA);
+			if(!dir.exists()){
+			    dir.mkdirs();
+			}
+			Log.d(null, "copy database");
+			copyDataBase();			
+        }
+    }
+    
+    private boolean checkDataBase(){
+    	File dbFile = new File(DB_PATH_DATA + DB_NAME);
+        return dbFile.exists();
+    }
+    
+    /**
+     * Copies your database from your local assets-folder to the just created empty database in the
+     * system folder, from where it can be accessed and handled.
+     * This is done by transfering bytestream.
+     * */
+    private void copyDataBase() {
+    	try {
+            InputStream is = mContext.getAssets().open(DB_NAME);
             OutputStream os = new FileOutputStream(DB_PATH_DATA + DB_NAME);
 
-            // 文件写入
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
 
-            // 关闭文件流
             os.flush();
             os.close();
             is.close();
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d(null, "copy data base failed");
         }
-        // }
     }
 
-    
-    /*
-     * drama data
-     */
-    public static void createDrama(SQLiteDatabase database) {
-        String DATABASE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + DramaTable + " (" 
-        		+ " id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
-                + " name VARCHAR,"
-        		+ " poster_url VARCHAR,"
-                + " introduction VARCHAR,"
-                + " eps_num_str VARCHAR,"
-                + " area_id INTEGER,"
-                + " release_date VARCHAR,"
-                + " chapter INTEGER,"
-                + " section VARCHAR,"
-                + " is_show BOOLEAN,"
-                + " views INTEGER"
-                + " );";
-
-        database.execSQL(DATABASE_CREATE_TABLE);
-    }
-
-    public boolean insertDramas(ArrayList<Drama> dramas) {
+    public boolean insertDramas(SQLiteDatabase db, ArrayList<Drama> dramas) {
         for (int i = 0; i < dramas.size(); i++) {
             Drama drama = dramas.get(i);
             if(drama != null)
-            	insertDrama(drama);
+            	insertDrama(db, drama);
         }
         return true;
     }
 
-    public long insertDrama(Drama drama) {
+    public long insertDrama(SQLiteDatabase db, Drama drama) {
         if(!drama.getChineseName().equals("") && !drama.getIntroduction().equals("") && 
         		!drama.getPosterUrl().equals("") && !drama.getEps().equals("") && !drama.getReleaseDate().equals("")) {
-	        /*Cursor cursor = db.rawQuery(
-	                "INSERT OR IGNORE INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-	                new String[] {0+"", -1+"", -1+"", drama.getId()+"", drama.getChineseName(), drama.getAreId()+"",
-	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "'f'"});
-			
-	        cursor.moveToFirst();
-	        cursor.close();*/
-        	openDataBase();
-            db.execSQL(
+        	db.execSQL(
 	                "INSERT OR IGNORE INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
 	                new String[] {0+"", -1+"", -1+"", drama.getId()+"", drama.getChineseName(), drama.getAreId()+"",
 	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "'f'"});
@@ -177,21 +136,21 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return 0;
     }
 
-    public int deleteDrama(long rowId) {
-        openDataBase();
+    /*public int deleteDrama(long rowId) {
+    	final SQLiteDatabase db = getWritableDatabase();
         int deleteId = db.delete(DramaTable, "id = " + rowId, null);
         return deleteId;
     }
 
     public void deleteDrama_lst() {
-        openDataBase();
+    	final SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + DramaTable);
-    }
+    }*/
 
-    public ArrayList<Integer> findDramasIdNotInDB(ArrayList<Integer> dramaId) {
+    public ArrayList<Integer> findDramasIdNotInDB(SQLiteDatabase db, ArrayList<Integer> dramaId) {
         ArrayList<Integer> returnsID = new ArrayList<Integer>();
         ArrayList<Integer> dbsID = new ArrayList<Integer>();
-        openDataBase();
+        
         Cursor cursor = db.rawQuery("SELECT id FROM " + DramaTable, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -208,65 +167,43 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return returnsID;
     }
     
-    public void updateDramaIsShow(ArrayList<Integer> a) {
+    public void updateDramaIsShow(SQLiteDatabase db, ArrayList<Integer> a) {
     	String idLst = "";
         for (int i = 0; i < a.size(); i++)
             idLst = a.get(i) + "," + idLst;
         idLst = idLst.substring(0, idLst.length() - 1);
         
         if(a.size() > 0) {
-	    	openDataBase();
-	        /*Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;", null);
-	        cursor.moveToFirst();
-	        cursor.close();*/
-	    	db.execSQL("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;");
+        	db.execSQL("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;");
         }
     }
     
-    public void updateDramaViews(ArrayList<Drama> dramas) {
+    public void updateDramaViews(SQLiteDatabase db, ArrayList<Drama> dramas) {
     	String updateViews = "UPDATE " + DramaTable + " SET views = CASE";
         for(int i=0; i<dramas.size(); i++)
         	updateViews = updateViews + " WHEN id = " + dramas.get(i).getId() + " THEN " + dramas.get(i).getViews() + " ";
         updateViews = updateViews + "END ;";
         	
-    	openDataBase();
-    	/*Cursor cursor = db.rawQuery(updateViews, null);
-    	cursor.moveToFirst();
-        cursor.close();*/
-    	db.execSQL(updateViews);
+        db.execSQL(updateViews);
     }
     
-    public void updateDramaEps(ArrayList<Drama> dramas) {
+    public void updateDramaEps(SQLiteDatabase db, ArrayList<Drama> dramas) {
     	StringBuilder updateViews = new StringBuilder();
-    	//String updateViews = "UPDATE " + DramaTable + " SET eps_num_str = CASE";
     	updateViews.append("UPDATE ").append(DramaTable).append(" SET eps_num_str = CASE");
         for(int i=0; i<dramas.size(); i++)
         	updateViews.append(" WHEN id = ").append(dramas.get(i).getId()).append(" THEN '").append(dramas.get(i).getEps()).append("' ");
-        	//updateViews = updateViews + " WHEN id = " + dramas.get(i).getId() + " THEN '" + dramas.get(i).getEps() + "' ";
         updateViews.append("END ;");
-        //updateViews = updateViews + "END ;";
         	
-    	openDataBase();
-    	/*Cursor cursor = db.rawQuery(updateViews.toString(), null);
-    	cursor.moveToFirst();
-        cursor.close();*/
-    	db.execSQL(updateViews.toString());
+        db.execSQL(updateViews.toString());
     }
     
-    public void updateDramaEps(int dramaId, String eps) {
-    	openDataBase();        
-        /*Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET eps_num_str = ? WHERE id = ?", 
-        									new String[] {eps + "", dramaId + ""});
-        
-        cursor.moveToFirst();
-        cursor.close();*/
+    public void updateDramaEps(SQLiteDatabase db, int dramaId, String eps) {
     	db.execSQL("UPDATE " + DramaTable + " SET eps_num_str = ? WHERE id = ?", 
         									new String[] {eps + "", dramaId + ""});
     }
     
-    public Drama getDrama(int dramaId) throws SQLException {
-        openDataBase();
-        Cursor cursor = db.rawQuery("SELECT id, name, introduction, poster_url FROM " + DramaTable + " WHERE id = '" + dramaId + "' AND is_show = 't';", null);
+    public Drama getDrama(SQLiteDatabase db, int dramaId) throws SQLException {
+    	Cursor cursor = db.rawQuery("SELECT id, name, introduction, poster_url FROM " + DramaTable + " WHERE id = '" + dramaId + "' AND is_show = 't';", null);
         Drama drama = new Drama();
         if (cursor != null) {
 	        while (cursor.moveToNext()) {
@@ -280,9 +217,8 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return drama;
     }
     
-    public int getDramaChapterRecord(int dramaId) throws SQLException {
-        openDataBase();
-        Cursor cursor = db.rawQuery("SELECT chapter FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+    public int getDramaChapterRecord(SQLiteDatabase db, int dramaId) throws SQLException {
+    	Cursor cursor = db.rawQuery("SELECT chapter FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
         int chapter = -1;
         if (cursor != null) {
         	while(cursor.moveToNext()) {
@@ -293,9 +229,8 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return chapter;
     }
     
-    public String getDramaChapter(int dramaId) throws SQLException {
-        openDataBase();
-        Cursor cursor = db.rawQuery("SELECT eps_num_str FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+    public String getDramaChapter(SQLiteDatabase db, int dramaId) throws SQLException {
+    	Cursor cursor = db.rawQuery("SELECT eps_num_str FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
         String chapters = "";
         if (cursor != null) {
         	while(cursor.moveToNext()) {
@@ -306,28 +241,22 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return chapters;
     }
     
-    public boolean updateDramaChapterRecord(int dramaId, int current_chapter) {
-        openDataBase();
+    public boolean updateDramaChapterRecord(SQLiteDatabase db, int dramaId, int current_chapter) {
         
-        String[] arrayOfString = new String[1];
+    	String[] arrayOfString = new String[1];
+        
         arrayOfString[0] = String.valueOf(dramaId);
         ContentValues localContentValues = new ContentValues();
         localContentValues.put("chapter", current_chapter);
         db.update(DramaTable, localContentValues, "id = ?", arrayOfString);
-        /*Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET chapter = ? WHERE id = ?", 
-        									new String[] {current_chapter + "", dramaId + ""});
-        
-        if(cursor != null) {
-	        cursor.moveToFirst();
-	        cursor.close();
-        }*/
         
         return true;
     }
     
-    public String getDramaSectionRecord(int dramaId) throws SQLException {
-        openDataBase();
-        Cursor cursor = db.rawQuery("SELECT section FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+    public String getDramaSectionRecord(SQLiteDatabase db, int dramaId) throws SQLException {
+    	
+    	Cursor cursor = db.rawQuery("SELECT section FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+        
         String section = "";
         if (cursor != null) {
         	while(cursor.moveToNext()) {
@@ -338,25 +267,19 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return section;
     }
     
-    public boolean updateDramaSectionRecord(int dramaId, String current_section) {
-        openDataBase();
+    public boolean updateDramaSectionRecord(SQLiteDatabase db, int dramaId, String current_section) {
+    	String[] arrayOfString = new String[1];
         
-        String[] arrayOfString = new String[1];
         arrayOfString[0] = String.valueOf(dramaId);
         ContentValues localContentValues = new ContentValues();
         localContentValues.put("section", current_section);
         db.update(DramaTable, localContentValues, "id = ?", arrayOfString);
-        /*Cursor cursor = db.rawQuery("UPDATE " + DramaTable + " SET section = ? WHERE id = ?", 
-        									new String[] {current_section + "", dramaId + ""});
         
-        cursor.moveToFirst();
-        cursor.close();*/
         return true;
     }
 
-    public ArrayList<Drama> getDramaList() throws SQLException {
-        openDataBase();
-        ArrayList<Drama> drama_lst = new ArrayList<Drama>();
+    public ArrayList<Drama> getDramaList(SQLiteDatabase db) throws SQLException {
+    	ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         Cursor cursor = null;
         cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE is_show = 't';", null);
         if (cursor != null) {
@@ -374,7 +297,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
     }
     
     public ArrayList<Drama> getDramaList(ArrayList<Integer> dramaIds) throws SQLException {
-        openDataBase();
+    	final SQLiteDatabase db = getReadableDatabase();
         String idLst = "";
         for (int i = 0; i < dramaIds.size(); i++)
             idLst = dramaIds.get(i) + "," + idLst;
@@ -397,9 +320,8 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return drama_lst;
     }
 
-    public ArrayList<Drama> getDramaList(int filter) throws SQLException {
-        openDataBase();
-        ArrayList<Drama> drama_lst = new ArrayList<Drama>();
+    public ArrayList<Drama> getDramaList(SQLiteDatabase db, int filter) throws SQLException {
+    	ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         Cursor cursor = null;
         cursor = db.rawQuery("SELECT id, name, poster_url, views, release_date FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
         if (cursor != null) {
@@ -418,7 +340,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         return drama_lst;
     }
     
-    public ArrayList<Drama> getDramaList(String dramaID) {
+    public ArrayList<Drama> getDramaList(SQLiteDatabase db, String dramaID) {
     	String[] likeDramas = dramaID.split(",");
         String dramaIDs = "";
         for (int i = 0; i < likeDramas.length; i++) {
@@ -430,8 +352,7 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         }
         ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         Cursor cursor = null;
-        openDataBase();
-        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + dramaIDs + ") AND is_show = 't';", null);
+    	cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + dramaIDs + ") AND is_show = 't';", null);
         if (cursor != null) {
         	while(cursor.moveToNext()) {
 	            Drama drama = new Drama();
@@ -443,8 +364,6 @@ public class SQLiteTvDrama extends SQLiteOpenHelper {
         	}
             cursor.close();
         }
-
-        closeDB();
         return drama_lst;
     }
 }

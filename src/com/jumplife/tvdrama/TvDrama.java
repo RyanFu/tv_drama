@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import static com.jumplife.tvdrama.CommonUtilities.SERVER_URL;
 import static com.jumplife.tvdrama.CommonUtilities.SENDER_ID;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
-import com.jumplife.sqlite.SQLiteTvDrama;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Drama;
 
@@ -18,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -49,6 +51,7 @@ public class TvDrama extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tvdrama);
+        BugSenseHandler.initAndStartSession(this, "72a249b7");
         
         rlLoading = (RelativeLayout)findViewById(R.id.rl_loading);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -65,7 +68,6 @@ public class TvDrama extends Activity {
         checkNotNull(SERVER_URL, "SERVER_URL");
         checkNotNull(SENDER_ID, "SENDER_ID");
         GCMRegistrar.checkDevice(getApplicationContext());
-        GCMRegistrar.checkManifest(getApplicationContext());
         final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
         if (regId.equals("")) {
             GCMRegistrar.register(this, SENDER_ID);
@@ -118,32 +120,63 @@ public class TvDrama extends Activity {
 	private String fetchData(){
 		long startTime = System.currentTimeMillis();
 		DramaAPI api = new DramaAPI(this);
-        SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
+        
         ArrayList<Drama> dramas = api.getDramasIdViewsEpsV2();
         if(dramas != null) {
+                		
+    		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
+    		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+    		instance.createDataBase();
+    		SQLiteDatabase db = instance.getWritableDatabase();
+    		db.beginTransaction();
+    		
+    		
         	ArrayList<Integer> a = new ArrayList<Integer>(100);
         	for(int i=0; i<dramas.size(); i++)
         		a.add(dramas.get(i).getId());
 	        ArrayList<Integer> dramasInsertId = new ArrayList<Integer>();
 	        ArrayList<Integer> dramasShowId = new ArrayList<Integer>();
-	        dramasInsertId = sqlTvDrama.findDramasIdNotInDB(a);
+	        
+	        Log.d(TAG, "begin transation");
+	        //dramasInsertId = sqlTvDrama.findDramasIdNotInDB(a);
+	        dramasInsertId = instance.findDramasIdNotInDB(db, a);
+	        
+	        Log.d(TAG, "Need Insert Id : " + dramasInsertId);
+	        
 	        dramasShowId = (ArrayList<Integer>) a.clone();
 	        
 	        if (dramasInsertId.size() > 0){
 	        	String idLst = "";
 		        for(int i=0; i<dramasInsertId.size(); i++)
 		           idLst = dramasInsertId.get(i) + "," +idLst;
-		        api.AddDramasFromInfo(idLst);
+		        api.AddDramasFromInfo(instance, db, idLst);
 	        }	        
-	        sqlTvDrama.updateDramaIsShow(dramasShowId);
+	        
+	        
+	        /*sqlTvDrama.updateDramaIsShow(dramasShowId);
 	        sqlTvDrama.updateDramaViews(dramas);
 	        sqlTvDrama.updateDramaEps(dramas);
+	        sqlTvDrama.closeDB();*/
+	        instance.updateDramaIsShow(db, dramasShowId);
+	        instance.updateDramaViews(db, dramas);
+	        instance.updateDramaEps(db, dramas);
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+	        instance.closeHelper();
+	        
 	        
 	        long endTime = System.currentTimeMillis();
 	        Log.e(TAG, "sample method took（movie time activity) %%%%%%%%%%%%%%%%%%%%%%%%%%%%"+(endTime-startTime)+"ms");
 
 			return "progress end";
         } else {
+        	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+    		instance.createDataBase();
+    		SQLiteDatabase db = instance.getWritableDatabase();
+            db.close();
+	        instance.closeHelper();
+	        
         	return "progress fail";
         }
 	}
@@ -278,12 +311,14 @@ public class TvDrama extends Activity {
 	@Override
     public void onStart() {
       super.onStart();
+      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     
     @Override
     public void onStop() {
       super.onStop();
+      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
     
