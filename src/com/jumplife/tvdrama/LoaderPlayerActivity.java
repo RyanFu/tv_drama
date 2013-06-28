@@ -3,11 +3,14 @@ package com.jumplife.tvdrama;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
-import com.bugsense.trace.BugSenseHandler;
+import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.customplayer.VideoControllerView;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -92,6 +95,15 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
         super.onCreate(pSavedInstanceState);
+		
+        JSONObject crittercismConfig = new JSONObject();
+        try {
+        	crittercismConfig.put("delaySendingAppLoad", true); // send app load data with Crittercism.sendAppLoadData()
+            crittercismConfig.put("shouldCollectLogcat", true); // send logcat data for devices with API Level 16 and higher
+        	crittercismConfig.put("includeVersionCode", true); // include version code in version name
+        }
+        catch (JSONException je){}
+        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -100,7 +112,6 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
 		//LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         
         setContentView(R.layout.activity_loader_player);
-        BugSenseHandler.initAndStartSession(this, "72a249b7");
         
         initView();
         extractMessages();
@@ -602,14 +613,12 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
     @Override
     protected void onStart() {
         super.onStart();
-        BugSenseHandler.startSession(this);
         EasyTracker.getInstance().activityStart(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        BugSenseHandler.closeSession(this);
         EasyTracker.getInstance().activityStop(this);
     }
     

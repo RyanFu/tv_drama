@@ -8,10 +8,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
-import com.bugsense.trace.BugSenseHandler;
+import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.ViewPagerAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -85,7 +88,13 @@ public class TvChannelViewPagerActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvchannelviewpager);
-		BugSenseHandler.initAndStartSession(this, "72a249b7");
+		
+		JSONObject crittercismConfig = new JSONObject();
+        try {
+            crittercismConfig.put("shouldCollectLogcat", true); // send logcat data for devices with API Level 16 and higher
+        }
+        catch (JSONException je){}
+        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 		
 		Bundle extras = getIntent().getExtras();
 		currIndex = extras.getInt("type_id", 0);
@@ -645,7 +654,6 @@ public class TvChannelViewPagerActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        BugSenseHandler.startSession(this);
         EasyTracker.getInstance().activityStart(this);
     }
 
@@ -665,7 +673,6 @@ public class TvChannelViewPagerActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        BugSenseHandler.closeSession(this);
         EasyTracker.getInstance().activityStop(this);
     }
 

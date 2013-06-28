@@ -2,7 +2,10 @@ package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
 
-import com.bugsense.trace.BugSenseHandler;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sectionlistview.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -56,8 +59,17 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		
+        JSONObject crittercismConfig = new JSONObject();
+        try {
+        	crittercismConfig.put("delaySendingAppLoad", true); // send app load data with Crittercism.sendAppLoadData()
+            crittercismConfig.put("shouldCollectLogcat", true); // send logcat data for devices with API Level 16 and higher
+        	crittercismConfig.put("includeVersionCode", true); // include version code in version name
+        }
+        catch (JSONException je){}
+        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        
         setContentView(R.layout.activity_myfavoritewaterfall);
-        BugSenseHandler.initAndStartSession(this, "72a249b7");
         initViews();        
     }
 
@@ -283,7 +295,6 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onStart() {
       super.onStart();
-      BugSenseHandler.startSession(this);
       EasyTracker.getInstance().activityStart(this);
     }
     @Override
@@ -297,7 +308,6 @@ public class MyFavoriteWaterFallActivity extends Activity {
     @Override
     public void onStop() {
       super.onStop();
-      BugSenseHandler.closeSession(this);
       EasyTracker.getInstance().activityStop(this);
     }
 }

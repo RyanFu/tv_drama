@@ -6,12 +6,15 @@ import java.util.ArrayList;
 
 import java.util.HashMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
-import com.bugsense.trace.BugSenseHandler;
+import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
@@ -61,8 +64,17 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		JSONObject crittercismConfig = new JSONObject();
+        try {
+        	crittercismConfig.put("delaySendingAppLoad", true); // send app load data with Crittercism.sendAppLoadData()
+            crittercismConfig.put("shouldCollectLogcat", true); // send logcat data for devices with API Level 16 and higher
+        	crittercismConfig.put("includeVersionCode", true); // include version code in version name
+        }
+        catch (JSONException je){}
+        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        
 	    setContentView(R.layout.activity_news);
-	    BugSenseHandler.initAndStartSession(this, "72a249b7");
 	    
 		findViews();
 		
@@ -373,7 +385,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	@Override
 	protected void onStart() {
 	    super.onStart();
-	    BugSenseHandler.startSession(this);
 	}
 	@Override
 	protected void onDestroy(){
@@ -384,7 +395,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	@Override
 	protected void onStop() {
 	    super.onStop();
-	    BugSenseHandler.closeSession(this);
 	}
 	@Override
 	protected void onResume(){
