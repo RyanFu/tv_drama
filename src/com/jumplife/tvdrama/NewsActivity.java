@@ -4,27 +4,37 @@ import java.util.ArrayList;
 
 
 
+
 import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+<<<<<<< HEAD
+import com.crittercism.app.Crittercism;
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+=======
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
+>>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+<<<<<<< HEAD
+import com.jumplife.sectionlistview.NewsAdapter;
+=======
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
 import com.jumplife.adapter.NewsAdapter;
+>>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.News;
-import com.kuad.KuBanner;
-import com.kuad.kuADListener;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -47,14 +57,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
+public class NewsActivity extends TrackedActivity {
 	private PullToRefreshListView newsListView;
 	private ArrayList<News> newsList;
 	private ImageButton imageButtonRefresh;
 	private NewsAdapter newsAdapter;
 	private LoadDataTask loadtask;
 	private int page = 1;
-	private AdWhirlLayout adWhirlLayout;
+	private AdView adView;
+	//private AdWhirlLayout adWhirlLayout;
 	public static final String TAG = "NewsActivity";
 	
 	@Override
@@ -294,6 +305,20 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	}
 	
 	public void setAd() {
+		
+		RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
+    	Resources res = getResources();
+    	String admoblKey = res.getString(R.string.admob_key);
+    	
+    	// Create the adView
+    	adView = new AdView(this, AdSize.BANNER, admoblKey);
+
+    	// Add the adView to it
+    	adLayout.addView(adView);
+    	
+    	// Initiate a generic request to load it with an ad
+        adView.loadAd(new AdRequest());
+		/*
 		Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
@@ -310,63 +335,9 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
         adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 	 	
     	adLayout.addView(adWhirlLayout);
-   
+   		*/
     }
     
-    public void setKuAd() {
-    	KuBanner banner;
-    	banner = new KuBanner(this);
-    	
-    	Resources res = getResources();
-    	String kuAdKey = res.getString(R.string.kuad_key);
-    	
-    	banner.setAPID(kuAdKey);
-    	banner.appStart();
-    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
-
-        // Add the adView to it
-    	adLayout.addView(banner);
-        
-        banner.setkuADListener(new kuADListener(){
-        	public void onRecevie(String msg) {
-			//成功接收廣告
-				Log.i("AdOn", "OnReceviekuAd");
-			}
-			public void onFailedRecevie(String msg) {
-			//失敗接收廣告
-				Log.i("AdOn", "OnFailesToReceviekuAd");
-			}
-			});
-    }
-    public void showHodoAd() {
-    	Resources res = getResources();
-    	String hodoKey = res.getString(R.string.hodo_key);
-    	Log.d("hodo", "showHodoAd");
-    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
-		final HodoADView hodoADview = new HodoADView(this);
-        hodoADview.requestAD(hodoKey);
-        //關掉自動輪撥功能,交由adWhirl輪撥
-        hodoADview.setAutoRefresh(false);
-        
-        hodoADview.setListener(new HodoADListener() {
-            public void onGetBanner() {
-                //成功取得banner
-            	Log.d("hodo", "onGetBanner");
-		        adWhirlLayout.adWhirlManager.resetRollover();
-	            adWhirlLayout.handler.post(new ViewAdRunnable(adWhirlLayout, hodoADview));
-	            adWhirlLayout.rotateThreadedDelayed();
-            }
-            public void onFailed(String msg) {
-                //失敗取得banner
-                Log.d("hodo", "onFailed :" +msg);
-                adWhirlLayout.rollover();
-            }
-            public void onBannerChange(){
-                //banner 切換
-                Log.d("hodo", "onBannerChange");
-            }
-        });
-    }
 	class AdTask extends AsyncTask<Integer, Integer, String> {
 		@Override
 		protected String doInBackground(Integer... arg0) {

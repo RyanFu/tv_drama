@@ -2,22 +2,28 @@ package com.jumplife.tvdrama;
 
 import java.util.HashMap;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
+<<<<<<< HEAD
+
+import com.crittercism.app.Crittercism;
+import com.google.ads.AdListener;
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+=======
 import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
+>>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.google.analytics.tracking.android.EasyTracker;
-import com.hodo.HodoADView;
-import com.hodo.listener.HodoADListener;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
-import com.kuad.KuBanner;
-import com.kuad.kuADListener;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -54,7 +60,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 
 @SuppressWarnings("deprecation")
-public class MainTabActivities extends TabActivity implements AdWhirlInterface {
+public class MainTabActivities extends TabActivity {
 	
 	private TabHost tabHost;
 	private TabHost.TabSpec spec;  // Resusable TabSpec for each tab
@@ -64,9 +70,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 	private int openCount;
 	private int version;
 	private LoadPromoteTask loadPromoteTask;
-	private AdWhirlLayout adWhirlLayout;
+	//private AdWhirlLayout adWhirlLayout;
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
+	private AdView adView;
 	
 	public static String TAG = "MainTabActivities";
 	
@@ -150,6 +157,20 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     
     public void setAd() {
     	
+    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
+    	Resources res = getResources();
+    	String admoblKey = res.getString(R.string.admob_key);
+    	
+    	// Create the adView
+    	adView = new AdView(this, AdSize.BANNER, admoblKey);
+
+    	// Add the adView to it
+    	adLayout.addView(adView);
+    	
+    	// Initiate a generic request to load it with an ad
+        adView.loadAd(new AdRequest());
+    	
+    	/*
     	Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
@@ -166,65 +187,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
         adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 	 	
     	adLayout.addView(adWhirlLayout);
-    	
+    	*/
 
     }
     
-    public void setKuAd() {
-    	KuBanner banner;
-    	banner = new KuBanner(this);
-    	
-    	Resources res = getResources();
-    	String kuAdKey = res.getString(R.string.kuad_key);
-    	
-    	banner.setAPID(kuAdKey);
-    	banner.appStart();
-    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
-
-        // Add the adView to it
-    	adLayout.addView(banner);
-        
-        banner.setkuADListener(new kuADListener(){
-        	public void onRecevie(String msg) {
-			//成功接收廣告
-				Log.i("AdOn", "OnReceviekuAd");
-			}
-			public void onFailedRecevie(String msg) {
-			//失敗接收廣告
-				Log.i("AdOn", "OnFailesToReceviekuAd");
-			}
-			});
-    }
-    
-    public void showHodoAd() {
-    	Resources res = getResources();
-    	String hodoKey = res.getString(R.string.hodo_key);
-    	Log.d("hodo", "showHodoAd");
-    	AdWhirlManager.setConfigExpireTimeout(1000 * 30); 
-		final HodoADView hodoADview = new HodoADView(this);
-        hodoADview.requestAD(hodoKey);
-        //關掉自動輪撥功能,交由adWhirl輪撥
-        hodoADview.setAutoRefresh(false);
-        
-        hodoADview.setListener(new HodoADListener() {
-            public void onGetBanner() {
-                //成功取得banner
-            	Log.d("hodo", "onGetBanner");
-		        adWhirlLayout.adWhirlManager.resetRollover();
-	            adWhirlLayout.handler.post(new ViewAdRunnable(adWhirlLayout, hodoADview));
-	            adWhirlLayout.rotateThreadedDelayed();
-            }
-            public void onFailed(String msg) {
-                //失敗取得banner
-                Log.d("hodo", "onFailed :" +msg);
-                adWhirlLayout.rollover();
-            }
-            public void onBannerChange(){
-                //banner 切換
-                Log.d("hodo", "onBannerChange");
-            }
-        });
-    }
     
     public void setTabClickLog() {
     	tabHost.setOnTabChangedListener(new OnTabChangeListener() {
@@ -263,12 +229,21 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     
     @Override
 	protected void onDestroy(){
+<<<<<<< HEAD
+        if (adView != null) {
+            adView.destroy();
+          }
+        
+=======
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mInfoReceiver);
+>>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
         if (loadPromoteTask!= null && loadPromoteTask.getStatus() != AsyncTask.Status.FINISHED) {
         	loadPromoteTask.closeProgressDilog();
         	loadPromoteTask.cancel(true);
         }
+        
+        super.onDestroy();
 	}
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -469,13 +444,4 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
 		 }
     	
     }
-
-	public void adWhirlGeneric() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	public void showKuAd() {
-		setKuAd();
-	}
 }

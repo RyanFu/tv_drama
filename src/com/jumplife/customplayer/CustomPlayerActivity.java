@@ -1,13 +1,14 @@
 package com.jumplife.customplayer;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import com.jumplife.tvdrama.DramaSectionActivity;
 import com.jumplife.tvdrama.R;
 import com.jumplife.videoloader.DailymotionLoader;
@@ -56,8 +57,7 @@ public class CustomPlayerActivity extends Activity
 					VideoControllerView.MediaPlayerControl,
 					MediaPlayer.OnPreparedListener,
 					MediaPlayer.OnCompletionListener,
-					MediaPlayer.OnErrorListener,
-					AdWhirlInterface {
+					MediaPlayer.OnErrorListener { //AdWhirlInterface
 
 	public final static String MSG_INIT = "com.keyes.video.msg.init";
     protected String mMsgInit = "初始化";
@@ -76,13 +76,14 @@ public class CustomPlayerActivity extends Activity
     protected TextView mProgressMessage;
 	private AnimationDrawable animationDrawable;
     private RelativeLayout rlAd;
-	private AdWhirlLayout adWhirlLayout;
+	//private AdWhirlLayout adWhirlLayout;
     
     private boolean youtubeHightQuality = false;
     private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
     private int currentPart = 1;
     private static int stopPosition = 0;
     private ArrayList<String> videoIds = new ArrayList<String>();
+    private AdView adView;
     
     SurfaceView videoSurface;
     MediaPlayer player;
@@ -229,6 +230,19 @@ public class CustomPlayerActivity extends Activity
     
     public void setAd() {
     	
+    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
+    	Resources res = getResources();
+    	String admoblKey = res.getString(R.string.admob_key);
+    	
+    	// Create the adView
+    	adView = new AdView(this, AdSize.BANNER, admoblKey);
+
+    	// Add the adView to it
+    	adLayout.addView(adView);
+    	
+    	// Initiate a generic request to load it with an ad
+        adView.loadAd(new AdRequest());
+    	/*
     	Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
@@ -238,7 +252,7 @@ public class CustomPlayerActivity extends Activity
         adWhirlLayout.setAdWhirlInterface(this);    	
         adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);	 	
         rlAd.addView(adWhirlLayout);   	
-
+		*/
     }
     
     @Override
@@ -738,10 +752,12 @@ public class CustomPlayerActivity extends Activity
             return super.onKeyDown(keyCode, event);
     }
 
+    /*
 	@Override
 	public void adWhirlGeneric() {
 		// TODO Auto-generated method stub
 		
 	}
+	*/
 
 }
