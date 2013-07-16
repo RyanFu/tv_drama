@@ -35,19 +35,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-<<<<<<< HEAD
-
-import com.crittercism.app.Crittercism;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-=======
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
-import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
->>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;

@@ -6,17 +6,9 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-<<<<<<< HEAD
-import com.crittercism.app.Crittercism;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-=======
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
->>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.customplayer.VideoControllerView;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -46,7 +38,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;

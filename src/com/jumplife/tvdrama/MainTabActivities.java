@@ -6,21 +6,9 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-<<<<<<< HEAD
-
-import com.crittercism.app.Crittercism;
-import com.google.ads.AdListener;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-=======
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
-import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
->>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
@@ -46,7 +34,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -229,18 +216,15 @@ public class MainTabActivities extends TabActivity {
     
     @Override
 	protected void onDestroy(){
-<<<<<<< HEAD
-        if (adView != null) {
-            adView.destroy();
-          }
-        
-=======
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mInfoReceiver);
->>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
         if (loadPromoteTask!= null && loadPromoteTask.getStatus() != AsyncTask.Status.FINISHED) {
         	loadPromoteTask.closeProgressDilog();
         	loadPromoteTask.cancel(true);
+        }
+
+        if (adView != null) {
+            adView.destroy();
         }
         
         super.onDestroy();

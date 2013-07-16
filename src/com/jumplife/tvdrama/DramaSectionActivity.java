@@ -6,25 +6,11 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-<<<<<<< HEAD
-import com.crittercism.app.Crittercism;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
-
-import com.jumplife.sectionlistview.DramaSectionAdapter;
-=======
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
-import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
-import com.google.analytics.tracking.android.EasyTracker;
-import com.hodo.HodoADView;
-import com.hodo.listener.HodoADListener;
 import com.jumplife.adapter.DramaSectionAdapter;
->>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
@@ -53,7 +39,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
