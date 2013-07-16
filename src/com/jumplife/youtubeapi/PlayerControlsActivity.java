@@ -16,11 +16,6 @@
 
 package com.jumplife.youtubeapi;
 
-import com.adwhirl.AdWhirlLayout;
-
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
 import com.google.android.youtube.player.YouTubePlayer.PlaybackEventListener;
@@ -29,8 +24,6 @@ import com.google.android.youtube.player.YouTubePlayer.PlayerStyle;
 import com.google.android.youtube.player.YouTubePlayer.PlaylistEventListener;
 import com.google.android.youtube.player.YouTubePlayerView;
 import com.jumplife.tvdrama.R;
-import com.kuad.KuBanner;
-import com.kuad.kuADListener;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -51,7 +44,7 @@ import android.widget.Toast;
  * A simple YouTube Android API demo application demonstrating the use of {@link YouTubePlayer}
  * programmatic controls.
  */
-public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity implements AdWhirlInterface{
+public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity{
 
 	private static final String KEY_CURRENTLY_SELECTED_ID = "currentlySelectedId";
 
@@ -78,9 +71,6 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 		setContentView(R.layout.player_controls);
 		initView();
 		setListener();
-		
-		AdTask adTask = new AdTask();
-    	adTask.execute();
 	}
 
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -347,92 +337,5 @@ public class PlayerControlsActivity extends YouTubeFailureRecoveryActivity imple
 	    	log(playerState);
 	    }
 
-	}
-	
-	public void setAd() {
-    	
-    	Resources res = getResources();
-    	String adwhirlKey = res.getString(R.string.adwhirl_key);
-    	
-    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
-    	
-    	AdWhirlManager.setConfigExpireTimeout(1000 * 60); 
-        //AdWhirlTargeting.setAge(23);
-        //AdWhirlTargeting.setGender(AdWhirlTargeting.Gender.MALE);
-        //AdWhirlTargeting.setKeywords("online games gaming");
-        //AdWhirlTargeting.setPostalCode("94123");
-        AdWhirlTargeting.setTestMode(false);
-   		
-        AdWhirlLayout adwhirlLayout = new AdWhirlLayout(this, adwhirlKey);	
-        
-    	adwhirlLayout.setAdWhirlInterface(this);
-    	
-    	adwhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-    	//adwhirlLayout.setLayoutParams();
-    	
-    	/*TextView ta  = (TextView) findViewById(R.layout.text_view);
-       LayoutParams lp = new LayoutParams();
-       lp.gravity= Gravity.CENTER_HORIZONTAL; 
-       ta.setLayoutParams(lp);
-    	 * 
-    	 */
-
-	 	
-    	adLayout.addView(adwhirlLayout);
-    	
-
-    }
-    
-    public void setKuAd() {
-    	KuBanner banner;
-    	banner = new KuBanner(this);
-    	
-    	Resources res = getResources();
-    	String kuAdKey = res.getString(R.string.kuad_key);
-    	
-    	banner.setAPID(kuAdKey);
-    	banner.appStart();
-    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
-
-        // Add the adView to it
-    	adLayout.addView(banner);
-        
-        banner.setkuADListener(new kuADListener(){
-        	public void onRecevie(String msg) {
-			//成功接收廣告
-				Log.i("AdOn", "OnReceviekuAd");
-			}
-			public void onFailedRecevie(String msg) {
-			//失敗接收廣告
-				Log.i("AdOn", "OnFailesToReceviekuAd");
-			}
-			});
-    }
-	
-	class AdTask extends AsyncTask<Integer, Integer, String> {
-		@Override
-		protected String doInBackground(Integer... arg0) {
-			
-			return null;
-		}
-		
-		 @Override  
-	     protected void onPostExecute(String result) {
-			 setAd();
-			 //setKuAd();
-			 super.onPostExecute(result);
-
-		 }
-    	
-    }
-
-	public void adWhirlGeneric()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
-	public void showKuAd() {
-		setKuAd();
 	}
 }

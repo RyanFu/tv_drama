@@ -65,12 +65,15 @@ public class DramaAPI {
 	}
 	
 	public DramaAPI(Activity a) {
-		this(new String("http://drama.jumplife.com.tw"));
+		//this(new String("http://drama.jumplife.com.tw"));
+		this(new String("http://106.186.21.200:8000"));
+		
 		this.mActivity = a;
 	}
 	
 	public DramaAPI() {
-		this(new String("http://drama.jumplife.com.tw"));
+		//this(new String("http://drama.jumplife.com.tw"));
+		this(new String("http://106.186.21.200:8000"));
 	}
 	
 	public int connect(String requestedMethod, String apiPath) {

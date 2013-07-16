@@ -6,11 +6,10 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.adwhirl.AdWhirlLayout;
-import com.adwhirl.AdWhirlManager;
-import com.adwhirl.AdWhirlTargeting;
-import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.crittercism.app.Crittercism;
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.customplayer.VideoControllerView;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -55,7 +54,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 @SuppressLint("InlinedApi")
-public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, VideoControllerView.MediaPlayerControl {
+public class LoaderPlayerActivity extends Activity implements VideoControllerView.MediaPlayerControl {
 
     public final static String MSG_INIT = "com.keyes.video.msg.init";
     protected String mMsgInit = "初始化";
@@ -75,7 +74,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
     protected TextView mProgressMessage;
 	private AnimationDrawable animationDrawable;
     private RelativeLayout rlAd;
-	private AdWhirlLayout adWhirlLayout;
+	//private AdWhirlLayout adWhirlLayout;
     private VideoView mVideoView;
     VideoControllerView controller;
     //private Button imYoutubeQualitySwitch;
@@ -86,6 +85,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
     private int currentPart = 1;
     private static int stopPosition = 0;
     private ArrayList<String> videoIds = new ArrayList<String>();
+    private AdView adView;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -159,9 +159,22 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
             mMsgErrorTitle = lMsgErrTitle;
         }
     }
-    
+   
     public void setAd() {
     	
+    	
+    	Resources res = getResources();
+    	String admoblKey = res.getString(R.string.admob_key);
+    	
+    	// Create the adView
+    	adView = new AdView(this, AdSize.BANNER, admoblKey);
+
+    	// Add the adView to it
+    	rlAd.addView(adView);
+    	
+    	// Initiate a generic request to load it with an ad
+        adView.loadAd(new AdRequest());
+    	/*
     	Resources res = getResources();
     	String adwhirlKey = res.getString(R.string.adwhirl_key);
     	
@@ -171,7 +184,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
         adWhirlLayout.setAdWhirlInterface(this);    	
         adWhirlLayout.setGravity(Gravity.CENTER_HORIZONTAL);	 	
         rlAd.addView(adWhirlLayout);   	
-
+		*/
     }
     
     @Override
@@ -652,11 +665,6 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
             return super.onKeyDown(keyCode, event);
     }
 
-	@Override
-	public void adWhirlGeneric() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void start() {
