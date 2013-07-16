@@ -723,7 +723,6 @@ public class DramaInfoChapterActivity extends Activity{
 
 	@Override
 	protected void onDestroy(){
-        super.onDestroy();
         if (taskLoad!= null && taskLoad.getStatus() != AsyncTask.Status.FINISHED) {
         	taskLoad.closeProgressDilog();
         	taskLoad.cancel(true);
@@ -732,5 +731,11 @@ public class DramaInfoChapterActivity extends Activity{
         	refreshTaskLoad.closeProgressDilog();
         	refreshTaskLoad.cancel(true);
         }
+        
+        if (adView != null) {
+            adView.destroy();
+        }
+        
+        super.onDestroy();
     }
 }

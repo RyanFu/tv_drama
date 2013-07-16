@@ -561,11 +561,16 @@ public class DramaSectionActivity extends Activity {
     
     @Override
 	protected void onDestroy(){
-        super.onDestroy();
         if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
         	loadTask.closeProgressDilog();
         	loadTask.cancel(true);
         }
+        
+        if (adView != null) {
+            adView.destroy();
+        }
+        
+        super.onDestroy();
     }
     
     @Override

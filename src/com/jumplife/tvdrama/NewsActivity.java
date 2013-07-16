@@ -336,9 +336,14 @@ public class NewsActivity extends TrackedActivity {
 	}
 	@Override
 	protected void onDestroy(){
-        super.onDestroy();
         if (loadtask!= null && loadtask.getStatus() != AsyncTask.Status.FINISHED)
         	loadtask.cancel(true);
+        
+        if (adView != null) {
+            adView.destroy();
+        }
+        
+        super.onDestroy();
 	}
 	@Override
 	protected void onStop() {
