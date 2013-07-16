@@ -688,8 +688,6 @@ public class CustomPlayerActivity extends Activity
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        
         if(animationDrawable != null && animationDrawable.isRunning())
         	animationDrawable.stop();
         
@@ -706,6 +704,12 @@ public class CustomPlayerActivity extends Activity
 
         this.mQueryVideoTask = null;
         this.player = null;
+        
+        if (adView != null) {
+            adView.destroy();
+        }
+        
+        super.onDestroy();
     }
     
     @Override

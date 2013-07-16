@@ -300,8 +300,6 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        
         if(animationDrawable != null && animationDrawable.isRunning())
         	animationDrawable.stop();
         
@@ -318,6 +316,12 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 
         this.mQueryVideoTask = null;
         this.mVideoView = null;
+        
+        if (adView != null) {
+            adView.destroy();
+        }
+        
+        super.onDestroy();
     }
 
     public void updateProgress(String pProgressMsg) {
