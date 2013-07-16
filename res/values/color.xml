@@ -59,6 +59,7 @@
     <color name="ticket_center_dialog_bg">#e7e7e7</color>
     <color name="ticket_center_button_press">#cfcfcf</color>
     <color name="ticket_center_button_press_orange">#d65917</color>
+    <color name="ticket_center_count_red">#ff0000</color>
     <!-- seperate shadow -->
     <color name="seperate_shadow_start">#88030303</color>
     <color name="seperate_shadow_center">#883e3e3e</color>

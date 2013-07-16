@@ -742,8 +742,9 @@ public class DramaAPI {
 					String imagelUrl = campaignJson.getString("imageurl");
 					String title = campaignJson.getString("title");
 					String description = campaignJson.getString("description");
+					int count = campaignJson.getInt("ticket_count");
 					
-					Ticket campaign = new Ticket(id, imagelUrl, title, description, 0);
+					Ticket campaign = new Ticket(id, imagelUrl, title, description, count);
 					campaignList.add(campaign);
 				}
 			} 

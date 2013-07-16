@@ -17,9 +17,22 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="center"
-	        android:layout_margin="10dp"
+	        android:layout_marginTop="10dp"
+	        android:layout_marginRight="10dp"
+	        android:layout_marginLeft="10dp"
 	        android:textSize="18dp"
 	        android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/tv_preferential_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="right|center_horizontal"
+            android:textStyle="bold"
+            android:textColor="@color/ticket_center_count_red"
+            android:textSize="20dp" />
+
 	    <View 
 	        android:layout_width="match_parent"
 	        android:layout_height="0.1dp"
