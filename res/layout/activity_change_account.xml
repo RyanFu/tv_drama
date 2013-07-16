@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:background="@color/white"
+        android:textColor="@color/main_color_orange"
+        android:textSize="18dp"
+        android:text="更換帳戶"/>
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:layout_gravity="center"
+        android:background="@color/ticket_center_preferential_seperate"/>
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@color/ticket_center_dialog_bg"
+	    android:orientation="vertical" >
+	    <TextView android:id="@+id/tv_change_account_email"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_margin="20dp"
+	        android:textSize="15dp"
+	        android:textColor="@color/black"
+	        android:text="你目前使用的帳號是 : "/>
+	    <Spinner android:id="@+id/spinner_email"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="20dp"
+	        android:layout_marginRight="20dp"
+	        android:layout_marginBottom="10dp" />
+	    <Button android:id="@+id/button_send"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_margin="20dp"
+	        android:padding="8dp"
+	        android:background="@drawable/button_exchange"
+	        android:textColor="@color/white"
+	        android:textSize="15dp"
+	        android:text="確認"/>
+    </LinearLayout>
+</LinearLayout>

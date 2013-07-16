@@ -20,37 +20,48 @@ import com.jumplife.tvdrama.entity.Drama;
 
 public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     private static final String   DramaTable          = "dramas";
+    //private static final String   TicketTable         = "tickets";
     public  static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
     public  static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
-    private static final int      DATABASE_VERSION    = 44;
+    private static final int      DATABASE_VERSION    = 48; // Version 44 is the new sqlite helper
     private final  Context 		  mContext;
     public  static String 		  DB_PATH_DATA;                                         // 資料庫版本
     private static SQLiteTvDramaHelper helper;
 
     public static synchronized SQLiteTvDramaHelper getInstance(Context context) {
         if(helper == null) {
-            helper = new SQLiteTvDramaHelper(context);
+            helper = new SQLiteTvDramaHelper(context.getApplicationContext());
         }
 
         return helper;
     }
     
     public SQLiteTvDramaHelper(Context context) {
-    	super(context, DB_NAME, null, DATABASE_VERSION);
-    	this.mContext = context;
+    	super(context.getApplicationContext(), DB_NAME, null, DATABASE_VERSION);
+    	this.mContext = context.getApplicationContext();
     	//DB_PATH_DATA = Environment.getDataDirectory() + DB_PATH;
-    	DB_PATH_DATA = context.getFilesDir().getAbsolutePath().replace("files", "databases") + "/";
+    	DB_PATH_DATA = mContext.getFilesDir().getAbsolutePath().replace("files", "databases") + "/";
     	Log.d(null, "data path : " + DB_PATH_DATA);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
         Log.d(null, "onCreate");
+        /*String DATABASE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TicketTable + " ("
+        	+ "url VARCHAR,"
+	   		+ "title VARCHAR,"
+	   		+ "description VARCHAR,"
+	   		+ "serial_num INTEGER,"
+	   		+ "has_watch BOOLEAN"
+	   		+ ")";
+        db.execSQL(DATABASE_CREATE_TABLE);*/
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(null, "onUpgrade");
+        /*db.execSQL("DROP TABLE IF EXISTS " + TicketTable);
+        onCreate(db);*/
     }
 
     public void closeHelper() {
@@ -131,7 +142,7 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
         	db.execSQL(
 	                "INSERT OR IGNORE INTO " + DramaTable + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
 	                new String[] {0+"", -1+"", -1+"", drama.getId()+"", drama.getChineseName(), drama.getAreId()+"",
-	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "'f'"});
+	                		drama.getIntroduction(), drama.getPosterUrl(), drama.getEps(),	drama.getReleaseDate(), "f"});
         }
         return 0;
     }
@@ -255,7 +266,7 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     
     public String getDramaSectionRecord(SQLiteDatabase db, int dramaId) throws SQLException {
     	
-    	Cursor cursor = db.rawQuery("SELECT section FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+    	/*Cursor cursor = db.rawQuery("SELECT section FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
         
         String section = "";
         if (cursor != null) {
@@ -263,7 +274,24 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
 	            section = cursor.getString(0);
         	}
             cursor.close();
-        }
+        }*/
+
+    	Cursor cursor;
+    	String section = "";
+        
+    	try {
+    		cursor = db.rawQuery("SELECT section FROM " + DramaTable + " WHERE id = '" + dramaId + "'", null);
+            
+            if (cursor != null) {
+            	while(cursor.moveToNext()) {
+    	            section = cursor.getString(0);
+            	}
+                cursor.close();
+            }
+    	} catch (Exception e) {
+    	     return section;
+    	}
+    	
         return section;
     }
     
@@ -280,19 +308,23 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
 
     public ArrayList<Drama> getDramaList(SQLiteDatabase db) throws SQLException {
     	ArrayList<Drama> drama_lst = new ArrayList<Drama>();
-        Cursor cursor = null;
-        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE is_show = 't';", null);
-        if (cursor != null) {
-        	while(cursor.moveToNext()) {
-	            Drama drama = new Drama();
-	            drama.setId(cursor.getInt(0));
-	            drama.setChineseName(cursor.getString(1));
-	            drama.setPosterUrl(cursor.getString(2));
-	            drama.setViews(cursor.getInt(3));
-	            drama_lst.add(drama);
-        	}
-            cursor.close();
-        }
+    	try {
+	        Cursor cursor = null;
+	        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE is_show = 't';", null);
+	        if (cursor != null) {
+	        	while(cursor.moveToNext()) {
+		            Drama drama = new Drama();
+		            drama.setId(cursor.getInt(0));
+		            drama.setChineseName(cursor.getString(1));
+		            drama.setPosterUrl(cursor.getString(2));
+		            drama.setViews(cursor.getInt(3));
+		            drama_lst.add(drama);
+	        	}
+	            cursor.close();
+	        }
+	    } catch (Exception e) {
+		     return drama_lst;
+		}
         return drama_lst;
     }
     
@@ -304,38 +336,46 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
         idLst = idLst.substring(0, idLst.length() - 1);
 
         ArrayList<Drama> drama_lst = new ArrayList<Drama>();
-        Cursor cursor = null;
-        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + idLst + ") AND is_show = 't';", null);
-        if (cursor != null) {
-        	while(cursor.moveToNext()) {
-	            Drama drama = new Drama();
-	            drama.setId(cursor.getInt(0));
-	            drama.setChineseName(cursor.getString(1));
-	            drama.setPosterUrl(cursor.getString(2));
-	            drama.setViews(cursor.getInt(3));
-	            drama_lst.add(drama);
-        	}
-            cursor.close();
-        }
+        try {
+	        Cursor cursor = null;
+	        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + idLst + ") AND is_show = 't';", null);
+	        if (cursor != null) {
+	        	while(cursor.moveToNext()) {
+		            Drama drama = new Drama();
+		            drama.setId(cursor.getInt(0));
+		            drama.setChineseName(cursor.getString(1));
+		            drama.setPosterUrl(cursor.getString(2));
+		            drama.setViews(cursor.getInt(3));
+		            drama_lst.add(drama);
+	        	}
+	            cursor.close();
+	        }
+	    } catch (Exception e) {
+		     return drama_lst;
+		}
         return drama_lst;
     }
 
     public ArrayList<Drama> getDramaList(SQLiteDatabase db, int filter) throws SQLException {
     	ArrayList<Drama> drama_lst = new ArrayList<Drama>();
-        Cursor cursor = null;
-        cursor = db.rawQuery("SELECT id, name, poster_url, views, release_date FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
-        if (cursor != null) {
-        	while(cursor.moveToNext()) {
-	            Drama drama = new Drama();
-	            drama.setId(cursor.getInt(0));
-	            drama.setChineseName(cursor.getString(1));
-	            drama.setPosterUrl(cursor.getString(2));
-	            drama.setViews(cursor.getInt(3));
-	            drama.setReleaseDate(cursor.getString(4));
-	            drama_lst.add(drama);
-        	}
-            cursor.close();
-        }
+    	try {
+	        Cursor cursor = null;
+	        cursor = db.rawQuery("SELECT id, name, poster_url, views, release_date FROM " + DramaTable + " WHERE area_id = " + filter + " AND is_show = 't';", null);
+	        if (cursor != null) {
+	        	while(cursor.moveToNext()) {
+		            Drama drama = new Drama();
+		            drama.setId(cursor.getInt(0));
+		            drama.setChineseName(cursor.getString(1));
+		            drama.setPosterUrl(cursor.getString(2));
+		            drama.setViews(cursor.getInt(3));
+		            drama.setReleaseDate(cursor.getString(4));
+		            drama_lst.add(drama);
+	        	}
+	            cursor.close();
+	        }
+	    } catch (Exception e) {
+		     return drama_lst;
+		}
 
         return drama_lst;
     }
@@ -351,19 +391,69 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
             }
         }
         ArrayList<Drama> drama_lst = new ArrayList<Drama>();
-        Cursor cursor = null;
-    	cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + dramaIDs + ") AND is_show = 't';", null);
-        if (cursor != null) {
-        	while(cursor.moveToNext()) {
-	            Drama drama = new Drama();
-	            drama.setId(cursor.getInt(0));
-	            drama.setChineseName(cursor.getString(1));
-	            drama.setPosterUrl(cursor.getString(2));
-	            drama.setViews(cursor.getInt(3));
-	            drama_lst.add(drama);
-        	}
-            cursor.close();
-        }
+        try {
+	        Cursor cursor = null;
+	    	cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + dramaIDs + ") AND is_show = 't';", null);
+	        if (cursor != null) {
+	        	while(cursor.moveToNext()) {
+		            Drama drama = new Drama();
+		            drama.setId(cursor.getInt(0));
+		            drama.setChineseName(cursor.getString(1));
+		            drama.setPosterUrl(cursor.getString(2));
+		            drama.setViews(cursor.getInt(3));
+		            drama_lst.add(drama);
+	        	}
+	            cursor.close();
+	        }
+        } catch (Exception e) {
+		     return drama_lst;
+		}
         return drama_lst;
     }
+    
+    /*public void insertTicket(SQLiteDatabase db, Ticket ticket) {   		
+    	db.execSQL(
+                "INSERT OR IGNORE INTO " + TicketTable + " VALUES(?,?,?,?,?)",
+                new String[] {ticket.getUrl(), ticket.getTitle(), ticket.getDescription(), ticket.getSerialNum()+"", "f"});
+    }
+    
+    public void updateHasWatch(SQLiteDatabase db) {
+        
+    	ContentValues localContentValues = new ContentValues();
+        localContentValues.put("has_watch", "t");
+        db.update(TicketTable, localContentValues, null, null);
+    }
+
+    public int getUnReadCount(SQLiteDatabase db) {
+    	Cursor cursor = db.rawQuery("SELECT url FROM " + TicketTable + " WHERE has_watch = 'f'", null);
+        int count = 0;
+        if (cursor != null) {
+        	if(cursor.moveToFirst())
+        		count = cursor.getCount();
+            cursor.close();
+        }
+        return count;
+    }
+    
+    public ArrayList<Ticket> getTicketList(SQLiteDatabase db) throws SQLException {
+    	ArrayList<Ticket> ticketList = new ArrayList<Ticket>();
+    	try {
+	        Cursor cursor = null;
+	        cursor = db.rawQuery("SELECT url, title, description, serial_num FROM " + TicketTable, null);
+	        if (cursor != null) {
+	        	while(cursor.moveToNext()) {
+	        		Ticket ticket = new Ticket();
+	        		ticket.setUrl(cursor.getString(0));
+	        		ticket.setTitle(cursor.getString(1));
+	        		ticket.setDescription(cursor.getString(2));
+	        		ticket.setSerialNum(cursor.getInt(3));
+		            ticketList.add(ticket);
+	        	}
+	            cursor.close();
+	        }
+	    } catch (Exception e) {
+		     return ticketList;
+		}
+        return ticketList;
+    }*/
 }

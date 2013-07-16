@@ -24,6 +24,7 @@
 	        android:paddingRight="7dp"
 	        android:textColor="@color/white"
 	        android:textSize="19dp"
+	        android:imeOptions="actionSearch"
 	        android:hint="@string/search_key_in"/>    
     </RelativeLayout>
 	

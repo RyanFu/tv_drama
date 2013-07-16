@@ -8,7 +8,7 @@ import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sectionlistview.DramaGridAdapter;
+import com.jumplife.adapter.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDrama;
 import com.jumplife.tvdrama.entity.Drama;

@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sectionlistview.SearchListAdapter;
+import com.jumplife.adapter.SearchListAdapter;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
@@ -31,14 +30,13 @@ public class SearchDramaActivity extends Activity {
 	private ListView listviewSearch;
 	private EditText edittextSearch;
 	private ArrayList<Drama> dramas = new ArrayList<Drama>();
-	private ArrayList<Drama> temps = new ArrayList<Drama>();
+	private ArrayList<Drama> temps;
 	private ArrayList<String> arr_sort = new ArrayList<String>();
 	private SearchListAdapter adapter;
 	int textlength=0;
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		JSONObject crittercismConfig = new JSONObject();
@@ -48,14 +46,13 @@ public class SearchDramaActivity extends Activity {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
 		setContentView(R.layout.activity_searchdrama);
 		
 		initView();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initView() {
 		
 		/*SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this); 
@@ -67,14 +64,18 @@ public class SearchDramaActivity extends Activity {
         db.close();
         instance.closeHelper();
         
-		temps = (ArrayList<Drama>) dramas.clone();
+		temps = new ArrayList<Drama>(dramas);
 		for(int i=0; i<dramas.size(); i++)
 			arr_sort.add(dramas.get(i).getChineseName());
 		
 		listviewSearch=(ListView)findViewById(R.id.ListView_search);
 		edittextSearch=(EditText)findViewById(R.id.EditText_search);
-		edittextSearch.addTextChangedListener(filterTextWatcher);		
+		
+		View footer = (View) View.inflate(this, R.layout.listview_search_footer, null);
+		
+		edittextSearch.addTextChangedListener(filterTextWatcher);
 		adapter = new SearchListAdapter(this, arr_sort);
+		listviewSearch.addFooterView(footer);
 		listviewSearch.setAdapter(adapter);
 		
 		listviewSearch.setOnItemClickListener(new OnItemClickListener() {
@@ -157,13 +158,21 @@ public class SearchDramaActivity extends Activity {
     
     @Override
     public void onStart() {
-      super.onStart();
-      EasyTracker.getInstance().activityStart(this);
+    	super.onStart();
+      	EasyTracker.getInstance().activityStart(this);
+      	
+      	if(dramas == null || dramas.size() <= 0) {
+      		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+            SQLiteDatabase db = instance.getWritableDatabase();
+            dramas = instance.getDramaList(db);
+            db.close();
+            instance.closeHelper();
+      	}
     }
     
     @Override
     public void onStop() {
-      super.onStop();
-      EasyTracker.getInstance().activityStop(this);
+    	super.onStop();
+    	EasyTracker.getInstance().activityStop(this);
     }
 }

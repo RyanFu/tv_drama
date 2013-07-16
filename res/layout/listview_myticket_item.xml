@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <RelativeLayout
+        android:id="@+id/rl_myticket"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+	    <ImageView 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentTop="true"
+	        android:src="@drawable/ticket_gate"/>
+	    <LinearLayout android:id="@+id/ll_myticket_content"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentTop="true"
+	        android:layout_marginTop="15dp"
+	        android:paddingLeft="10dp"
+	        android:paddingRight="10dp"
+	        android:orientation="vertical">
+		    <LinearLayout android:id="@+id/ll_myticket_serialnum"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical"
+		        android:background="@color/white">
+
+		        <TextView
+		            android:id="@+id/tv_myticket_serialnum"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_margin="20dp"
+		            android:gravity="center"
+		            android:text="你的序號"
+		            android:textColor="@color/black"
+		            android:textSize="24dp"
+		            android:textStyle="bold" />
+
+		         <TextView android:id="@+id/tv_myticket_content"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+	                android:layout_marginLeft="15dp"
+	                android:layout_marginRight="15dp"
+	                android:layout_marginBottom="20dp"
+	                android:textSize="18dp"
+	                android:textColor="@color/black"
+		            android:hint="注意事項" />
+		    </LinearLayout>
+	    
+	        <ImageView android:id="@+id/iv_myticket_poster"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:background="@color/black"/>
+	        <TextView android:id="@+id/tv_myticket_itle"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:padding="10dp"
+	            android:background="@color/white"
+	            android:textColor="@color/main_color_orange"
+	            android:textSize="18dp"
+	            android:gravity="center"/>"
+	    </LinearLayout>
+	    <View 
+	        android:layout_width="match_parent"
+	        android:layout_height="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+	        android:layout_alignParentTop="true"
+	        android:background="@drawable/seperate_shadow" />
+    </RelativeLayout>
+</RelativeLayout>

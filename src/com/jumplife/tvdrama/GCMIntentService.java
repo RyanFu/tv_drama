@@ -25,6 +25,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
@@ -56,29 +57,43 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "Received message");
         
-        int typeId;        
-        int sortId;
-        
-        if(intent.hasExtra("type_id"))
-        	typeId = Integer.parseInt(intent.getStringExtra("type_id"));
-        else
-        	typeId = 0;
-        
-        if(intent.hasExtra("sort_id"))
-        	sortId = Integer.parseInt(intent.getStringExtra("sort_id"));
-        else
-        	sortId = 0;
-        
-        Log.d(TAG, "type_id : " + typeId + " Extra : " + intent.getStringExtra("type_id"));
-        Log.d(TAG, "sort_id : " + sortId + " Extra : " + intent.getStringExtra("sort_id"));
-        
-        String message = intent.getStringExtra("message");
-        
-        SharePreferenceIO shIO = new SharePreferenceIO(this);
-        boolean shareKey = true;;
-        shareKey = shIO.SharePreferenceO("notification_key", shareKey);
-        if(shareKey)
-        	generateNotification(context, typeId, sortId, message);
+        /*
+         * There is two type of Push.
+         * One update information center.
+         * Another notifies new dramas. 
+         */
+        if(intent.hasExtra("info_notify")) {
+        	Intent infoIntent = new Intent("info_center");
+        	
+        	/*
+        	 * Using AsyncTask to request new information 
+        	 */
+            LocalBroadcastManager.getInstance(context).sendBroadcast(infoIntent);
+        } else {
+	        int typeId;        
+	        int sortId;
+	        
+	        if(intent.hasExtra("type_id"))
+	        	typeId = Integer.parseInt(intent.getStringExtra("type_id"));
+	        else
+	        	typeId = 0;
+	        
+	        if(intent.hasExtra("sort_id"))
+	        	sortId = Integer.parseInt(intent.getStringExtra("sort_id"));
+	        else
+	        	sortId = 0;
+	        
+	        Log.d(TAG, "type_id : " + typeId + " Extra : " + intent.getStringExtra("type_id"));
+	        Log.d(TAG, "sort_id : " + sortId + " Extra : " + intent.getStringExtra("sort_id"));
+	        
+	        String message = intent.getStringExtra("message");
+	        
+	        SharePreferenceIO shIO = new SharePreferenceIO(this);
+	        boolean shareKey = true;;
+	        shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+	        if(shareKey)
+	        	generateNotification(context, typeId, sortId, message);
+        }
     }
 
     @Override

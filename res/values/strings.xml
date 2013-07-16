@@ -108,6 +108,11 @@
     <string name="player_description_next"> next Part</string>
     <string name="player_description_pre"> pre Part</string>
     
+    <!-- Ticket Center -->
+    <string name="ticket_center">Ticket Center</string>
+    <string name="preferential">Preferential</string>
+    <string name="my_ticket">My Ticket</string>    
+    
     <bool name="ga_auto_activity_tracking">true</bool>
     <bool name="ga_debug">true</bool>
     <item format="integer" name="ga_dispatchPeriod" type="integer">120</item>

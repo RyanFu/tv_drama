@@ -100,6 +100,12 @@
     <string name="player_description_pre"> 上一Part</string>
     
     <string name="admob_key">05b21d283a8140c9</string>  <!-- admob mediation -->
+
+    <!-- Ticket Center -->
+    <string name="ticket_center">票劵中心</string>
+    <string name="preferential">獨享優惠</string>
+    <string name="my_ticket">我的票劵</string>
+    
     <string name="kuad_key">000000G0c</string>
     <string name="hodo_key">5147dd57ddc</string>
     <string name="adwhirl_key">4074c1a2a3544c1ca28b2cca67570d25</string>

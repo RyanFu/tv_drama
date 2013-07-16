@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+<<<<<<< HEAD
 import com.crittercism.app.Crittercism;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
@@ -13,9 +14,21 @@ import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 
 import com.jumplife.sectionlistview.DramaSectionAdapter;
+=======
+import com.adwhirl.AdWhirlLayout;
+import com.adwhirl.AdWhirlManager;
+import com.adwhirl.AdWhirlTargeting;
+import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
+import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.hodo.HodoADView;
+import com.hodo.listener.HodoADListener;
+import com.jumplife.adapter.DramaSectionAdapter;
+>>>>>>> a22bcef6b69adf6bbd3b6b628359d17ae0de2008
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
+import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Section;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -59,6 +72,7 @@ public class DramaSectionActivity extends Activity {
     private TextView		textViewFeedback;
     private TextView 		tvChapterNO;
     private TextView 		tvNotify;
+    private Boolean			hasAdvertisment = false;
     private static String currentSection = "";
     private int screenWidth;
     private int screenHeight;
@@ -90,7 +104,7 @@ public class DramaSectionActivity extends Activity {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 
         setContentView(R.layout.activity_dramasection);
         
@@ -133,9 +147,12 @@ public class DramaSectionActivity extends Activity {
 		
         switch (requestCode) {
         case LOADERPLAYER:
-        	if (resultCode == LOADERPLAYER_CHANGE) {
-    			
+        	if (resultCode == LOADERPLAYER_CHANGE) {    			
         		if(dramaSectionAdapter == null || sectioGridView == null) {
+        			if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
+        	        	loadTask.closeProgressDilog();
+        	        	loadTask.cancel(true);
+        	        }
         			loadTask = new LoadDataTask();
                     if(Build.VERSION.SDK_INT < 11)
                     	loadTask.execute();
@@ -224,39 +241,52 @@ public class DramaSectionActivity extends Activity {
     	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				currentSection = chapterNo + ", " + (position + 1);
-            	dramaSectionAdapter.setCurrentSection(currentSection);
-            	dramaSectionAdapter.notifyDataSetChanged();
-            	shIO.SharePreferenceI("views", true);
-            	
-            	if(sectionList.get(position).getUrl() == null ||
-            			sectionList.get(position).getUrl().equalsIgnoreCase("")) {
-            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
-    		        dialog.setTitle(getResources().getString(R.string.no_link));
-    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
-    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
-    		            public void onClick(DialogInterface dialog, int which) {
-    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
-    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
-    	            				+ chapterNo + getResources().getString(R.string.no));  
-    	            		startActivity(search);
-    		            }
-    		        });
-    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-    		            public void onClick(DialogInterface dialog, int which) {
-    		            }
-    		        });
-    		        dialog.show();
-            	} else {
-            		ArrayList<String> videoIds = new ArrayList<String>();
-            		for(int i = 0; i < sectionList.size(); i++)
-            			videoIds.add(sectionList.get(i).getUrl());
-            		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
-            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class);            		
-            		newAct.putExtra("currentPart", position + 1);
-            		newAct.putStringArrayListExtra("videoIds", videoIds);
-            		startActivityForResult(newAct, LOADERPLAYER);            		
-            	}
+				/*
+				 *  id = -1 is promote.
+				 */
+				if(sectionList.get(position).getId() != -1) {
+					currentSection = chapterNo + ", " + (position + 1);
+	            	dramaSectionAdapter.setCurrentSection(currentSection);
+	            	dramaSectionAdapter.notifyDataSetChanged();
+	            	shIO.SharePreferenceI("views", true);
+	            	
+	            	if(sectionList.get(position).getUrl() == null ||
+	            			sectionList.get(position).getUrl().equalsIgnoreCase("")) {
+	            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+	    		        dialog.setTitle(getResources().getString(R.string.no_link));
+	    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+	    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+	    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+	    	            				+ chapterNo + getResources().getString(R.string.no));  
+	    	            		startActivity(search);
+	    		            }
+	    		        });
+	    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            }
+	    		        });
+	    		        dialog.show();
+	            	} else {
+	            		ArrayList<String> videoIds = new ArrayList<String>();
+	            		int size = sectionList.size();
+	            		if(hasAdvertisment) 
+	            			size = size-1;
+	            		for(int i = 0; i < size; i++)
+	            			videoIds.add(sectionList.get(i).getUrl());
+	            		
+	            		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
+	            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class);            		
+	            		newAct.putExtra("currentPart", position + 1);
+	            		newAct.putStringArrayListExtra("videoIds", videoIds);
+	            		startActivityForResult(newAct, LOADERPLAYER);            		
+	            	}
+				} else {
+					Intent newAct = new Intent();
+					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
+	                startActivity( newAct );
+				}
 			}    		
     	});
     }
@@ -264,56 +294,61 @@ public class DramaSectionActivity extends Activity {
     private void setNormalGridClickListener() {
     	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            	currentSection = chapterNo + ", " + (position + 1);
-            	dramaSectionAdapter.setCurrentSection(currentSection);
-            	dramaSectionAdapter.notifyDataSetChanged();
-            	shIO.SharePreferenceI("views", true);
-            	Uri uri;
-            	if(sectionList.get(position).getUrl() == null ||
-            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
-            			sectionList.get(position).getUrl().contains("maplestage")) {
-            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
-    		        dialog.setTitle(getResources().getString(R.string.no_link));
-    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
-    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
-    		            public void onClick(DialogInterface dialog, int which) {
-    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
-    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
-    	            				+ chapterNo + getResources().getString(R.string.no));  
-    	            		startActivity(search);
-    		            }
-    		        });
-    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-    		            public void onClick(DialogInterface dialog, int which) {
-    		            }
-    		        });
-    		        dialog.show();            		 
-            	} else {
-            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
-            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
-	            			String url = sectionList.get(position).getUrl();
-	            			url = url.substring(39);
-	            			String[] tmpUrls = url.split("\\?");
-	            			String tmpId = null;
-	            			if(tmpUrls.length > 0)
-	            				tmpId = tmpUrls[0];
-	            			if(tmpId != null)
-	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
-            			} else {
-            				String url = sectionList.get(position).getUrl();
-	            			url = url.substring(33);
-	            			String[] tmpUrls = url.split("&");	            			
-	            			String tmpId = null;
-	            			if(tmpUrls.length > 0)
-	            				tmpId = tmpUrls[0];
-	            			if(tmpId != null)
-	            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
-            			}
-            		}
-            		
-            		uri = Uri.parse(sectionList.get(position).getUrl());
-            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
-            		startActivity(it);
+            	/*
+				 *  id = -1 is promote.
+				 */
+				if(sectionList.get(position).getId() != -1) {
+	            	currentSection = chapterNo + ", " + (position + 1);
+	            	dramaSectionAdapter.setCurrentSection(currentSection);
+	            	dramaSectionAdapter.notifyDataSetChanged();
+	            	shIO.SharePreferenceI("views", true);
+	            	Uri uri;
+	            	if(sectionList.get(position).getUrl() == null ||
+	            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+	            			sectionList.get(position).getUrl().contains("maplestage")) {
+	            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+	    		        dialog.setTitle(getResources().getString(R.string.no_link));
+	    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+	    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+	    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+	    	            				+ chapterNo + getResources().getString(R.string.no));  
+	    	            		startActivity(search);
+	    		            }
+	    		        });
+	    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            }
+	    		        });
+	    		        dialog.show();            		 
+	            	} else {
+	            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
+	            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
+		            			String url = sectionList.get(position).getUrl();
+		            			url = url.substring(39);
+		            			String[] tmpUrls = url.split("\\?");
+		            			String tmpId = null;
+		            			if(tmpUrls.length > 0)
+		            				tmpId = tmpUrls[0];
+		            			if(tmpId != null)
+		            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			} else {
+	            				String url = sectionList.get(position).getUrl();
+		            			url = url.substring(33);
+		            			String[] tmpUrls = url.split("&");	            			
+		            			String tmpId = null;
+		            			if(tmpUrls.length > 0)
+		            				tmpId = tmpUrls[0];
+		            			if(tmpId != null)
+		            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			}
+	            		}
+	            		
+	            		uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+	            	}
             	}
             }
         });
@@ -396,6 +431,23 @@ public class DramaSectionActivity extends Activity {
     	DramaAPI dramaAPI = new DramaAPI(this);
     	sectionList = new ArrayList<Section>();
     	sectionList = dramaAPI.getChapterSectionNew(dramaId, chapterNo);
+    	
+    	ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(2);
+    	if(advertisements != null && advertisements.size() > 0) {
+	    	Advertisement advertisement = advertisements.get(0);
+	    	/*
+	    	 * 廣告模擬Grid Item
+	    	 */
+	    	if(advertisement != null && !advertisement.getUrl().equals("") && !advertisement.getTitle().equals("")) {
+		    	Section promote = new Section();
+		    	promote.setUrl(advertisement.getUrl());
+		    	promote.setTitle(advertisement.getTitle());
+		    	sectionList.add(promote);
+		    	hasAdvertisment = true;
+	    	} else
+	    		hasAdvertisment = false;
+    	}
+    	
     	/*currentSection = sqlTvDrama.getDramaSectionRecord(dramaId);
     	sqlTvDrama.closeDB();*/
     	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
@@ -450,7 +502,7 @@ public class DramaSectionActivity extends Activity {
         protected void onPostExecute(String result) {
         	closeProgressDilog();
 
-            if (sectionList == null) {
+            if (sectionList == null || sectionList.size() < 1) {
             	sectioGridView.setVisibility(View.GONE);
                 imageButtonRefresh.setVisibility(View.VISIBLE);
             } else {

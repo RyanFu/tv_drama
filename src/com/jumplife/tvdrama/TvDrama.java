@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import static com.jumplife.tvdrama.CommonUtilities.SERVER_URL;
 import static com.jumplife.tvdrama.CommonUtilities.SENDER_ID;
 
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
@@ -62,7 +61,7 @@ public class TvDrama extends Activity {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
         rlLoading = (RelativeLayout)findViewById(R.id.rl_loading);
         DisplayMetrics displayMetrics = new DisplayMetrics();

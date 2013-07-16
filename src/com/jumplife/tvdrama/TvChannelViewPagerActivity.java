@@ -14,11 +14,12 @@ import org.json.JSONObject;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sectionlistview.ViewPagerAdapter;
+import com.jumplife.adapter.DramaViewPagerAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
+import com.jumplife.tvdrama.api.DramaAPI;
+import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
 
@@ -67,7 +68,8 @@ public class TvChannelViewPagerActivity extends Activity {
     private QuickAction      quickAction;
     private TextView 		 tvSelect;
 	private TextView 		 topbar_text;
-
+	private DramaViewPagerAdapter viewpageradapter;
+	
     private List<ArrayList<Drama>> dramaLists;
     private static List<ArrayList<Drama>> hotDramaLists;
     private static List<ArrayList<Drama>> newDramaLists;
@@ -94,7 +96,7 @@ public class TvChannelViewPagerActivity extends Activity {
             crittercismConfig.put("shouldCollectLogcat", true); // send logcat data for devices with API Level 16 and higher
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 		
 		Bundle extras = getIntent().getExtras();
 		currIndex = extras.getInt("type_id", 0);
@@ -104,13 +106,19 @@ public class TvChannelViewPagerActivity extends Activity {
 		functionFlag = extras.getInt("sort_id", 0);
 		
         initViews();
+	}
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
 
         loadTask = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
         	loadTask.execute();
         else
         	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-	}
+    }
 	
 	private void initViews(){
 		tvSelect = (TextView)findViewById(R.id.tv_select);
@@ -201,7 +209,8 @@ public class TvChannelViewPagerActivity extends Activity {
     	buttonJapan.setOnClickListener(new itemOnClickListener(2));
     	buttonChina.setOnClickListener(new itemOnClickListener(3));
         
-        viewpager.setAdapter(new ViewPagerAdapter(this, dramaLists));
+    	viewpageradapter = new DramaViewPagerAdapter(this, dramaLists);
+        viewpager.setAdapter(viewpageradapter);
 		viewpager.setCurrentItem(currIndex);
 		viewpager.getAdapter().notifyDataSetChanged();
 		viewpager.setOnPageChangeListener(new ListOnPageChangeListener());
@@ -209,7 +218,6 @@ public class TvChannelViewPagerActivity extends Activity {
 
     @SuppressWarnings("unchecked")
 	private void fetchData() {
-        
     	//SQLiteTvDrama sqliteTvDrama = new SQLiteTvDrama(this);
     	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
     	SQLiteDatabase db = instance.getReadableDatabase();
@@ -276,6 +284,29 @@ public class TvChannelViewPagerActivity extends Activity {
         db.endTransaction();
         db.close();
         instance.closeHelper();
+        
+        
+        //Promote Test
+        DramaAPI dramaAPI = new DramaAPI(TvChannelViewPagerActivity.this);
+        ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(0);
+        if(advertisements != null && advertisements.size() > 0) {
+	    	Drama drama = new Drama();
+	    	drama.setId(-1);
+	    	drama.setPosterUrl(advertisements.get(0).getUrl());
+	    	drama.setChineseName(advertisements.get(0).getTitle());
+	    	drama.setIntroduction(advertisements.get(0).getDescription());
+	    	
+	    	for(int i=0; i<hotDramaLists.size(); i++)
+	    		hotDramaLists.get(i).add(3, drama);
+	    	for(int i=0; i<newDramaLists.size(); i++)
+	    		newDramaLists.get(i).add(3, drama);
+	    	for(int i=0; i<thirteenDramaLists.size(); i++)
+	    		thirteenDramaLists.get(i).add(3, drama);
+	    	for(int i=0; i<twelveDramaLists.size(); i++)
+	    		twelveDramaLists.get(i).add(3, drama);
+	    	for(int i=0; i<beforeDramaLists.size(); i++)
+	    		beforeDramaLists.get(i).add(3, drama);
+        }
     }
     
     private void setSortList() {
@@ -369,8 +400,7 @@ public class TvChannelViewPagerActivity extends Activity {
 				if((date.getYear()+1900) == yy)
 	    			tmpList.add(dramaList.get(i));
     		}
-    	}
-    	
+    	}    	
 		return tmpList;
     }
     
@@ -391,8 +421,7 @@ public class TvChannelViewPagerActivity extends Activity {
 				if((date.getYear()+1900) <= yy)
 	    			tmpList.add(dramaList.get(i));
     		}
-    	}
-    	
+    	}    	
 		return tmpList;
     }
     
@@ -649,12 +678,6 @@ public class TvChannelViewPagerActivity extends Activity {
             return true;
         } else
             return super.onKeyDown(keyCode, event);
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EasyTracker.getInstance().activityStart(this);
     }
 
     @Override
