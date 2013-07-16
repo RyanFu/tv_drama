@@ -11,7 +11,6 @@ import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
@@ -28,14 +27,18 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.TabActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -79,7 +82,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
         setContentView(R.layout.activity_maintab);
         
@@ -88,6 +91,10 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
         
         topbar_text = (TextView)findViewById(R.id.topbar_text);
         topbar_text.setText(getResources().getString(R.string.app_name));
+        
+        // set unread count
+        LocalBroadcastManager.getInstance(this).registerReceiver(mInfoReceiver, new IntentFilter("info_center"));
+        
         
         tabHost = getTabHost();  // The activity TabHost
         tabHost.setup();
@@ -133,6 +140,13 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     	setTabClickLog();
     	
     }
+    
+    private BroadcastReceiver mInfoReceiver = new BroadcastReceiver() {    	  
+		@Override
+		public void onReceive(Context arg0, Intent intent) {
+			//int unreadCount = intent.getIntExtra("unread_count", 0);
+		}
+	};
     
     public void setAd() {
     	
@@ -250,6 +264,7 @@ public class MainTabActivities extends TabActivity implements AdWhirlInterface {
     @Override
 	protected void onDestroy(){
         super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mInfoReceiver);
         if (loadPromoteTask!= null && loadPromoteTask.getStatus() != AsyncTask.Status.FINISHED) {
         	loadPromoteTask.closeProgressDilog();
         	loadPromoteTask.cancel(true);

@@ -14,7 +14,8 @@
 	    android:layout_above="@+id/ad_layout">
 	    <include android:id="@+id/topbar" layout="@layout/topbar" 
 	            android:layout_alignParentTop="true"/>
-	    <com.handmark.pulltorefresh.library.PullToRefreshListView
+	    <com.handmark.pulltorefresh.library.PullToRefreshListView 
+            xmlns:ptr="http://schemas.android.com/apk/res-auto"
 	        android:id="@+id/listview_news"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
@@ -22,7 +23,8 @@
 	        android:layout_above="@+id/progressBar_pull_more"
 	        android:divider="@color/background"
 	        android:dividerHeight="1dp"
-	        android:background="@color/main_color_grey_dark" />
+            android:background="@color/main_color_grey_dark"
+            ptr:ptrMode="both" />
 	    <ImageButton android:id="@+id/refresh"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"

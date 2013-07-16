@@ -14,15 +14,13 @@ import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
-import com.jumplife.sectionlistview.NewsAdapter;
+import com.jumplife.adapter.NewsAdapter;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.News;
 import com.kuad.KuBanner;
@@ -44,7 +42,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -54,7 +51,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 	private PullToRefreshListView newsListView;
 	private ArrayList<News> newsList;
 	private ImageButton imageButtonRefresh;
-	private LinearLayout pullMore;
 	private NewsAdapter newsAdapter;
 	private LoadDataTask loadtask;
 	private int page = 1;
@@ -72,7 +68,7 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
 	    setContentView(R.layout.activity_news);
 	    
@@ -98,7 +94,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
         topbar_text.setText(getResources().getString(R.string.entertainment_news));
         
 		newsListView = (PullToRefreshListView)findViewById(R.id.listview_news);
-		pullMore = (LinearLayout)findViewById(R.id.progressBar_pull_more);
 		imageButtonRefresh = (ImageButton)findViewById(R.id.refresh);
 		imageButtonRefresh.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {
@@ -153,29 +148,34 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 			}
 		});
 		
-		newsListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				newsListView.setLastUpdatedLabel(DateUtils.formatDateTime(getApplicationContext(),
-						System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE
-								| DateUtils.FORMAT_ABBREV_ALL));
+		newsListView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
+			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+				String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(),
+						DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
 
-				RefreshTask refreshtask = new RefreshTask();
+				// Update the LastUpdatedLabel
+				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
+				
+				RefreshTask task = new RefreshTask();
 				if(Build.VERSION.SDK_INT < 11)
-					refreshtask.execute();
-                else
-                	refreshtask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-			}
-		});
-		
-		newsListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
-			public void onLastItemVisible() {
-				// TODO Auto-generated method stub
-				NextPageTask nextPageTask = new NextPageTask();
-			    if(Build.VERSION.SDK_INT < 11)
-			    	nextPageTask.execute();
+					task.execute();
 		        else
-		        	nextPageTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-			}			
+		        	task.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+			}
+		
+			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+				String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(),
+						DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+
+				// Update the LastUpdatedLabel
+				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
+				
+				NextPageTask task = new NextPageTask();
+				if(Build.VERSION.SDK_INT < 11)
+					task.execute();
+				else
+					task.executeOnExecutor(NextPageTask.THREAD_POOL_EXECUTOR, 0);
+		     }
 		});
 	}  
 
@@ -270,7 +270,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
 		
 		@Override  
         protected void onPreExecute() {
-			pullMore.setVisibility(View.VISIBLE);
 			super.onPreExecute();  
         }  
         @Override
@@ -284,7 +283,6 @@ public class NewsActivity extends TrackedActivity  implements AdWhirlInterface{
             super.onProgressUpdate(progress);  
         } 
 		protected void onPostExecute(String result) {
-			pullMore.setVisibility(View.GONE);
 			if(tmpList != null && tmpList.size() > 0){
 				newsList.addAll(tmpList);
 				newsAdapter.notifyDataSetChanged();

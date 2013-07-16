@@ -51,6 +51,19 @@
     <color name="tab_drama_bg">#2d2d2d</color>
     <color name="tab_bg_seperate">#a3a3a3</color>
     
+    <!-- Add for Ticket Center -->
+    <color name="ticket_center_vp_bg">#e7e7e7</color>
+    <color name="ticket_center_vp_seperate_dark">#828282</color>
+    <color name="ticket_center_vp_seperate_light">#d8d8d8</color>
+    <color name="ticket_center_preferential_seperate">#959595</color>
+    <color name="ticket_center_dialog_bg">#e7e7e7</color>
+    <color name="ticket_center_button_press">#cfcfcf</color>
+    <color name="ticket_center_button_press_orange">#d65917</color>
+    <!-- seperate shadow -->
+    <color name="seperate_shadow_start">#88030303</color>
+    <color name="seperate_shadow_center">#883e3e3e</color>
+    <color name="seperate_shadow_end">#119e9e9e</color>
+    
     <color name="background">#0a0a0a</color>
     <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
@@ -61,7 +74,6 @@
     <color name="transparent30">#aa000000</color>
     <color name="transparent30_white">#aaffffff</color>
     
-   
     <!-- Add for VPON -->
     <color name="contents_text">#ff000000</color>
     <color name="encode_view">#ffffffff</color>

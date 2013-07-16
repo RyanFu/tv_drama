@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sectionlistview.DramaGridAdapter;
+import com.jumplife.adapter.DramaGridAdapter;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
@@ -67,7 +66,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
         setContentView(R.layout.activity_myfavoritewaterfall);
         initViews();        

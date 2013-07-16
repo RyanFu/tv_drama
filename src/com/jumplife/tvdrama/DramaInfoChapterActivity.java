@@ -1,5 +1,7 @@
 package com.jumplife.tvdrama;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,6 +12,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.res.Resources;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +23,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -34,19 +39,20 @@ import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
 import com.adwhirl.AdWhirlLayout.ViewAdRunnable;
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.hodo.HodoADView;
 import com.hodo.listener.HodoADListener;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
+import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Drama;
 import com.kuad.KuBanner;
 import com.kuad.kuADListener;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 public class DramaInfoChapterActivity extends Activity implements AdWhirlInterface{
@@ -63,6 +69,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 	private View viewLine1;
 	private View viewLine2;
 	private LinearLayout llChapter;
+	private RelativeLayout rlPromote;
+	private ImageView ivPromote;
+	private ImageView ivDelete;
 	
     //private ArrayList<Chapter> chapters;
 	private LoadDataTask taskLoad;
@@ -96,7 +105,7 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
         setContentView(R.layout.activity_drama_info_chapter);
         
@@ -116,6 +125,8 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
         */
         
         this.setAd();
+        
+        new LoadPromoteImage().execute();
         
         taskLoad = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
@@ -169,6 +180,9 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
 		textviewDramaContent = (TextView)findViewById(R.id.textview_dramacontent);
 		viewLine1 = (View)findViewById(R.id.view_tabline1);
 		viewLine2 = (View)findViewById(R.id.view_tabline2);
+		rlPromote = (RelativeLayout)findViewById(R.id.rl_promote);
+		ivPromote = (ImageView)findViewById(R.id.iv_promote);
+		ivDelete = (ImageView)findViewById(R.id.iv_delete);
 		
 		imageButtonRefresh.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
@@ -669,6 +683,72 @@ public class DramaInfoChapterActivity extends Activity implements AdWhirlInterfa
                 Log.d("hodo", "onBannerChange");
             }
         });
+    }
+
+	class LoadPromoteImage extends AsyncTask<Integer, Void, String>{  
+        
+		@Override  
+        protected void onPreExecute() {
+             super.onPreExecute();  
+        }  
+          
+        @Override  
+        protected String doInBackground(Integer... params) {
+        	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        	DramaAPI dramaAPI = new DramaAPI(DramaInfoChapterActivity.this);
+        	ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(1);
+            String url = "";
+        	/*
+        	 * 廣告模擬Grid Item
+        	 */
+            if(advertisements != null && advertisements.size() > 0) {
+            	Advertisement advertisement = advertisements.get(0);
+            	if(advertisement != null && !advertisement.getUrl().equals("")) {
+            		url = advertisement.getUrl();
+            	}
+        	}
+            return url;
+        }
+  
+        @Override  
+        protected void onPostExecute(String result) {        	
+        	if(result != null) {
+	        	ivDelete.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View arg0) {
+						rlPromote.setVisibility(View.GONE);
+					}    			
+	    		});
+	    		
+	        	ivPromote.setOnClickListener(new OnClickListener(){
+					@Override
+					public void onClick(View v) {
+						Intent newAct = new Intent();
+						newAct.setClass( DramaInfoChapterActivity.this, TicketCenterActivity.class );
+		                startActivity( newAct );
+					}        		
+	        	});
+	        	
+	        	DisplayImageOptions adOptions = new DisplayImageOptions.Builder()
+	    		.imageScaleType(ImageScaleType.EXACTLY)
+	    		.cacheOnDisc()
+	    		.displayer(new SimpleBitmapDisplayer())
+	    		.build();
+	    		
+	    		imageLoader.displayImage(result, ivPromote, adOptions, new SimpleImageLoadingListener() {
+	    		    @Override
+	    		    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+	    		    	if(imageUri != null && !imageUri.equals("")) {
+		    		    	rlPromote.setVisibility(View.VISIBLE);
+		    	    		Animation animation = AnimationUtils.loadAnimation(DramaInfoChapterActivity.this, R.anim.alpha); 
+		    	    		rlPromote.startAnimation(animation);
+	    		    	}
+	    		    }
+	    		});
+        	}
+    		
+	        super.onPostExecute(result);  
+        }
     }
 
 	class AdTask extends AsyncTask<Integer, Integer, String> {

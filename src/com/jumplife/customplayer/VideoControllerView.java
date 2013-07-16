@@ -92,12 +92,12 @@ public class VideoControllerView extends FrameLayout {
     StringBuilder               mFormatBuilder;
     Formatter                   mFormatter;
     private ImageButton         mPauseButton;
-    private ImageButton         mFfwdButton;
-    private ImageButton         mRewButton;
     private ImageButton         mNextButton;
     private ImageButton         mPrevButton;
     //private ImageButton         mFullscreenButton;
     private Handler             mHandler = new MessageHandler(this);
+    public ImageButton         	mFfwdButton;
+    public ImageButton         	mRewButton;
     public ImageButton         	mFullscreenButton;
     public ImageButton			mYoutubeQualitySwitch;
 
@@ -191,7 +191,7 @@ public class VideoControllerView extends FrameLayout {
 
         mFfwdButton = (ImageButton) v.findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
-            mFfwdButton.setOnClickListener(mFfwdListener);
+            //mFfwdButton.setOnClickListener(mFfwdListener);
             if (!mFromXml) {
                 mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
             }
@@ -199,7 +199,7 @@ public class VideoControllerView extends FrameLayout {
 
         mRewButton = (ImageButton) v.findViewById(R.id.rew);
         if (mRewButton != null) {
-            mRewButton.setOnClickListener(mRewListener);
+            //mRewButton.setOnClickListener(mRewListener);
             if (!mFromXml) {
                 mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
             }

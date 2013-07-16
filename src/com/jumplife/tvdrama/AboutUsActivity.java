@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
@@ -39,7 +38,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
@@ -82,7 +80,7 @@ public class AboutUsActivity extends Activity {
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
         
 		setContentView(R.layout.activity_aboutme);
 		
@@ -507,9 +505,6 @@ public class AboutUsActivity extends Activity {
 		});
 		Schedule_row_third.addView(llClear);
         
-
-
-		
 		
 		
 		TextView tvDiary = new TextView(mActivity);
@@ -551,10 +546,47 @@ public class AboutUsActivity extends Activity {
 		Schedule_row_third.addView(llDiary);
 		
 		
-		RelativeLayout rltmps2 = new RelativeLayout(mActivity);
+		
+		TextView tvTicket = new TextView(mActivity);
+		ImageView ivTicket= new ImageView(mActivity);
+		LinearLayout llTicket = new LinearLayout(mActivity);		
+			
+		ivTicket.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		ivTicket.setImageResource(R.drawable.ticket_3);
+		llTicket.addView(ivTicket, llIvParams);
+		
+		LinearLayout.LayoutParams llTvTicketParams = new LinearLayout.LayoutParams
+				(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //rlTvTicketParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        //rlTvTicketParams.addRule(RelativeLayout.BELOW, ivTicket.getId());
+        //rlTvTicketParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        llTvTicketParams.setMargins(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				0, 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
+				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
+        tvTicket.setText(mActivity.getResources().getString(R.string.ticket_center));
+        tvTicket.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
+        //tvTicket.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
+        llTicket.addView(tvTicket, llTvTicketParams);		
+		
+        llTicket.setBackgroundResource(R.drawable.button_aboutus_bg);
+        llTicket.setOrientation(LinearLayout.VERTICAL);
+        llTicket.setGravity(Gravity.CENTER_HORIZONTAL);
+        llTicket.setLayoutParams(Params);
+        llTicket.setOnClickListener(new OnClickListener(){        	
+        	public void onClick(View arg0) {
+        		EasyTracker.getTracker().trackEvent("關於我們", "票劵中心", "", (long)0);
+				Intent newAct = new Intent();
+				newAct.setClass( AboutUsActivity.this, TicketCenterActivity.class );
+                startActivity( newAct );
+			}				
+		});
+		Schedule_row_third.addView(llTicket);
+		
+		/*RelativeLayout rltmps2 = new RelativeLayout(mActivity);
 		rltmps2.setBackgroundResource(R.drawable.button_aboutus_bg);	
 		rltmps2.setLayoutParams(Params);
-		Schedule_row_third.addView(rltmps2);
+		Schedule_row_third.addView(rltmps2);*/
 		
 		
 		Schedule_row_third.setLayoutParams(new LayoutParams

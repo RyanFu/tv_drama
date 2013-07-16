@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,10 +26,12 @@ import org.json.JSONObject;
 
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.AppProject;
+import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Chapter;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.entity.News;
 import com.jumplife.tvdrama.entity.Section;
+import com.jumplife.tvdrama.entity.Ticket;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -50,7 +53,7 @@ public class DramaAPI {
 	private boolean doOutput;
 	
 	public static final String TAG = "DRAMA_API";
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	
 	public DramaAPI(String urlAddress, int connectionTimeout, int readTimeout) {
 		this.urlAddress = new String(urlAddress + "/");
@@ -253,7 +256,7 @@ public class DramaAPI {
 	    		"youtube_sources/find_by_drama_and_ep_num.json?drama_id=" + dramaId + "&num=" + chapterNo, null);
 		
 		if(message == null) {
-			return null;
+			return sectionList;
 		}
 		else {
 			try {
@@ -330,15 +333,14 @@ public class DramaAPI {
 			url = new URL(this.urlAddress +  apiPath);
 			if(DEBUG)
 				Log.d(TAG, "URL: " + url);
-			
+				
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod(requestMethod);
 			
 			connection.setRequestProperty("Content-Type",  "application/json;charset=utf-8");
 			if(requestMethod.equalsIgnoreCase("POST"))
 				connection.setDoOutput(true);
-			else
-				connection.setDoInput(true);
+			connection.setDoInput(true);
 			connection.connect();
 			
 			
@@ -346,10 +348,8 @@ public class DramaAPI {
 				OutputStream outputStream;
 				
 				outputStream = connection.getOutputStream();
-				if(DEBUG)
-					Log.d("post message", json.toString());
-				
-				outputStream.write(json.toString().getBytes());
+				if(json != null)
+					outputStream.write(json.toString().getBytes());
 				outputStream.flush();
 				outputStream.close();
 			}
@@ -682,8 +682,155 @@ public class DramaAPI {
 		return newsList;
 	}
 	
+	public ArrayList<Advertisement> getAdvertisementList(int type) {
+		ArrayList<Advertisement> advertisementList = new ArrayList<Advertisement>(10);
+		
+		String message = getMessageFromServer("GET", "api/v1/advertisements.json?type_id=" + type, null);
+		
+		if(message == null) {
+			return null;
+		}
+		else {
+			JSONArray advertisementArray;
+			
+			try {
+				advertisementArray = new JSONArray(message.toString());
+				for(int i = 0; i < advertisementArray.length(); i++) {
+					JSONObject advertisementJson = advertisementArray.getJSONObject(i);
+					String imagelUrl = advertisementJson.getString("imageurl");
+					String title = "";
+					String description = "";
+					
+					if(advertisementJson.has("title")){
+						title = advertisementJson.getString("title");
+					}
+					
+					if(advertisementJson.has("description")){
+						description = advertisementJson.getString("description");
+					}
+					
+					Advertisement advertisement = new Advertisement(imagelUrl, title, description);
+					advertisementList.add(advertisement);
+				}
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		
+		return advertisementList;
+	}
 
-
+	public ArrayList<Ticket> getCampaignList() {
+		ArrayList<Ticket> campaignList = new ArrayList<Ticket>(10);
+		
+		String message = getMessageFromServer("GET", "api/v1/campaigns.json", null);
+		
+		if(message == null) {
+			return null;
+		}
+		else {
+			JSONArray campaignArray;
+			
+			try {
+				campaignArray = new JSONArray(message.toString());
+				for(int i = 0; i < campaignArray.length(); i++) {
+					JSONObject campaignJson = campaignArray.getJSONObject(i);
+					int id = campaignJson.getInt("id");
+					String imagelUrl = campaignJson.getString("imageurl");
+					String title = campaignJson.getString("title");
+					String description = campaignJson.getString("description");
+					
+					Ticket campaign = new Ticket(id, imagelUrl, title, description, 0);
+					campaignList.add(campaign);
+				}
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		
+		return campaignList;
+	}
+	
+	public ArrayList<Ticket> getMyTicketList(String email) {
+		ArrayList<Ticket> myTicketList = new ArrayList<Ticket>(10);
+		
+		String message = getMessageFromServer("GET", "api/v1/tickets.json?email=" + email, null);
+		
+		if(message == null) {
+			return myTicketList;
+		}
+		else {
+			JSONArray myTicketArray;
+			
+			try {
+				myTicketArray = new JSONArray(message.toString());
+				for(int i = 0; i < myTicketArray.length(); i++) {
+					JSONObject myTicketJson = myTicketArray.getJSONObject(i);
+					String imagelUrl = myTicketJson.getString("inverse_imageurl");
+					String title = myTicketJson.getString("inverse_title");
+					String description = myTicketJson.getString("precaution");
+					int serialNum = myTicketJson.getInt("serial_num");
+					
+					Ticket myTicket = new Ticket(-1, imagelUrl, title, description, serialNum);
+					myTicketList.add(myTicket);
+				}
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		
+		return myTicketList;
+	}
+	
+	public Ticket requestTicket(String name, String email, String registerId, int campaignId){
+		Ticket ticket = new Ticket();
+		
+		String message;
+		try {
+			message = getMessageFromServer("POST", "api/v1/tickets.json?name=" + URLEncoder.encode(name, "UTF-8") +
+					"&email=" + email +
+					"&registration_id=" + registerId +
+					"&campaign_id=" + campaignId
+					, null);
+		} catch (UnsupportedEncodingException e1) {
+			message = getMessageFromServer("POST", "api/v1/tickets.json?name=" + name +
+					"&email=" + email +
+					"&registration_id=" + registerId +
+					"&campaign_id=" + campaignId
+					, null);
+		}
+		
+		if(message == null) {
+			return null;
+		} else if(message.contains("mail duplicate")) {
+			return ticket;
+		} else {
+			try {
+				JSONObject ticketJson = new JSONObject(message);
+				ticket.setTitle(ticketJson.getString("inverse_title"));
+				ticket.setDescription(ticketJson.getString("inverse_title"));
+				ticket.setUrl(ticketJson.getString("inverse_imageurl"));
+				ticket.setSerialNum(ticketJson.getInt("serial_num"));			
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		
+		return ticket;
+	}
+	
 	public boolean postGcm(String regId, Context context) {
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		boolean result = false;
@@ -696,7 +843,9 @@ public class DramaAPI {
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			HttpPost httpPost = new HttpPost(urlAddress + "api/v1/devices?registration_id=" 
-					+ regId + "&device_id=" + deviceId);			
+					+ regId + "&device_id=" + deviceId);
+			/*HttpPost httpPost = new HttpPost("http://show.jumplife.com.tw" + "/" + "api/v2/devices.json?registration_id="
+					+ regId + "&device_id=" + deviceId);*/
 			HttpResponse response = httpClient.execute(httpPost);
 
 			StatusLine statusLine =  response.getStatusLine();

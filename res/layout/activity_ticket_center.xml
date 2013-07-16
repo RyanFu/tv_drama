@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+    <RelativeLayout android:id="@+id/waterfall_linear_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+        <include android:id="@+id/topbar" layout="@layout/topbar" 
+            android:layout_alignParentTop="true"/>
+        <ImageButton android:id="@+id/ib_change_account"
+            android:layout_width="50dp" 
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/topbar"
+            android:layout_alignBottom="@+id/topbar"
+            android:layout_alignParentRight="true"
+            android:layout_margin="5dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/button_exchange_account" />
+        <View 
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_alignBottom="@+id/topbar"
+            android:background="@color/main_color_orange_light" />
+        <LinearLayout android:id="@+id/ll_ticket"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_below="@+id/topbar"
+            android:background="@color/ticket_center_vp_bg"
+            android:orientation="horizontal"
+            android:weightSum="1.0" >
+            <Button android:id="@+id/button_preferential"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100"
+                android:textColor="@color/channel_button_text_press"
+                android:textSize="20dp"
+                android:text="@string/preferential" />
+            <View 
+                android:layout_width="0.1dp"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/ticket_center_vp_seperate_dark"
+                />
+            <View 
+                android:layout_width="0.1dp"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/ticket_center_vp_seperate_light"
+                />
+            <RelativeLayout android:id="@+id/rl_my_ticket_unread"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5"
+                android:layout_marginBottom="5dp"
+                android:background="@color/transparent100" >
+	            <TextView android:id="@+id/tv_my_ticket_unread"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_centerInParent="true"
+	                android:background="@color/transparent100"
+	                android:textColor="@color/channel_button_text_normal"
+	                android:textSize="20dp"
+	                android:text="@string/my_ticket" />
+                <TextView android:id="@+id/tv_my_ticket_unread_count"
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/tv_my_ticket_unread"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/unread"
+                    android:visibility="invisible"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:text="0"/>
+            </RelativeLayout>
+            </LinearLayout>
+        <View android:id="@+id/line0"
+            android:layout_width="fill_parent" 
+            android:layout_height="1dp"
+            android:layout_alignBottom="@+id/ll_ticket"
+            android:background="@color/ticket_center_vp_bg"
+            />
+        <LinearLayout android:id="@+id/ll_variety_arrow"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/line0"
+            android:orientation="horizontal"
+            android:weightSum="1.0" >
+	        <View android:id="@+id/view_1"
+                android:layout_width="fill_parent"
+                android:layout_height="5dp"
+                android:scaleType="fitCenter"
+                android:background="@color/channel_button_text_press" />
+	    </LinearLayout>
+	    <View android:id="@+id/line1"
+            android:layout_width="fill_parent" 
+            android:layout_height="1dp"
+            android:layout_below="@+id/line0"
+            android:background="@color/channel_button_text_press"
+            />
+	    <android.support.v4.view.ViewPager
+	        android:id="@+id/vp_ticket"
+	        android:background="@color/background"
+	        android:layout_width="fill_parent" 
+	        android:layout_height="fill_parent"
+	        android:layout_below="@+id/line1"
+            android:layout_alignParentBottom="true"  
+	        android:listSelector="@drawable/grid_item_drama_bg"
+            />
+
+    </RelativeLayout>
+    
+    <ImageButton android:id="@+id/refresh"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       android:scaleType="fitCenter"
+       android:visibility="gone"
+       android:background="@drawable/button_background"
+       android:src="@drawable/renew"/>
+
+</LinearLayout>

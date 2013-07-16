@@ -10,7 +10,6 @@ import com.adwhirl.AdWhirlLayout;
 import com.adwhirl.AdWhirlManager;
 import com.adwhirl.AdWhirlTargeting;
 import com.adwhirl.AdWhirlLayout.AdWhirlInterface;
-import com.crittercism.app.Crittercism;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.customplayer.VideoControllerView;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
@@ -103,7 +102,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
         	crittercismConfig.put("includeVersionCode", true); // include version code in version name
         }
         catch (JSONException je){}
-        Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
+        //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -242,70 +241,7 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
             public boolean onError(MediaPlayer mp, int what, int extra) {
         		if(mVideoView.isPlaying())
         			mVideoView.stopPlayback();
-        		/*Builder alertDialog = new AlertDialog.Builder(LoaderPlayerActivity.this);
-        		alertDialog.setTitle("此段影片播放錯誤")
-					.setPositiveButton("下一段", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "下一段", (long)0);
-							mProgressImage.post(new Runnable() {
-			        		    @Override
-			        		    public void run() {
-			        		        animationDrawable.start();
-			        		    }
-			        		});
-			            	LoaderPlayerActivity.this.mDialogLoader.show();
-			                currentPart+=1;
-			                if(currentPart > videoIds.size()) {
-			                	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
-			                	Bundle bundle = new Bundle();  
-			                    bundle.putInt("currentPart", currentPart);  
-			                    Intent intent = new Intent();  
-			                    intent.putExtras(bundle);  
-			                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
-			                	LoaderPlayerActivity.this.finish();
-			                } else {
-			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
-			                    mQueryVideoTask = new QueryVideoTask();
-			                    if(Build.VERSION.SDK_INT < 11)
-			                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
-			                    else
-			                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1));
-			                }
-						}        						
-					})
-					.setNeutralButton("外部撥放",  new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "外部撥放", (long)0);
-							
-							Uri uri = Uri.parse(videoIds.get(currentPart-1));
-		            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
-		            		startActivity(it);
-		            		
-		        			Bundle bundle = new Bundle();  
-		                    bundle.putInt("currentPart", currentPart);  
-		                    Intent intent = new Intent();  
-		                    intent.putExtras(bundle);  
-		                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
-		                    LoaderPlayerActivity.this.finish(); 
-						}
-					})
-					.setNegativeButton("段落列表", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							EasyTracker.getTracker().trackEvent("連續撥放頁面", "影片撥放錯誤點擊", "段落列表", (long)0);
-							Bundle bundle = new Bundle();  
-				            bundle.putInt("currentPart", currentPart);  
-				            Intent intent = new Intent();  
-				            intent.putExtras(bundle);  
-				            setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
-				            LoaderPlayerActivity.this.finish(); 
-						}        						
-					})
-					.show();*/
-            
-        		//Uri uri = Uri.parse("http://www.youtube.com/watch?v=JW8DbZ49mEM");
+        		
         		Uri uri = Uri.parse(videoIds.get(currentPart-1));
         		Intent it = new Intent(Intent.ACTION_VIEW, uri);
         		startActivity(it);
@@ -569,6 +505,61 @@ public class LoaderPlayerActivity extends Activity implements AdWhirlInterface, 
 						@Override
 						public void onClick(View arg0) {
 							toggleFullScreen();
+						}
+                    });
+                    
+                    controller.mFfwdButton.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							mProgressImage.post(new Runnable() {
+			        		    @Override
+			        		    public void run() {
+			        		        animationDrawable.start();
+			        		    }
+			        		});
+			            	LoaderPlayerActivity.this.mDialogLoader.show();
+			                currentPart+=1;
+			                if(currentPart > videoIds.size()) {
+			                	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
+			                	Bundle bundle = new Bundle();  
+			                    bundle.putInt("currentPart", currentPart);  
+			                    Intent intent = new Intent();  
+			                    intent.putExtras(bundle);  
+			                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
+			                	LoaderPlayerActivity.this.finish();
+			                } else {
+			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
+			                    mQueryVideoTask = new QueryVideoTask();
+			                    if(Build.VERSION.SDK_INT < 11)
+			                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
+			                    else
+			                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1)); 
+			                }
+						}
+                    });
+                    
+                    controller.mRewButton.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							mProgressImage.post(new Runnable() {
+			        		    @Override
+			        		    public void run() {
+			        		        animationDrawable.start();
+			        		    }
+			        		});
+			            	LoaderPlayerActivity.this.mDialogLoader.show();
+			                currentPart-=1;
+			                if(currentPart < 1) {
+			                	currentPart+=1;
+			                	Toast.makeText(LoaderPlayerActivity.this, "現正撥放Part1",  Toast.LENGTH_SHORT).show();
+			                } else {
+			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
+			                    mQueryVideoTask = new QueryVideoTask();
+			                    if(Build.VERSION.SDK_INT < 11)
+			                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
+			                    else
+			                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1)); 
+			                }
 						}
                     });
 		            	
