@@ -75,7 +75,7 @@ public class SearchDramaActivity extends Activity {
 		
 		edittextSearch.addTextChangedListener(filterTextWatcher);
 		adapter = new SearchListAdapter(this, arr_sort);
-		listviewSearch.addFooterView(footer);
+		listviewSearch.addFooterView(footer, null, false);
 		listviewSearch.setAdapter(adapter);
 		
 		listviewSearch.setOnItemClickListener(new OnItemClickListener() {

@@ -106,18 +106,18 @@ public class TvChannelViewPagerActivity extends Activity {
 		functionFlag = extras.getInt("sort_id", 0);
 		
         initViews();
-	}
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EasyTracker.getInstance().activityStart(this);
 
         loadTask = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
         	loadTask.execute();
         else
         	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
+	}
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
 	
 	private void initViews(){
