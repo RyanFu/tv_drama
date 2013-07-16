@@ -102,7 +102,7 @@
     <string name="admob_key">05b21d283a8140c9</string>  <!-- admob mediation -->
 
     <!-- Ticket Center -->
-    <string name="ticket_center">票劵中心</string>
+    <string name="counpons">用戶優惠</string>
     <string name="preferential">獨享優惠</string>
     <string name="my_ticket">我的票劵</string>
     

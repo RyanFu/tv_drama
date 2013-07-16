@@ -153,7 +153,7 @@ public class TicketCenterActivity extends Activity {
 		shIO = new SharePreferenceIO(this);
 		
 		topbar_text = (TextView)findViewById(R.id.topbar_text);
-        topbar_text.setText(getResources().getString(R.string.ticket_center));
+        topbar_text.setText(getResources().getString(R.string.counpons));
     	
         DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
