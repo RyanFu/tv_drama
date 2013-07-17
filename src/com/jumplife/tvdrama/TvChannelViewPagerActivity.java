@@ -118,6 +118,26 @@ public class TvChannelViewPagerActivity extends Activity {
     protected void onStart() {
         super.onStart();
         EasyTracker.getInstance().activityStart(this);
+        Thread thread = new Thread() { 
+            @Override
+            public void run() {
+            	//Promote Test
+                DramaAPI dramaAPI = new DramaAPI(TvChannelViewPagerActivity.this);
+                ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(0);
+                if(advertisements != null && advertisements.size() > 0) {
+                	SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
+        	    	shIO.SharePreferenceI("advertisemsent_id", -1);
+        	    	shIO.SharePreferenceI("advertisemsent_url", advertisements.get(0).getUrl());
+        	    	shIO.SharePreferenceI("advertisemsent_title", advertisements.get(0).getTitle());
+        	    	shIO.SharePreferenceI("advertisemsent_description", advertisements.get(0).getDescription());
+                } else {
+                	SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
+        	    	shIO.SharePreferenceI("advertisemsent_id", 0);
+                }
+            }
+        };
+        //開始執行執行緒
+        thread.start();
     }
 	
 	private void initViews(){
@@ -287,14 +307,14 @@ public class TvChannelViewPagerActivity extends Activity {
         
         
         //Promote Test
-        DramaAPI dramaAPI = new DramaAPI(TvChannelViewPagerActivity.this);
-        ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(0);
-        if(advertisements != null && advertisements.size() > 0) {
+        SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
+        int id = shIO.SharePreferenceO("advertisemsent_id", 0);
+        if(id == -1) {
 	    	Drama drama = new Drama();
 	    	drama.setId(-1);
-	    	drama.setPosterUrl(advertisements.get(0).getUrl());
-	    	drama.setChineseName(advertisements.get(0).getTitle());
-	    	drama.setIntroduction(advertisements.get(0).getDescription());
+	    	drama.setPosterUrl(shIO.SharePreferenceO("advertisemsent_url", ""));
+	    	drama.setChineseName(shIO.SharePreferenceO("advertisemsent_title", ""));
+	    	drama.setIntroduction(shIO.SharePreferenceO("advertisemsent_description", ""));
 	    	
 	    	for(int i=0; i<hotDramaLists.size(); i++)
 	    		hotDramaLists.get(i).add(3, drama);
@@ -657,7 +677,7 @@ public class TvChannelViewPagerActivity extends Activity {
         		progressdialogInit.dismiss();
         }
     }
-    
+	
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {

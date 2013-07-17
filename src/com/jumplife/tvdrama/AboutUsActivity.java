@@ -564,7 +564,7 @@ public class AboutUsActivity extends Activity {
 				0, 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin), 
 				mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_margin));
-        tvTicket.setText(mActivity.getResources().getString(R.string.ticket_center));
+        tvTicket.setText(mActivity.getResources().getString(R.string.counpons));
         tvTicket.setTextSize(mActivity.getResources().getDimensionPixelSize(R.dimen.about_us_title));
         //tvTicket.setTextColor(mActivity.getResources().getColor(R.color.about_us_tv));
         llTicket.addView(tvTicket, llTvTicketParams);		

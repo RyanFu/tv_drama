@@ -50,6 +50,7 @@ public class PreferentialAdapter extends BaseAdapter {
 		TextView tvMore;
 		TextView tvTitle;
 		TextView tvDescription;
+		TextView tvCount;
 		Button buttonSerial;
 		LinearLayout llMore;
 	}
@@ -108,6 +109,7 @@ public class PreferentialAdapter extends BaseAdapter {
 			itemView.tvMore = (TextView)convertView.findViewById(R.id.tv_preferential_more);
 			itemView.tvTitle = (TextView)convertView.findViewById(R.id.tv_preferential_title);
 			itemView.tvDescription = (TextView)convertView.findViewById(R.id.tv_preferential_description);
+			itemView.tvCount = (TextView)convertView.findViewById(R.id.tv_preferential_count);
 			itemView.buttonSerial = (Button)convertView.findViewById(R.id.button_serial);
 			itemView.llMore = (LinearLayout)convertView.findViewById(R.id.ll_more);
 			convertView.setTag(itemView);
@@ -121,6 +123,7 @@ public class PreferentialAdapter extends BaseAdapter {
         itemView.ivPoster.setScaleType(ScaleType.CENTER_CROP);
         
 		imageLoader.displayImage(tickets.get(tickets.size() - position - 1).getUrl(), itemView.ivPoster, options);
+		itemView.tvCount.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getSerialNum() + "<small>人已兌換</small>"));
 		itemView.tvTitle.setText(tickets.get(tickets.size() - position - 1).getTitle());
 		itemView.tvDescription.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getDescription()));
 		itemView.buttonSerial.setOnClickListener(new itemSerialClick(tickets.get(tickets.size() - position - 1).getId()));
