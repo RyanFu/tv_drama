@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
+    
     <RelativeLayout android:id="@+id/waterfall_linear_layout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent" 
+        android:layout_above="@+id/ad_layout">
+        
         <include android:id="@+id/topbar" layout="@layout/topbar" 
             android:layout_alignParentTop="true"/>
         <ImageButton android:id="@+id/ib_change_account"
@@ -17,7 +20,7 @@
             android:layout_margin="5dp"
             android:scaleType="fitCenter"
             android:background="@drawable/button_exchange_account" />
-        <View 
+        <View android:id="@+id/line"
             android:layout_width="fill_parent"
             android:layout_height="2dp"
             android:layout_alignBottom="@+id/topbar"
@@ -115,12 +118,22 @@
 
     </RelativeLayout>
     
+    <RelativeLayout
+        android:id="@+id/ad_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background"
+        android:gravity="center_horizontal" 
+        android:layout_gravity="center_horizontal"/>
+    
     <ImageButton android:id="@+id/refresh"
        android:layout_width="fill_parent"
        android:layout_height="fill_parent"
        android:scaleType="fitCenter"
        android:visibility="gone"
+       android:layout_below="@+id/line"
        android:background="@drawable/button_background"
        android:src="@drawable/renew"/>
 
-</LinearLayout>
+</RelativeLayout>
