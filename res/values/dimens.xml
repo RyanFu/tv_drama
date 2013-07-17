@@ -6,4 +6,7 @@
     <dimen name="about_us_seperate">2dp</dimen>
 
     <dimen name="button_fullscreen">45dp</dimen>
+    
+    <!-- ticket center fragment -->
+    <dimen name="lv_myticket_item_content_margin_rl">14dp</dimen>
 </resources>

@@ -16,8 +16,8 @@
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentTop="true"
 	        android:layout_marginTop="15dp"
-	        android:paddingLeft="10dp"
-	        android:paddingRight="10dp"
+	        android:paddingLeft="@dimen/lv_myticket_item_content_margin_rl"
+	        android:paddingRight="@dimen/lv_myticket_item_content_margin_rl"
 	        android:orientation="vertical">
 		    <LinearLayout android:id="@+id/ll_myticket_serialnum"
 		        android:layout_width="match_parent"
@@ -64,8 +64,8 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="15dp"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginLeft="@dimen/lv_myticket_item_content_margin_rl"
+            android:layout_marginRight="@dimen/lv_myticket_item_content_margin_rl"
 	        android:layout_alignParentTop="true"
 	        android:background="@drawable/seperate_shadow" />
     </RelativeLayout>
