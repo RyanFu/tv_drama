@@ -1,6 +1,10 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.adapter.TicketCenterViewPagerAdapter;
 import com.jumplife.dialog.ChangeAccountActivity;
@@ -13,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +59,7 @@ public class TicketCenterActivity extends Activity {
 	
 	private LoadDataTask loadTask;
 	private RefreshTask refreshTask;
+	private AdView adView;
 	
 	public final static int GETTICKET = 100;
 	public final static int GETTICKET_CURRENT_ACCOUNT = 101;
@@ -68,6 +74,8 @@ public class TicketCenterActivity extends Activity {
 		setContentView(R.layout.activity_ticket_center);
 		
 		initViews();
+		
+		this.setAd();
 
         loadTask = new LoadDataTask();
         if(Build.VERSION.SDK_INT < 11)
@@ -397,6 +405,23 @@ public class TicketCenterActivity extends Activity {
         			&& progressdialogInit != null && progressdialogInit.isShowing())
         		progressdialogInit.dismiss();
         }
+    }
+    
+    
+    public void setAd() {
+    	
+    	RelativeLayout adLayout = (RelativeLayout)findViewById(R.id.ad_layout);
+    	Resources res = getResources();
+    	String admoblKey = res.getString(R.string.admob_key);
+    	
+    	// Create the adView
+    	adView = new AdView(this, AdSize.BANNER, admoblKey);
+
+    	// Add the adView to it
+    	adLayout.addView(adView);
+    	
+    	// Initiate a generic request to load it with an ad
+        adView.loadAd(new AdRequest());
     }
     
     @Override
