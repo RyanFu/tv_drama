@@ -147,13 +147,13 @@ public class GetSerialActivity extends Activity {
         		closeProgressDilog();
         		Toast.makeText(getApplicationContext(), "網路不穩，請再嘗試一次", Toast.LENGTH_LONG).show();
             	EasyTracker.getTracker().trackEvent(getIntent().getExtras().getString("advertisement_type"), 
-            			String.valueOf(getIntent().getExtras().getInt("campaign_id")), 
+            			"優惠ID:" + getIntent().getExtras().getInt("campaign_id"),
             			"優惠申請失敗", (long)0);
             } else if(ticket != null && ticket.getSerialNum() < 0) {
             	closeProgressDilog();
             	Toast.makeText(getApplicationContext(), "此帳號已經申請過本活動，請使用其他帳號申請", Toast.LENGTH_LONG).show();
             	EasyTracker.getTracker().trackEvent(getIntent().getExtras().getString("advertisement_type"), 
-            			String.valueOf(getIntent().getExtras().getInt("campaign_id")), 
+            			"優惠ID:" + getIntent().getExtras().getInt("campaign_id"), 
             			"優惠重覆申請", (long)0);
             } else {
             	SharePreferenceIO shIO = new SharePreferenceIO(GetSerialActivity.this);			
@@ -162,7 +162,7 @@ public class GetSerialActivity extends Activity {
                 
             	Toast.makeText(getApplicationContext(), "送交成功，請至我的票劵檢視", Toast.LENGTH_LONG).show();
             	EasyTracker.getTracker().trackEvent(getIntent().getExtras().getString("advertisement_type"), 
-            			String.valueOf(getIntent().getExtras().getInt("campaign_id")), 
+            			"優惠ID:" + getIntent().getExtras().getInt("campaign_id"),
             			"優惠申請成功", (long)0);
 				
         		if(email.equals(spinner.getSelectedItem().toString())) {            	
