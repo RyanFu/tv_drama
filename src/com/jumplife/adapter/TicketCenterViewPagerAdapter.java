@@ -56,7 +56,8 @@ public class TicketCenterViewPagerAdapter extends PagerAdapter{
         ListView lvTicketCenter = (ListView)view.findViewById(R.id.lv_ticket_center);
         switch(pos) {
 	        case 0 :
-	        	PreferentialAdapter preferentialAdapter = new PreferentialAdapter(mActivty, preferentialLists);
+	        	PreferentialAdapter preferentialAdapter = new PreferentialAdapter(mActivty, preferentialLists, 
+	        			mActivty.getIntent().getExtras().getString("advertisement_type"));
 	        	if(preferentialAdapter != null) {
 	        		lvTicketCenter.setAdapter(preferentialAdapter);
 	        		lvTicketCenter.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));

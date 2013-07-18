@@ -269,6 +269,7 @@ public class DramaSectionActivity extends Activity {
 	            	}
 				} else {
 					Intent newAct = new Intent();
+					newAct.putExtra("advertisement_type", "優惠活動-段落列表");
 					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
 	                startActivity( newAct );
 				}
@@ -334,7 +335,12 @@ public class DramaSectionActivity extends Activity {
 	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
 	            		startActivity(it);
 	            	}
-            	}
+            	} else {
+					Intent newAct = new Intent();
+					newAct.putExtra("advertisement_type", "優惠活動-段落列表");
+					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
+	                startActivity( newAct );
+				}
             }
         });
     }

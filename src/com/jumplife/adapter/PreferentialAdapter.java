@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap.Config;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,6 +43,7 @@ public class PreferentialAdapter extends BaseAdapter {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 	private ArrayList<Integer> mOpenItem;
+	private String advertisementType;
 	
 	private class ItemView {
 		LinearLayout llPreferential;
@@ -55,9 +57,10 @@ public class PreferentialAdapter extends BaseAdapter {
 		LinearLayout llMore;
 	}
 	
-	public PreferentialAdapter(Activity mActivity, ArrayList<Ticket> tickets) {
+	public PreferentialAdapter(Activity mActivity, ArrayList<Ticket> tickets, String advertisementType) {
 		this.mActivity = mActivity;
 		this.tickets = tickets;
+		this.advertisementType = advertisementType;
 		this.mOpenItem = new ArrayList<Integer>(2);
 		
 		myInflater = LayoutInflater.from(mActivity);
@@ -126,6 +129,7 @@ public class PreferentialAdapter extends BaseAdapter {
 		itemView.tvCount.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getSerialNum() + "<small>人已兌換</small>"));
 		itemView.tvTitle.setText(tickets.get(tickets.size() - position - 1).getTitle());
 		itemView.tvDescription.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getDescription()));
+		itemView.tvDescription.setMovementMethod(LinkMovementMethod.getInstance());
 		itemView.buttonSerial.setOnClickListener(new itemSerialClick(tickets.get(tickets.size() - position - 1).getId()));
 		itemView.llMore.setOnClickListener(new itemMoreClick(itemView, tickets.size() - position - 1));
 		
@@ -168,6 +172,7 @@ public class PreferentialAdapter extends BaseAdapter {
 		public void onClick(View v) {
 			Intent intent = new Intent(mActivity, GetSerialActivity.class);
 			intent.putExtra("campaign_id", campaignId);
+			intent.putExtra("advertisement_type", advertisementType);
 			mActivity.startActivityForResult(intent, TicketCenterActivity.GETTICKET);
 		}		
 	}

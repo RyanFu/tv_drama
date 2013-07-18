@@ -4,31 +4,32 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
     
-    <RelativeLayout android:id="@+id/waterfall_linear_layout"
+    <include android:id="@+id/topbar" layout="@layout/topbar" 
+            android:layout_alignParentTop="true"/>
+	<ImageButton android:id="@+id/ib_change_account"
+	    android:layout_width="50dp" 
+	    android:layout_height="40dp"
+	    android:layout_alignTop="@+id/topbar"
+	    android:layout_alignBottom="@+id/topbar"
+	    android:layout_alignParentRight="true"
+	    android:layout_margin="5dp"
+	    android:scaleType="fitCenter"
+	    android:background="@drawable/button_exchange_account" />
+	<View android:id="@+id/line"
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_alignBottom="@+id/topbar"
+	    android:background="@color/main_color_orange_light" />
+	<RelativeLayout android:id="@+id/waterfall_linear_layout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
+        android:layout_height="fill_parent"
+            android:layout_below="@+id/topbar" 
         android:layout_above="@+id/ad_layout">
         
-        <include android:id="@+id/topbar" layout="@layout/topbar" 
-            android:layout_alignParentTop="true"/>
-        <ImageButton android:id="@+id/ib_change_account"
-            android:layout_width="50dp" 
-            android:layout_height="40dp"
-            android:layout_alignTop="@+id/topbar"
-            android:layout_alignBottom="@+id/topbar"
-            android:layout_alignParentRight="true"
-            android:layout_margin="5dp"
-            android:scaleType="fitCenter"
-            android:background="@drawable/button_exchange_account" />
-        <View android:id="@+id/line"
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:layout_alignBottom="@+id/topbar"
-            android:background="@color/main_color_orange_light" />
         <LinearLayout android:id="@+id/ll_ticket"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
-            android:layout_below="@+id/topbar"
+            android:layout_alignParentTop="true"
             android:background="@color/ticket_center_vp_bg"
             android:orientation="horizontal"
             android:weightSum="1.0" >
@@ -132,7 +133,7 @@
        android:layout_height="fill_parent"
        android:scaleType="fitCenter"
        android:visibility="gone"
-       android:layout_below="@+id/line"
+       android:layout_below="@+id/topbar"
        android:background="@drawable/button_background"
        android:src="@drawable/renew"/>
 
