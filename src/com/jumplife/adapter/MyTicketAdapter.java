@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 import android.app.Activity;
 import android.graphics.Bitmap.Config;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -113,7 +114,8 @@ public class MyTicketAdapter extends BaseAdapter {
         
 		imageLoader.displayImage(tickets.get(tickets.size() - position - 1).getUrl(), itemView.ivPoster, options);
 		itemView.tvTitle.setText(tickets.get(tickets.size() - position - 1).getTitle());
-		itemView.tvContent.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getDescription()));		
+		itemView.tvContent.setText(Html.fromHtml(tickets.get(tickets.size() - position - 1).getDescription()));
+		itemView.tvContent.setMovementMethod(LinkMovementMethod.getInstance());		
 		itemView.tvSerial.setText(Html.fromHtml(
 				"<small>你的序號</small>   <big>" + tickets.get(tickets.size() - position - 1).getSerialNum() + "</big>"));
 		

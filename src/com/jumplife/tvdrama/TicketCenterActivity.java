@@ -124,8 +124,6 @@ public class TicketCenterActivity extends Activity {
                 	loadTask.execute();
                 else
                 	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-
-                setViews();
             }
             break;
         case CHANGEACCOUNT:
@@ -150,8 +148,6 @@ public class TicketCenterActivity extends Activity {
                 	loadTask.execute();
                 else
                 	loadTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-
-                setViews();
             }
             break;
         }

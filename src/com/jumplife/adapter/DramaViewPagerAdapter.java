@@ -109,6 +109,7 @@ public class DramaViewPagerAdapter extends PagerAdapter{
 			            //view.clearAnimation();
 		        	} else {
 						Intent newAct = new Intent();
+						newAct.putExtra("advertisement_type", "優惠活動-戲劇列表");
 						newAct.setClass(mActivty, TicketCenterActivity.class );
 						mActivty. startActivity( newAct );
 					}

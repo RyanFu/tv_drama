@@ -113,7 +113,6 @@ public class DramaSectionActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-		
         int currentPart = -1;
         if(data != null && data.hasExtra("currentPart"))
         	currentPart = data.getIntExtra("currentPart", -1);
@@ -137,6 +136,7 @@ public class DramaSectionActivity extends Activity {
         			if (loadTask!= null && loadTask.getStatus() != AsyncTask.Status.FINISHED) {
         	        	loadTask.closeProgressDilog();
         	        	loadTask.cancel(true);
+        	        	Log.d(TAG, "close loadTask");
         	        }
         			loadTask = new LoadDataTask();
                     if(Build.VERSION.SDK_INT < 11)
@@ -269,6 +269,7 @@ public class DramaSectionActivity extends Activity {
 	            	}
 				} else {
 					Intent newAct = new Intent();
+					newAct.putExtra("advertisement_type", "優惠活動-段落列表");
 					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
 	                startActivity( newAct );
 				}
@@ -334,7 +335,12 @@ public class DramaSectionActivity extends Activity {
 	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
 	            		startActivity(it);
 	            	}
-            	}
+            	} else {
+					Intent newAct = new Intent();
+					newAct.putExtra("advertisement_type", "優惠活動-段落列表");
+					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
+	                startActivity( newAct );
+				}
             }
         });
     }
@@ -411,7 +417,7 @@ public class DramaSectionActivity extends Activity {
         	tvNotify.setVisibility(View.GONE);
     }
     
-    private void fetchData() {
+    private synchronized void fetchData() {
     	Log.d(TAG, "load data API begin");
     	DramaAPI dramaAPI = new DramaAPI(this);
     	sectionList = new ArrayList<Section>();

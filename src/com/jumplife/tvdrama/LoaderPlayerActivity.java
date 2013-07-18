@@ -568,6 +568,8 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			                if(currentPart < 1) {
 			                	currentPart+=1;
 			                	Toast.makeText(LoaderPlayerActivity.this, "現正撥放Part1",  Toast.LENGTH_SHORT).show();
+			                	LoaderPlayerActivity.this.mDialogLoader.cancel();
+			                	animationDrawable.stop();
 			                } else {
 			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
 			                    mQueryVideoTask = new QueryVideoTask();

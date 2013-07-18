@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- about us fragment -->
     <dimen name="about_us_title">8dp</dimen>
@@ -5,5 +6,8 @@
     <dimen name="about_us_seperate">2dp</dimen>
 
     <dimen name="button_fullscreen">45dp</dimen>
+    
+    <!-- ticket center fragment -->
+    <dimen name="lv_myticket_item_content_margin_rl">24dp</dimen>   
     
 </resources>

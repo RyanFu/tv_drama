@@ -577,6 +577,7 @@ public class AboutUsActivity extends Activity {
         	public void onClick(View arg0) {
         		EasyTracker.getTracker().trackEvent("關於我們", "票劵中心", "", (long)0);
 				Intent newAct = new Intent();
+				newAct.putExtra("advertisement_type", "優惠活動-關於我們");
 				newAct.setClass( AboutUsActivity.this, TicketCenterActivity.class );
                 startActivity( newAct );
 			}				

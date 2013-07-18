@@ -678,6 +678,7 @@ public class DramaInfoChapterActivity extends Activity{
 					@Override
 					public void onClick(View v) {
 						Intent newAct = new Intent();
+						newAct.putExtra("advertisement_type", "優惠活動-集數列表");
 						newAct.setClass( DramaInfoChapterActivity.this, TicketCenterActivity.class );
 		                startActivity( newAct );
 					}        		
