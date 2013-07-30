@@ -203,4 +203,16 @@ public class GetSerialActivity extends Activity {
     	  loadTask.cancel(true);
       }
     }
+	
+	@Override
+    public void onStart() {
+      super.onStart();
+      EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+      super.onStop();
+      EasyTracker.getInstance().activityStop(this);
+    }
 }

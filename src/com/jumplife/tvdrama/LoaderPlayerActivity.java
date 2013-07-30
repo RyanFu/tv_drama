@@ -42,6 +42,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -208,6 +209,22 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         
         controller.setMediaPlayer(mVideoView);
         controller.setAnchorView((FrameLayout)findViewById(R.id.videoSurfaceContainer));
+        controller.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction() == MotionEvent.ACTION_UP) {
+		    		if(!controller.isShowing()) {
+			    		controller.show();
+			    	} else {
+			    		controller.hide();
+			    	}
+			    	return true;
+		    	}
+		        return false;
+			}
+        	
+        });
 
         mVideoView.setOnCompletionListener(new OnCompletionListener() {	
             public void onCompletion(MediaPlayer pMp) {
@@ -524,7 +541,17 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 						}
                     });
                     
-                    controller.mFfwdButton.setOnClickListener(new OnClickListener() {
+                    if(currentPart > videoIds.size()-1)
+                    	controller.ivNextPart.setVisibility(View.INVISIBLE);
+                    else
+                    	controller.ivNextPart.setVisibility(View.VISIBLE);
+                    
+                    if(currentPart < 2)
+                    	controller.ivPrePart.setVisibility(View.INVISIBLE);
+                    else
+                    	controller.ivPrePart.setVisibility(View.VISIBLE);
+                    
+                    controller.ivNextPart.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View arg0) {
 							mProgressImage.post(new Runnable() {
@@ -535,15 +562,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			        		});
 			            	LoaderPlayerActivity.this.mDialogLoader.show();
 			                currentPart+=1;
-			                if(currentPart > videoIds.size()) {
-			                	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
-			                	Bundle bundle = new Bundle();  
-			                    bundle.putInt("currentPart", currentPart);  
-			                    Intent intent = new Intent();  
-			                    intent.putExtras(bundle);  
-			                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
-			                	LoaderPlayerActivity.this.finish();
-			                } else {
+			                if(currentPart <= videoIds.size()) {
 			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
 			                    mQueryVideoTask = new QueryVideoTask();
 			                    if(Build.VERSION.SDK_INT < 11)
@@ -554,7 +573,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 						}
                     });
                     
-                    controller.mRewButton.setOnClickListener(new OnClickListener() {
+                    controller.ivPrePart.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View arg0) {
 							mProgressImage.post(new Runnable() {
@@ -565,12 +584,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			        		});
 			            	LoaderPlayerActivity.this.mDialogLoader.show();
 			                currentPart-=1;
-			                if(currentPart < 1) {
-			                	currentPart+=1;
-			                	Toast.makeText(LoaderPlayerActivity.this, "現正撥放Part1",  Toast.LENGTH_SHORT).show();
-			                	LoaderPlayerActivity.this.mDialogLoader.cancel();
-			                	animationDrawable.stop();
-			                } else {
+			                if(currentPart > 0) {
 			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
 			                    mQueryVideoTask = new QueryVideoTask();
 			                    if(Build.VERSION.SDK_INT < 11)

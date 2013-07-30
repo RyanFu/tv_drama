@@ -21,7 +21,6 @@ import com.jumplife.tvdrama.entity.Drama;
 public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     private static final String   DramaTable          = "dramas";
     //private static final String   TicketTable         = "tickets";
-    public  static final String   DB_PATH             = "/data/com.jumplife.tvdrama/databases/";
     public  static final String   DB_NAME             = "dramas.sqlite";                            // 資料庫名稱
     private static final int      DATABASE_VERSION    = 48; // Version 44 is the new sqlite helper
     private final  Context 		  mContext;
@@ -161,14 +160,18 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     public ArrayList<Integer> findDramasIdNotInDB(SQLiteDatabase db, ArrayList<Integer> dramaId) {
         ArrayList<Integer> returnsID = new ArrayList<Integer>();
         ArrayList<Integer> dbsID = new ArrayList<Integer>();
-        
-        Cursor cursor = db.rawQuery("SELECT id FROM " + DramaTable, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                dbsID.add(cursor.getInt(0));
-            }
+       
+        try {
+	        Cursor cursor = db.rawQuery("SELECT id FROM " + DramaTable, null);
+	        if (cursor != null) {
+	            while (cursor.moveToNext()) {
+	                dbsID.add(cursor.getInt(0));
+	            }
+	        }
+	        cursor.close();
+        } catch (Exception e) {
+   	     	return returnsID;
         }
-        cursor.close();
 
         HashSet<Integer> hashSet = new HashSet<Integer>(dbsID);
         for (Integer id : dramaId) {
@@ -184,9 +187,22 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
             idLst = a.get(i) + "," + idLst;
         idLst = idLst.substring(0, idLst.length() - 1);
         
-        if(a.size() > 0) {
-        	db.execSQL("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;");
+        try {
+	        if(a.size() > 0) {
+	        	db.execSQL("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;");
+	        }
+        } catch(Exception e) {
+        	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	if(a.size() > 0) {
+	        	db.execSQL("UPDATE " + DramaTable + " SET 'is_show' = CASE WHEN id IN (" + idLst + ")  THEN 't' ELSE 'f' END;");
+	        }
         }
+        
     }
     
     public void updateDramaViews(SQLiteDatabase db, ArrayList<Drama> dramas) {

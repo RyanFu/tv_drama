@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -100,6 +101,8 @@ public class VideoControllerView extends FrameLayout {
     public ImageButton         	mRewButton;
     public ImageButton         	mFullscreenButton;
     public ImageButton			mYoutubeQualitySwitch;
+    public ImageView 			ivNextPart;
+    public ImageView 			ivPrePart;
 
     public VideoControllerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -172,39 +175,49 @@ public class VideoControllerView extends FrameLayout {
     }
 
     private void initControllerView(View v) {
-        mPauseButton = (ImageButton) v.findViewById(R.id.pause);
+        mPauseButton = (ImageButton)v.findViewById(R.id.pause);
         if (mPauseButton != null) {
             mPauseButton.requestFocus();
             mPauseButton.setOnClickListener(mPauseListener);
         }
         
-        mYoutubeQualitySwitch = (ImageButton) v.findViewById(R.id.quality);
+        mYoutubeQualitySwitch = (ImageButton)v.findViewById(R.id.quality);
         if (mYoutubeQualitySwitch != null) {
         	mYoutubeQualitySwitch.requestFocus();
         }
         
-        mFullscreenButton = (ImageButton) v.findViewById(R.id.fullscreen);
+        mFullscreenButton = (ImageButton)v.findViewById(R.id.fullscreen);
         if (mFullscreenButton != null) {
             mFullscreenButton.requestFocus();
             mFullscreenButton.setOnClickListener(mFullscreenListener);
         }
 
-        mFfwdButton = (ImageButton) v.findViewById(R.id.ffwd);
+        mFfwdButton = (ImageButton)v.findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
-            //mFfwdButton.setOnClickListener(mFfwdListener);
+            mFfwdButton.setOnClickListener(mFfwdListener);
             if (!mFromXml) {
                 mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
             }
         }
 
-        mRewButton = (ImageButton) v.findViewById(R.id.rew);
+        mRewButton = (ImageButton)v.findViewById(R.id.rew);
         if (mRewButton != null) {
-            //mRewButton.setOnClickListener(mRewListener);
+            mRewButton.setOnClickListener(mRewListener);
             if (!mFromXml) {
                 mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
             }
         }
 
+        ivPrePart = (ImageView)v.findViewById(R.id.iv_prepart);
+        if (ivPrePart != null) {
+        	ivPrePart.requestFocus();
+        }
+        
+        ivNextPart = (ImageView)v.findViewById(R.id.iv_nextpart);
+        if (ivNextPart != null) {
+        	ivNextPart.requestFocus();
+        }
+        
         // By default these are hidden. They will be enabled when setPrevNextListeners() is called 
         /*mNextButton = (ImageButton) v.findViewById(R.id.next);
         if (mNextButton != null && !mFromXml && !mListenersSet) {
@@ -576,7 +589,7 @@ public class VideoControllerView extends FrameLayout {
             }
             
             int pos = mPlayer.getCurrentPosition();
-            pos -= 5000; // milliseconds
+            pos -= 15000; // milliseconds
             mPlayer.seekTo(pos);
             setProgress();
 
