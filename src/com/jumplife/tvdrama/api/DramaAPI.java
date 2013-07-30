@@ -183,8 +183,7 @@ public class DramaAPI {
 		return dramas;
 	}
 	
-	//取得電影時刻表
-	public ArrayList<Chapter> getDramaChapter(int dramaId) {
+	/*public ArrayList<Chapter> getDramaChapter(int dramaId) {
 		ArrayList<Chapter> chapterList = new ArrayList<Chapter>(10);
 	    String message = getMessageFromServer("GET", "api/v1/eps.json?drama_id=" + dramaId, null);
 		
@@ -214,9 +213,8 @@ public class DramaAPI {
 		}
 
 		return chapterList;
-	}
+	}*/
 	
-	//取得電影時刻表
 	public ArrayList<Section> getChapterSection(int chapterId) {
 		ArrayList<Section> sectionList = new ArrayList<Section>(10);
 	    String message = getMessageFromServer("GET", "api/v1/youtube_sources.json?ep_id=" + chapterId, null);
@@ -249,7 +247,6 @@ public class DramaAPI {
 		return sectionList;
 	}
 		
-	//取得電影時刻表
 	public ArrayList<Section> getChapterSectionNew(int dramaId, int chapterNo) {
 		ArrayList<Section> sectionList = new ArrayList<Section>(10);
 	    String message = getMessageFromServer("GET", "api/v1/" +
@@ -532,7 +529,7 @@ public class DramaAPI {
 		URL url;
 		String message = null;
 		try {
-			url = new URL("http://mmedia.jumplife.com.tw/api/v1/appprojects.json");
+			url = new URL("http://showv2.jumplife.com.tw:81/api/v2/appprojects.json");
 			JSONObject json = null;
 			
 			HttpURLConnection connection;
