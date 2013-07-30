@@ -3,6 +3,7 @@ package com.jumplife.dialog;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.TicketCenterActivity;
@@ -97,5 +98,17 @@ public class ChangeAccountActivity extends Activity {
     @Override
     public void onDestroy() {
       super.onDestroy();
+    }
+	
+	@Override
+    public void onStart() {
+      super.onStart();
+      EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+      super.onStop();
+      EasyTracker.getInstance().activityStop(this);
     }
 }
