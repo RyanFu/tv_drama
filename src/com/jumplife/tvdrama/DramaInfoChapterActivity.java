@@ -234,13 +234,9 @@ public class DramaInfoChapterActivity extends Activity{
 		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
         SQLiteDatabase db = instance.getReadableDatabase();
         db.beginTransaction();
-        /*drama = sqlTvDrama.getDrama(dramaId);
-        String tmp = sqlTvDrama.getDramaChapter(dramaId);
-        currentChapter = sqlTvDrama.getDramaChapterRecord(dramaId);        
-        sqlTvDrama.closeDB();*/
         drama = instance.getDrama(db, dramaId);
-        String tmp = instance.getDramaChapter(db, dramaId);
         currentChapter = instance.getDramaChapterRecord(db, dramaId);
+        String tmp = instance.getDramaChapter(db, dramaId);
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
@@ -406,28 +402,30 @@ public class DramaInfoChapterActivity extends Activity{
 					mark_2[index].setOnClickListener(new OnClickListener() {
 						public void onClick(View arg0) {
 							int position = arg0.getId();
+							int preChapter = currentChapter;
 							currentChapter = position;
-							//new UpdateDramaChapterRecordTask().execute();
 							setFakeMark();  
 				        
 							Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-				        	//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(DramaInfoChapterActivity.this);
 							SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(DramaInfoChapterActivity.this);
 					        SQLiteDatabase db = instance.getWritableDatabase();
-					        /*sqlTvDrama.updateDramaChapterRecord(dramaId, currentChapter);        
-					        sqlTvDrama.closeDB();*/
-					        instance.updateDramaChapterRecord(db, dramaId, currentChapter);
+					        db.beginTransaction();
+					        instance.updateDramaChapterRecord(db, dramaId, currentChapter);		            		
+		            		if(preChapter != currentChapter) {
+		            			instance.updateDramaSectionRecord(db, dramaId, -1);
+								instance.updateDramaTimeRecord(db, dramaId, 0);
+							}
+		            		db.setTransactionSuccessful();
+					        db.endTransaction();
 					        db.close();
 					        instance.closeHelper();
 							
 							Intent newAct = new Intent();
-							//newAct.putExtra("chapter", chapters);
 							newAct.putExtra("chapter_no", Integer.parseInt(chapters[position]));
 							newAct.putExtra("drama_id", dramaId);
 							newAct.putExtra("drama_name", dramaName);
 			                newAct.setClass(DramaInfoChapterActivity.this, DramaSectionActivity.class);
-			                DramaInfoChapterActivity.this.startActivity(newAct);			                
-			                //DramaInfoChapterActivity.this.overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+			                DramaInfoChapterActivity.this.startActivity(newAct);
 						}					
 					});
 					RelativeLayout.LayoutParams rlTextParams = new RelativeLayout.LayoutParams
@@ -435,18 +433,6 @@ public class DramaInfoChapterActivity extends Activity{
 					rlTextParams.setMargins(16, 16, 16, 16);
 					mark_2[index].setLayoutParams(rlTextParams);
 					rl.addView(mark_2[index]);
-					
-					/*mark[index] = new ImageView(this);
-					mark[index].setId(index + chapterCount);
-					mark[index].setImageResource(R.drawable.mark);RelativeLayout.LayoutParams rlMarkParams = new RelativeLayout.LayoutParams
-							(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-					rlMarkParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-					rlMarkParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-					rlMarkParams.setMargins(26, 26, 26, 26);
-					rlMarkParams.width = 22;
-					rlMarkParams.height = 22;
-					mark[index].setLayoutParams(rlMarkParams);				
-					rl.addView(mark[index]);*/
 				}				
 				
 				TableRow.LayoutParams Params = new TableRow.LayoutParams

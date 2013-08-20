@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.promote.PromoteAPP;
@@ -25,6 +26,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -44,14 +46,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 public class AboutUsActivity extends Activity {
-	
-	/*private LinearLayout llFeedback;
-	private LinearLayout llFacebook;
-	private LinearLayout llDeclare;
-	private LinearLayout llNews;
-	private LinearLayout llMoviediary;
-	private LinearLayout llMovietime;
-	private LinearLayout llTvVariety;*/
 	
 	private ImageView ivNotification;
 	private ImageView ivRepeat;
@@ -102,8 +96,6 @@ public class AboutUsActivity extends Activity {
 	    	loadtask.execute();
         else
         	loadtask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, 0);
-	    
-		//setClickListener();
 	}
 	
 	@Override
@@ -119,15 +111,7 @@ public class AboutUsActivity extends Activity {
     }
 
 	private void initView(){
-		/*llFeedback = (LinearLayout)findViewById(R.id.ll_feedback);
-		llFacebook = (LinearLayout)findViewById(R.id.ll_facebook);
-		llDeclare = (LinearLayout)findViewById(R.id.ll_declare);
-		llNews = (LinearLayout)findViewById(R.id.ll_news);
-		llMoviediary = (LinearLayout)findViewById(R.id.ll_moviediary);
-		llMovietime = (LinearLayout)findViewById(R.id.ll_movietime);
-		llTvVariety = (LinearLayout)findViewById(R.id.ll_tvvariety);*/
         shIO = new SharePreferenceIO(this);
-		//imageLoader = new ImageLoader(mActivity);
 		
 		pbInit = (ProgressBar)findViewById(R.id.pb_about_us);
 		llAboutUs = (LinearLayout)findViewById(R.id.ll_aboutus);
@@ -618,8 +602,12 @@ public class AboutUsActivity extends Activity {
 	}
 	
 	private String fetchData() {
-		DramaAPI api = new DramaAPI();
-		appProject = api.getAppProjectList(mActivity);
+		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+		SQLiteDatabase db = instance.getReadableDatabase();
+		appProject = instance.getAppProjectList(db);
+		db.close();
+        instance.closeHelper();
+        
 		return "progress end";
 	}
 	

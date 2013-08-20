@@ -35,11 +35,9 @@ public class DramaSectionAdapter extends BaseAdapter{
 	private Context mContext;
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
-	private String currentSection;
-	private LayoutInflater myInflater; 
-	private String[] currentSectionTmp;
+	private int currentSection;
+	private LayoutInflater myInflater;
 	private String[] youtubeId;
-	private int chapterNO;
 	private int width;
 	private int height;
 	private class ItemView {
@@ -47,33 +45,11 @@ public class DramaSectionAdapter extends BaseAdapter{
 		TextView name;
 	}
 	
-	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, String currentSection, int chapterNO){
-		this.sectionList = sectionList;
-		this.mContext = mContext;
-		this.chapterNO = chapterNO;
-		this.currentSection = currentSection;
-		width = 80;
-		height = 120;
-		//imageLoader = new ImageLoader(mContext);
-		myInflater = LayoutInflater.from(mContext);
-		
-		options = new DisplayImageOptions.Builder()
-		.showStubImage(R.drawable.stub)
-		.showImageForEmptyUri(R.drawable.stub)
-		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.EXACTLY)
-		.bitmapConfig(Config.RGB_565)
-		.cacheOnDisc()
-		.displayer(new SimpleBitmapDisplayer())
-		.build();
-	}
-	
-	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, int width, int height, String currentSection, int chapterNO){
+	public DramaSectionAdapter(Context mContext, ArrayList<Section> sectionList, int width, int height, int currentSection){
 		this.sectionList = sectionList;
 		this.mContext = mContext;
 		this.width = width;
 		this.height = height;
-		this.chapterNO = chapterNO;
 		this.currentSection = currentSection;		
 		//imageLoader=new ImageLoader(mContext, width);
 		myInflater = LayoutInflater.from(mContext);
@@ -101,7 +77,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 		return position;
 	}
 
-	public void setCurrentSection(String currentSection) {
+	public void setCurrentSection(int currentSection) {
 		this.currentSection = currentSection;
 	}
 	
@@ -117,15 +93,6 @@ public class DramaSectionAdapter extends BaseAdapter{
 			itemView.name = (TextView)convertView.findViewById(R.id.drama_name);
 			
 			convertView.setTag(itemView);
-		}
-		
-		currentSectionTmp = null;
-		if(currentSection != null)
-			currentSectionTmp = currentSection.split(",");
-		boolean mark = false;
-		if(currentSectionTmp != null && currentSectionTmp.length > 1) {
-			if(Integer.parseInt(currentSectionTmp[0].replaceAll(" ","")) == chapterNO)
-				mark = true;
 		}
 			
 		itemView.poster.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -171,7 +138,7 @@ public class DramaSectionAdapter extends BaseAdapter{
 		if(!sectionList.get(position).getTitle().equals(""))
 			itemView.name.setText(sectionList.get(position).getTitle());
 		else {
-			if(mark && Integer.parseInt(currentSectionTmp[1].replaceAll(" ","")) == position+1) {
+			if(currentSection == (position+1)) {
 				itemView.name.setTextColor(mContext.getResources().getColor(R.color.grid_item_orange));
 				itemView.poster.setBackgroundResource(R.drawable.grid_item_dramasection_imageviewbg_mark);
 			} else {

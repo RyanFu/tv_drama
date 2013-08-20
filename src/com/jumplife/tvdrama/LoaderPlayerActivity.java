@@ -1,5 +1,13 @@
 package com.jumplife.tvdrama;
 
+import io.vov.vitamio.LibsChecker;
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.MediaPlayer.OnCompletionListener;
+import io.vov.vitamio.MediaPlayer.OnErrorListener;
+import io.vov.vitamio.MediaPlayer.OnInfoListener;
+import io.vov.vitamio.MediaPlayer.OnPreparedListener;
+import io.vov.vitamio.widget.VideoView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,6 +20,7 @@ import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.customplayer.VideoControllerView;
 import com.jumplife.sharedpreferenceio.SharePreferenceIO;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.DramaSectionActivity.LoadDataTask;
 import com.jumplife.videoloader.DailymotionLoader;
 import com.jumplife.videoloader.YoutubeLoader;
@@ -26,10 +35,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.AnimationDrawable;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -50,45 +57,53 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 @SuppressLint("InlinedApi")
 public class LoaderPlayerActivity extends Activity implements VideoControllerView.MediaPlayerControl {
 
     public final static String MSG_INIT = "com.keyes.video.msg.init";
     protected String mMsgInit = "初始化";
-
     public final static String MSG_DETECT = "com.keyes.video.msg.detect";
     protected String mMsgDetect = "偵測頻寬";
-
     public final static String MSG_ERROR_TITLE = "com.keyes.video.msg.error.title";
     protected String mMsgErrorTitle = "連線錯誤";
+    
     /**
      * Background task on which all of the interaction with YouTube is done
      */
     protected QueryVideoTask mQueryVideoTask;
     protected Dialog mDialogLoader;
-    //protected ProgressBar mProgressBar;
     protected ImageView mProgressImage;
     protected TextView mProgressMessage;
 	private AnimationDrawable animationDrawable;
-    private RelativeLayout rlAd;
-	//private AdWhirlLayout adWhirlLayout;
-    private VideoView mVideoView;
-    VideoControllerView controller;
-    //private Button imYoutubeQualitySwitch;
-    //private ButtonMediaController lMediaController;
     
-    private boolean youtubeHightQuality = false;
+	private VideoView mVideoView;
+    VideoControllerView controller;
+    
+    private final static int filter = 30000;
+    
     private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
+    private ArrayList<String> videoIds = new ArrayList<String>();
+    
+    private int dramaId = 0;
     private int currentPart = 1;
     private static int stopPosition = 0;
-    private ArrayList<String> videoIds = new ArrayList<String>();
+    private boolean youtubeHightQuality = false;
+    
     private AdView adView;
+    private RelativeLayout rlAd;    
+	//private AdWhirlLayout adWhirlLayout;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);        	
+        super.onConfigurationChanged(newConfig);      
+        /*
+         * vitamio lib
+         */
+        if(mVideoView != null) {
+        	float aspectRatio = mVideoView.getVideoAspectRatio();
+        	mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_SCALE, aspectRatio);
+        }
     }
     
     @Override
@@ -107,34 +122,16 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        //LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		//LoaderPlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+        
+        /*
+         * vitamio lib
+         */
+        if (!LibsChecker.checkVitamioLibs(this))
+			return;
         
         setContentView(R.layout.activity_loader_player);
         
         initView();
-        extractMessages();
-        
-        /*mProgressBar.bringToFront();
-        mProgressBar.setVisibility(View.VISIBLE);
-        mProgressMessage.setText(mMsgInit);*/
-        mProgressMessage.setText(mMsgInit);
-        mProgressImage.post(new Runnable() {
-		    @Override
-		    public void run() {
-		        animationDrawable.start();
-		    }
-		});
-        mDialogLoader.show();
-    
-        Bundle extra = getIntent().getExtras();//.getStringArrayListExtra("");
-        currentPart = extra.getInt("currentPart", 1);
-        videoIds = extra.getStringArrayList("videoIds");
-        
-        if (videoIds == null || videoIds.size() <= 0) {
-            Log.i(this.getClass().getSimpleName(), "Unable to extract video ID from the intent.  Closing video activity.");
-            LoaderPlayerActivity.this.finish();
-        }
         
         mQueryVideoTask = new QueryVideoTask();
         if(Build.VERSION.SDK_INT < 11)
@@ -200,7 +197,23 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
     }
 
     private void initView() {
-
+    	Bundle extras = getIntent().getExtras();
+		if(extras != null) {
+        	dramaId = extras.getInt("drama_id");
+    		currentPart = extras.getInt("current_part", 1);
+        	videoIds = extras.getStringArrayList("video_ids");
+        }                
+        if (videoIds == null || videoIds.size() <= 0) {
+            LoaderPlayerActivity.this.finish();
+        }
+		
+    	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getWritableDatabase();
+        stopPosition = instance.getDramaTimeRecord(db, dramaId);
+		db.close();
+        instance.closeHelper();
+        Log.d(null, "stop position : " + stopPosition);
+        
 		SharePreferenceIO sharePreferenceIO = new SharePreferenceIO(LoaderPlayerActivity.this);
 		youtubeHightQuality = sharePreferenceIO.SharePreferenceO("youtube_quality", youtubeHightQuality);
 
@@ -226,10 +239,92 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         	
         });
 
+        mVideoView.setBufferSize((int) (Runtime.getRuntime().freeMemory() / 2 / 1024 / 1024));
+        mVideoView.setOnInfoListener(new OnInfoListener(){
+			@Override
+			public boolean onInfo(MediaPlayer mp, int what, int extra) {
+				stopPosition = (int) mp.getCurrentPosition();
+				
+				switch (what) {
+		        case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+		        	mVideoView.pause();
+		        	animationDrawable.start();
+		        	LoaderPlayerActivity.this.mDialogLoader.show();
+		            break;
+		        case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+		        	mVideoView.start();
+	            	LoaderPlayerActivity.this.mDialogLoader.cancel();
+	            	LoaderPlayerActivity.this.animationDrawable.stop();
+		            break;
+		        }
+		        return true;
+			}
+        });
         mVideoView.setOnCompletionListener(new OnCompletionListener() {	
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				mProgressImage.post(new Runnable() {
+        		    @Override
+        		    public void run() {
+        		        animationDrawable.start();
+        		    }
+        		});
+            	LoaderPlayerActivity.this.mDialogLoader.show();
+            	if(stopPosition < mVideoView.getDuration() - filter) {                    
+                    mQueryVideoTask = new QueryVideoTask();
+                    if(Build.VERSION.SDK_INT < 11)
+                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
+                    else
+                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1));  
+				} else {
+					stopPosition = 0;
+					currentPart += 1;
+	                if(currentPart > videoIds.size()) {
+	                	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
+	                    Intent intent = new Intent();
+	                    intent.putExtra("current_part_return", currentPart);
+	                    setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
+	                	LoaderPlayerActivity.this.finish();
+	                } else {
+	                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
+	                    mQueryVideoTask = new QueryVideoTask();
+	                    if(Build.VERSION.SDK_INT < 11)
+	                    	mQueryVideoTask.execute(videoIds.get(currentPart-1));
+	                    else
+	                    	mQueryVideoTask.executeOnExecutor(LoadDataTask.THREAD_POOL_EXECUTOR, videoIds.get(currentPart-1)); 
+	                }
+				}
+			}	
+        });
+        mVideoView.setOnPreparedListener(new OnPreparedListener() {	
+        	@Override
+        	public void onPrepared(MediaPlayer pMp) {
+            	LoaderPlayerActivity.this.mDialogLoader.cancel();
+            	LoaderPlayerActivity.this.animationDrawable.stop();
+            }
+        });
+        mVideoView.setOnErrorListener(new OnErrorListener() {
+        	@Override
+        	public boolean onError(MediaPlayer mp, int what, int extra) {
+        		if(mVideoView.isPlaying())
+        			mVideoView.stopPlayback();
+        		
+        		Uri uri = Uri.parse(videoIds.get(currentPart-1));
+        		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+        		startActivity(it);
+        		
+    			Bundle bundle = new Bundle();  
+                bundle.putInt("current_part", currentPart);  
+                Intent intent = new Intent();  
+                intent.putExtras(bundle);  
+                setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
+                LoaderPlayerActivity.this.finish(); 
+        					
+                return true;
+        	}
+        });
+        /*mVideoView.setOnCompletionListener(new OnCompletionListener() {	
             public void onCompletion(MediaPlayer pMp) {
-                /*LoaderPlayerActivity.this.mProgressBar.setVisibility(View.VISIBLE);
-                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.VISIBLE);*/
             	mProgressImage.post(new Runnable() {
         		    @Override
         		    public void run() {
@@ -240,10 +335,8 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
                 currentPart+=1;
                 if(currentPart > videoIds.size()) {
                 	Toast.makeText(LoaderPlayerActivity.this, "本集已撥放完畢",  Toast.LENGTH_SHORT).show();
-                	Bundle bundle = new Bundle();  
-                    bundle.putInt("currentPart", currentPart);  
-                    Intent intent = new Intent();  
-                    intent.putExtras(bundle);  
+                    Intent intent = new Intent();
+                	intent.putExtra("current_part_return", currentPart);
                     setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);
                 	LoaderPlayerActivity.this.finish();
                 } else {
@@ -258,8 +351,6 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         });
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {	
             public void onPrepared(MediaPlayer pMp) {
-                /*LoaderPlayerActivity.this.mDialogLoader.setVisibility(View.GONE);
-                LoaderPlayerActivity.this.mProgressMessage.setVisibility(View.GONE);*/
             	LoaderPlayerActivity.this.mDialogLoader.cancel();
             	LoaderPlayerActivity.this.animationDrawable.stop();
             }
@@ -276,7 +367,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         		startActivity(it);
         		
     			Bundle bundle = new Bundle();  
-                bundle.putInt("currentPart", currentPart);  
+                bundle.putInt("current_part", currentPart);  
                 Intent intent = new Intent();  
                 intent.putExtras(bundle);  
                 setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
@@ -284,7 +375,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         					
                 return true;
         	}
-        });
+        });*/
         
         mDialogLoader = new Dialog(this, R.style.dialogLoader);
         mDialogLoader.setContentView(R.layout.dialog_loader);
@@ -307,16 +398,35 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
         
         mProgressImage = (ImageView)mDialogLoader.findViewById(R.id.imageview_progressbar);
         mProgressMessage = (TextView)mDialogLoader.findViewById(R.id.textview_load);
-        rlAd = (RelativeLayout)mDialogLoader.findViewById(R.id.ad_layout);
 
         animationDrawable = (AnimationDrawable) mProgressImage.getBackground();        
         
+
+        extractMessages();        
+        mProgressMessage.setText(mMsgInit);
+        mProgressImage.post(new Runnable() {
+		    @Override
+		    public void run() {
+		        animationDrawable.start();
+		    }
+		});
+        mDialogLoader.show();
+        
+        rlAd = (RelativeLayout)mDialogLoader.findViewById(R.id.ad_layout);
         setAd();
 
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(null, "stop position : " + stopPosition);
+
+    	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
+        SQLiteDatabase db = instance.getWritableDatabase();
+        instance.updateDramaTimeRecord(db, dramaId, stopPosition);
+		db.close();
+        instance.closeHelper();
+        
         if(animationDrawable != null && animationDrawable.isRunning())
         	animationDrawable.stop();
         
@@ -481,7 +591,7 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
             		startActivity(it);
             		
         			Bundle bundle = new Bundle();  
-                    bundle.putInt("currentPart", currentPart);  
+                    bundle.putInt("current_part", currentPart);  
                     Intent intent = new Intent();  
                     intent.putExtras(bundle);  
                     setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
@@ -507,21 +617,19 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 				            	LoaderPlayerActivity.this.mDialogLoader.show();
 				            	
 				            	// change quailty
-				            	int msec = mVideoView.getCurrentPosition();
 								if(!youtubeHightQuality) {
 									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_press);
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
 									if(YoutubeQuiltyLink.containsKey("hd1080")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")), msec);
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
 									} else if(YoutubeQuiltyLink.containsKey("hd720")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")), msec);
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")));
 									} else if(YoutubeQuiltyLink.containsKey("large")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("large")), msec);
+										playVideo(Uri.parse(YoutubeQuiltyLink.get("large")));
 									}
 								} else {
-									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_normal);
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
-									playVideo(Uri.parse(YoutubeQuiltyLink.get("medium")), msec);
+									playVideo(Uri.parse(YoutubeQuiltyLink.get("medium")));
 								}
 								youtubeHightQuality = !youtubeHightQuality;
 								SharePreferenceIO sharePreferenceIO = new SharePreferenceIO(LoaderPlayerActivity.this);
@@ -529,7 +637,6 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 							}    						
     					});
     				} else {
-    					//lMediaController.imYoutubeQualitySwitch.setVisibility(View.GONE);
     					controller.mYoutubeQualitySwitch.setVisibility(View.INVISIBLE);
     	            	controller.mYoutubeQualitySwitch.setClickable(false);
     				}
@@ -561,7 +668,8 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			        		    }
 			        		});
 			            	LoaderPlayerActivity.this.mDialogLoader.show();
-			                currentPart+=1;
+			                currentPart += 1;
+			                stopPosition = 0;
 			                if(currentPart <= videoIds.size()) {
 			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
 			                    mQueryVideoTask = new QueryVideoTask();
@@ -583,7 +691,8 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			        		    }
 			        		});
 			            	LoaderPlayerActivity.this.mDialogLoader.show();
-			                currentPart-=1;
+			                currentPart -= 1;
+			                stopPosition = 0;
 			                if(currentPart > 0) {
 			                	Toast.makeText(LoaderPlayerActivity.this, "即將撥放Part" + currentPart,  Toast.LENGTH_SHORT).show();
 			                    mQueryVideoTask = new QueryVideoTask();
@@ -601,37 +710,58 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
                 	if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1 && youtubeHightQuality) {
                 		controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
 						if(YoutubeQuiltyLink.containsKey("hd1080")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")), 0);
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
 						} else if(YoutubeQuiltyLink.containsKey("hd720")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")), 0);
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")));
 						} else if(YoutubeQuiltyLink.containsKey("large")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("large")), 0);
+							playVideo(Uri.parse(YoutubeQuiltyLink.get("large")));
 						} else
-		                	playVideo(pResult, 0);
+		                	playVideo(pResult);
                 	} else
-                    	playVideo(pResult, 0);
+                    	playVideo(pResult);
+                	
+                	timeToast();
                 }
             } catch (Exception e) {
-                Log.e(this.getClass().getSimpleName(), "Error playing video!", e);
-                Bundle bundle = new Bundle();  
-                bundle.putInt("currentPart", currentPart);  
+                Log.e(this.getClass().getSimpleName(), "Error playing video!", e);  
                 Intent intent = new Intent();  
-                intent.putExtras(bundle);  
+                intent.putExtra("current_part_return", currentPart);
                 setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
                 LoaderPlayerActivity.this.finish();
             }
         }
     }
 
-    private void playVideo(Uri uri, int msec) {
+    private void playVideo(Uri uri) {
     	if(mVideoView.isPlaying())
     		mVideoView.stopPlayback();
     	mVideoView.clearFocus();
     	mVideoView.setVideoURI(uri);    
         mVideoView.requestFocus();
         mVideoView.start();
-        mVideoView.seekTo(msec);
+        mVideoView.seekTo(stopPosition);
      }
+    
+    private void timeToast() {
+    	String timeStr = "";
+    	int hou = stopPosition / (1000 * 60 * 60);    	
+    	if(hou != 0)
+    		timeStr = timeStr + hou + "時";
+    	
+    	int min = (stopPosition - hou * (1000 * 60 * 60)) / (1000 * 60);
+    	if(min != 0)
+    		timeStr = timeStr + min + "分";
+    	
+    	int sec = (stopPosition - hou * (1000 * 60 * 60) - min * (1000 * 60)) / 1000;
+    	if(sec != 0)
+    		timeStr = timeStr + sec + "秒";
+    	
+    	if(timeStr == "")
+    		timeStr = "頭";
+    		
+    	String message = "影片將從 " + timeStr + " 開始撥放";
+    	Toast.makeText(this, message,  Toast.LENGTH_SHORT).show();
+    }
     
     @Override
     protected void onStart() {
@@ -647,7 +777,6 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
     
     protected void onPause() {
     	if(mVideoView != null) {
-    		stopPosition = mVideoView.getCurrentPosition();
     		mVideoView.pause();
     	}
     	super.onPause();
@@ -664,10 +793,8 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            Bundle bundle = new Bundle();  
-            bundle.putInt("currentPart", currentPart);  
-            Intent intent = new Intent();  
-            intent.putExtras(bundle);  
+            Intent intent = new Intent();
+            intent.putExtra("current_part_return", currentPart);
             setResult(DramaSectionActivity.LOADERPLAYER_CHANGE, intent);  
             LoaderPlayerActivity.this.finish(); 
             return true;
@@ -688,12 +815,12 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 
 	@Override
 	public int getDuration() {
-        return mVideoView.getDuration();
+        return (int) mVideoView.getDuration();
 	}
 
 	@Override
 	public int getCurrentPosition() {
-		return mVideoView.getCurrentPosition();
+		return (int) mVideoView.getCurrentPosition();
 	}
 
 	@Override

@@ -17,6 +17,7 @@ package com.jumplife.tvdrama;
 
 import static com.jumplife.tvdrama.CommonUtilities.TAG;
 import com.google.android.gcm.GCMRegistrar;
+import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 
 import android.content.Context;
@@ -45,20 +46,27 @@ public final class ServerUtilities {
         // times.
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
             Log.d(TAG, "Attempt #" + i + " to register");
-            DramaAPI dramaAPI = new DramaAPI();
 			GCMRegistrar.setRegisteredOnServer(context, true);
-			if(dramaAPI.postGcm(regId, context))
-				return true;
-			else {
-				try {
-                    Log.d(TAG, "Sleeping for " + backoff + " ms before retry");
-                    Thread.sleep(backoff);
-                } catch (InterruptedException e1) {
-                    Log.d(TAG, "Thread interrupted: abort remaining retries!");
-                    Thread.currentThread().interrupt();
-                    return false;
-                }
-			}
+			
+			SharePreferenceIO shIO = new SharePreferenceIO(context);
+            String regIdShIO = shIO.SharePreferenceO("reg_id", "");
+            if(!regId.equals(regIdShIO)) {            	
+	            DramaAPI dramaAPI = new DramaAPI();
+				if(dramaAPI.postGcm(regId, context)) {
+	            	shIO.SharePreferenceI("reg_id", regId);
+	            	Log.d(TAG, "Non Record");
+					return true;
+				} else {
+					try {
+	                    Log.d(TAG, "Sleeping for " + backoff + " ms before retry");
+	                    Thread.sleep(backoff);
+	                } catch (InterruptedException e1) {
+	                    Log.d(TAG, "Thread interrupted: abort remaining retries!");
+	                    Thread.currentThread().interrupt();
+	                    return false;
+	                }
+				}
+            }
         }
         return false;
     }

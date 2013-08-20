@@ -12,6 +12,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
+import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.entity.Drama;
 
 import android.app.Activity;
@@ -162,14 +163,15 @@ public class TvDrama extends Activity {
 		        api.AddDramasFromInfo(instance, db, idLst);
 	        }	        
 	        
-	        
-	        /*sqlTvDrama.updateDramaIsShow(dramasShowId);
-	        sqlTvDrama.updateDramaViews(dramas);
-	        sqlTvDrama.updateDramaEps(dramas);
-	        sqlTvDrama.closeDB();*/
 	        instance.updateDramaIsShow(db, dramasShowId);
 	        instance.updateDramaViews(db, dramas);
 	        instance.updateDramaEps(db, dramas);
+	        
+	        ArrayList<AppProject> appProject = api.getAppProjectList(TvDrama.this);
+	        if(appProject != null) {
+	        	instance.updateProject(db, appProject);
+	        }
+			
             db.setTransactionSuccessful();
             db.endTransaction();
             db.close();

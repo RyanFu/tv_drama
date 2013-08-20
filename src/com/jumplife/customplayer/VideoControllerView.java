@@ -34,7 +34,8 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.VideoView;
+
+import io.vov.vitamio.widget.VideoView;
 
 import java.lang.ref.WeakReference;
 import java.util.Formatter;
@@ -359,8 +360,8 @@ public class VideoControllerView extends FrameLayout {
             return 0;
         }
         
-        int position = mPlayer.getCurrentPosition();
-        int duration = mPlayer.getDuration();
+        int position = (int) mPlayer.getCurrentPosition();
+        int duration = (int) mPlayer.getDuration();
         if (mProgress != null) {
             if (duration > 0) {
                 // use long to avoid overflow
@@ -588,7 +589,7 @@ public class VideoControllerView extends FrameLayout {
                 return;
             }
             
-            int pos = mPlayer.getCurrentPosition();
+            int pos = (int) mPlayer.getCurrentPosition();
             pos -= 15000; // milliseconds
             mPlayer.seekTo(pos);
             setProgress();
@@ -603,7 +604,7 @@ public class VideoControllerView extends FrameLayout {
                 return;
             }
             
-            int pos = mPlayer.getCurrentPosition();
+            int pos = (int) mPlayer.getCurrentPosition();
             pos += 15000; // milliseconds
             mPlayer.seekTo(pos);
             setProgress();

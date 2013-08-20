@@ -3,12 +3,20 @@ package com.jumplife.tvdrama.promote;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.jumplife.sharedpreferenceio.SharePreferenceIO;
+import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.R;
+import com.jumplife.tvdrama.entity.AppProject;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,44 +26,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PromoteAPP {
-	private int[] image = new int[]{
-		R.drawable.movie_64,
-		R.drawable.movietime,
-		R.drawable.tvdrama,
-		R.drawable.tvvariety,
-		R.drawable.movienewsicon
-	};
-	
-	private String[] title = {
-			"《電影櫃》強力推薦",
-			"《電影時刻表》強力推薦",
-			"《電視連續劇》強力推薦",
-			"《電視綜藝》強力推薦",
-			"《電影窩》強力推薦"
-	};
-	
-	private String[] content = {
-			"瀏覽最多電影評價 收藏自己的電影歷程",
-			"最完整的電影電視時刻 隨時掌握電影資訊",
-			"收錄最新最完整台韓日陸連續劇",
-			"收錄最新最完整台灣及韓國綜藝節目",
-			"收錄最新最豐富的電影新聞、名言、影評及趣圖"
-	};
-	
-	private String[] market = {
-			"com.jumplife.moviediary",
-			"com.jumplife.movieinfo",
-			"com.jumplife.tvdrama",
-			"com.jumplife.tvvariety",
-			"com.jumplife.movienews"
-	};
-	
 	private Activity mAcitivty;
 	private int promoteId;
-	private ArrayList<Integer> imagePromote = new ArrayList<Integer>();
-	private ArrayList<String> titlePromote = new ArrayList<String>();
-	private ArrayList<String> contentPromote = new ArrayList<String>();
-	private ArrayList<String> marketPromote = new ArrayList<String>();
+	private int probability;
+	private ArrayList<AppProject> appProjects = new ArrayList<AppProject>();
+	
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 		
 	public boolean isPromote;
 	
@@ -63,20 +40,27 @@ public class PromoteAPP {
 		this.mAcitivty = mActivity;
 		isPromote = false;
 		
+		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(mActivity);
+		SQLiteDatabase db = instance.getReadableDatabase();
+		ArrayList<AppProject> tmpAppProjects = instance.getAppProjectList(db);
+		db.close();
+		instance.closeHelper();
+		
 		PackageManager pm = mAcitivty.getPackageManager();
 	    
-		for(int i=0; i<market.length; i++) {
-			Intent appStartIntent = pm.getLaunchIntentForPackage(market[i]);
+		for(int i=0; i<tmpAppProjects.size(); i++) {
+			Intent appStartIntent = pm.getLaunchIntentForPackage(tmpAppProjects.get(i).getPack());
 			if(appStartIntent == null) {
-				imagePromote.add(image[i]);
-				titlePromote.add(title[i]);
-				contentPromote.add(content[i]);
-				marketPromote.add(market[i]);
+				appProjects.add(tmpAppProjects.get(i));
 				isPromote = true;
 			}
 		}
+		
+		SharePreferenceIO shIO = new SharePreferenceIO(mActivity);
+		probability = shIO.SharePreferenceO("app_promote_probability", 4);
+		
 		Random promoteRate = new Random();
-		int promote = promoteRate.nextInt(4);
+		int promote = promoteRate.nextInt(probability);
 		if(isPromote && promote == 1)
 			isPromote = true;
 		else
@@ -84,7 +68,7 @@ public class PromoteAPP {
 		
 		Random id = new Random();
 		if(isPromote)
-			promoteId = id.nextInt(marketPromote.size());
+			promoteId = id.nextInt(appProjects.size());
 	}
 	
 	public void promoteAPPExe() {
@@ -99,16 +83,26 @@ public class PromoteAPP {
         TextView textviewTitle = (TextView)viewPromotion.findViewById(R.id.textView1);
         TextView textviewDescription = (TextView)viewPromotion.findViewById(R.id.textView2);
         
-        imageView.setBackgroundResource(imagePromote.get(promoteId));
-        textviewTitle.setText(titlePromote.get(promoteId));
-        textviewDescription.setText(contentPromote.get(promoteId));
+        options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.stub)
+		.showImageForEmptyUri(R.drawable.stub)
+		.showImageOnFail(R.drawable.stub)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+		.cacheOnDisc()
+		.cacheInMemory()
+		.displayer(new SimpleBitmapDisplayer())
+		.build();
+        
+        imageLoader.displayImage(appProjects.get(promoteId).getIconUrl(), imageView, options);
+        textviewTitle.setText(appProjects.get(promoteId).getTitle());
+        textviewDescription.setText(appProjects.get(promoteId).getDescription());
         
         ((Button)viewPromotion.findViewById(R.id.button1))
         .setOnClickListener(
             new OnClickListener(){
                 public void onClick(View v) {
                 	mAcitivty.startActivity(new Intent(Intent.ACTION_VIEW, 
-				    		Uri.parse("market://details?id=" + marketPromote.get(promoteId))));    			    	
+				    		Uri.parse("market://details?id=" + appProjects.get(promoteId).getPack())));    			    	
                 }
             }
         );

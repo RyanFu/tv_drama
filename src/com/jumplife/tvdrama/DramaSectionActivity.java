@@ -58,22 +58,20 @@ public class DramaSectionActivity extends Activity {
     private TextView 		tvChapterNO;
     private TextView 		tvNotify;
     private Boolean			hasAdvertisment = false;
-    private static String currentSection = "";
     private int screenWidth;
     private int screenHeight;
     private LoadDataTask    loadTask;
     private TextView topbar_text;
 	private ArrayList<Section> sectionList;
 
-	private static int dramaId = 0;
-	private static String dramaName = "";
-	private static int chapterNo = 0;
+	private String dramaName = "";
+	private int dramaId = 0;
+	private int chapterNo = 0;
+    private int currentSection = -1;
 	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
 	private static String TAG = "DramaSectionActivity";
 	private AdView adView;
-	//private AdWhirlLayout adWhirlLayout;
-	//private SQLiteTvDrama sqlTvDrama;
 	
 	private final static int LOADERPLAYER = 100;
 	public final static int LOADERPLAYER_CHANGE = 101;
@@ -114,14 +112,12 @@ public class DramaSectionActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         int currentPart = -1;
-        if(data != null && data.hasExtra("currentPart"))
-        	currentPart = data.getIntExtra("currentPart", -1);
+        if(data != null && data.hasExtra("current_part_return"))
+        	currentPart = data.getIntExtra("current_part_return", -1);
         if(currentPart > 0)
-        	currentSection = chapterNo + ", " + currentPart;
-        if(currentSection != null && dramaId > 0) {
+        	currentSection = currentPart;
+        if(dramaId > 0) {
 			shIO.SharePreferenceI("views", true);
-			/*sqlTvDrama.updateDramaSectionRecord(dramaId, currentSection);
-	    	sqlTvDrama.closeDB();*/
 			SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
 	        SQLiteDatabase db = instance.getWritableDatabase();
 	        instance.updateDramaSectionRecord(db, dramaId, currentSection);
@@ -154,7 +150,6 @@ public class DramaSectionActivity extends Activity {
     
     private void initViews() {
     	shIO = new SharePreferenceIO(this);
-    	//sqlTvDrama = new SQLiteTvDrama(this);
     	
     	Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -230,7 +225,8 @@ public class DramaSectionActivity extends Activity {
 				 *  id = -1 is promote.
 				 */
 				if(sectionList.get(position).getId() != -1) {
-					currentSection = chapterNo + ", " + (position + 1);
+					int preSection = currentSection;
+					currentSection = position + 1;
 	            	dramaSectionAdapter.setCurrentSection(currentSection);
 	            	dramaSectionAdapter.notifyDataSetChanged();
 	            	shIO.SharePreferenceI("views", true);
@@ -261,10 +257,19 @@ public class DramaSectionActivity extends Activity {
 	            		for(int i = 0; i < size; i++)
 	            			videoIds.add(sectionList.get(i).getUrl());
 	            		
+	            		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(DramaSectionActivity.this);
+				        SQLiteDatabase db = instance.getWritableDatabase();
+				        if(currentSection != preSection) {
+							instance.updateDramaTimeRecord(db, dramaId, 0);
+						}
+				        db.close();
+				        instance.closeHelper();
+				        
 	            		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
-	            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class);            		
-	            		newAct.putExtra("currentPart", position + 1);
-	            		newAct.putStringArrayListExtra("videoIds", videoIds);
+	            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class); 
+						newAct.putExtra("drama_id", dramaId);           		
+	            		newAct.putExtra("current_part", (position + 1));
+	            		newAct.putStringArrayListExtra("video_ids", videoIds);
 	            		startActivityForResult(newAct, LOADERPLAYER);            		
 	            	}
 				} else {
@@ -284,7 +289,7 @@ public class DramaSectionActivity extends Activity {
 				 *  id = -1 is promote.
 				 */
 				if(sectionList.get(position).getId() != -1) {
-	            	currentSection = chapterNo + ", " + (position + 1);
+	            	currentSection = position + 1;
 	            	dramaSectionAdapter.setCurrentSection(currentSection);
 	            	dramaSectionAdapter.notifyDataSetChanged();
 	            	shIO.SharePreferenceI("views", true);
@@ -400,7 +405,7 @@ public class DramaSectionActivity extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         screenWidth = displayMetrics.widthPixels;
         dramaSectionAdapter = new DramaSectionAdapter(DramaSectionActivity.this, sectionList, screenWidth,
-        		screenHeight, currentSection, chapterNo);
+        		screenHeight, currentSection);
         sectioGridView.setAdapter(dramaSectionAdapter);
         sectioGridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
         
@@ -438,9 +443,7 @@ public class DramaSectionActivity extends Activity {
 	    	} else
 	    		hasAdvertisment = false;
     	}
-    	
-    	/*currentSection = sqlTvDrama.getDramaSectionRecord(dramaId);
-    	sqlTvDrama.closeDB();*/
+
     	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
         SQLiteDatabase db = instance.getReadableDatabase();
         currentSection = instance.getDramaSectionRecord(db, dramaId);
