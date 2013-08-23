@@ -244,19 +244,6 @@ public class LoaderPlayerActivity extends Activity implements VideoControllerVie
 			@Override
 			public boolean onInfo(MediaPlayer mp, int what, int extra) {
 				stopPosition = (int) mp.getCurrentPosition();
-				
-				switch (what) {
-		        case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-		        	mVideoView.pause();
-		        	animationDrawable.start();
-		        	LoaderPlayerActivity.this.mDialogLoader.show();
-		            break;
-		        case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-		        	mVideoView.start();
-	            	LoaderPlayerActivity.this.mDialogLoader.cancel();
-	            	LoaderPlayerActivity.this.animationDrawable.stop();
-		            break;
-		        }
 		        return true;
 			}
         });
