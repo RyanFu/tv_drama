@@ -1,6 +1,7 @@
 package com.jumplife.adapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.entity.Drama;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 public class DramaGridAdapter extends BaseAdapter{
 
 	private ArrayList<Drama> dramas;
+	private List<Integer> mRecommendList;
 	private Context mContext;
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
@@ -32,31 +34,14 @@ public class DramaGridAdapter extends BaseAdapter{
 	private class ItemView {
 		RelativeLayout rlDrama;
 		ImageView poster;
+		ImageView recommend;
 		TextView name;
 		TextView view;
 	}
 	
-	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas){
+	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, List<Integer> mRecommendList, int width, int height){
 		this.dramas = dramas;
-		this.mContext = mContext;
-		width = 80;
-		height = 120;
-		//imageLoader=new ImageLoader(mContext, width);
-		myInflater = LayoutInflater.from(mContext);
-		
-		options = new DisplayImageOptions.Builder()
-		.showStubImage(R.drawable.stub)
-		.showImageForEmptyUri(R.drawable.stub)
-		.showImageOnFail(R.drawable.stub)
-		.imageScaleType(ImageScaleType.EXACTLY)
-		.bitmapConfig(Config.RGB_565)
-		.cacheOnDisc()
-		.displayer(new SimpleBitmapDisplayer())
-		.build();
-	}
-	
-	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, int width, int height){
-		this.dramas = dramas;
+		this.mRecommendList = mRecommendList;
 		this.mContext = mContext;
 		this.width = width;
 		this.height = height;
@@ -69,7 +54,7 @@ public class DramaGridAdapter extends BaseAdapter{
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
 		.bitmapConfig(Config.RGB_565)
-		.cacheOnDisc()
+		.cacheOnDisc(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}
@@ -95,6 +80,7 @@ public class DramaGridAdapter extends BaseAdapter{
 			convertView = myInflater.inflate(R.layout.gridview_drama_item, null);
 			itemView.rlDrama = (RelativeLayout)convertView.findViewById(R.id.drama_item);
 			itemView.poster = (ImageView)convertView.findViewById(R.id.drama_poster);
+			itemView.recommend = (ImageView)convertView.findViewById(R.id.drama_recommend);
 			itemView.name = (TextView)convertView.findViewById(R.id.drama_name);
 			itemView.view = (TextView)convertView.findViewById(R.id.drama_view);
 			
@@ -105,6 +91,7 @@ public class DramaGridAdapter extends BaseAdapter{
 			itemView.rlDrama.getLayoutParams().height = width * 29 / 30;
 			itemView.rlDrama.getLayoutParams().width = width;
 			itemView.poster.setScaleType(ImageView.ScaleType.FIT_CENTER);
+			itemView.recommend.setVisibility(View.INVISIBLE);
 			if(dramas.get(position).getChineseName().equals("")) {
 				itemView.poster.getLayoutParams().height = width * 29 / 30;
 				itemView.poster.getLayoutParams().width = width;
@@ -127,7 +114,12 @@ public class DramaGridAdapter extends BaseAdapter{
 			itemView.name.setText(dramas.get(position).getChineseName());
 			itemView.view.setText(mContext.getResources().getString(R.string.play_time) + dramas.get(position).getViews());	
 			itemView.name.setVisibility(View.VISIBLE);
-			itemView.view.setVisibility(View.VISIBLE);		
+			itemView.view.setVisibility(View.VISIBLE);
+			if(mRecommendList != null && mRecommendList.contains(dramas.get(position).getId()))
+				itemView.recommend.setVisibility(View.VISIBLE);
+			else
+				itemView.recommend.setVisibility(View.INVISIBLE);
+			
 		}
 		imageLoader.displayImage(dramas.get(position).getPosterUrl(), itemView.poster, options);
 		

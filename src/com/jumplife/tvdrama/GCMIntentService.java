@@ -18,7 +18,6 @@ package com.jumplife.tvdrama;
 import static com.jumplife.tvdrama.CommonUtilities.SENDER_ID;
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -88,9 +87,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 	        
 	        String message = intent.getStringExtra("message");
 	        
-	        SharePreferenceIO shIO = new SharePreferenceIO(this);
 	        boolean shareKey = true;;
-	        shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+	        shareKey = TvDramaApplication.shIO.getBoolean("notification_key", shareKey);
 	        if(shareKey)
 	        	generateNotification(context, typeId, sortId, message);
         }
@@ -125,8 +123,8 @@ public class GCMIntentService extends GCMBaseIntentService {
         Notification notification = new Notification(icon, message, when);
         String title = context.getString(R.string.app_name);
         Intent notificationIntent = new Intent(context, TvDrama.class);
-        notificationIntent.putExtra("type_id", typeId);
-        notificationIntent.putExtra("sort_id", sortId);
+        TvDramaApplication.shIO.edit().putInt("type_id", typeId).commit();
+        TvDramaApplication.shIO.edit().putInt("sort_id", sortId).commit();
         // set intent so it does not start a new activity
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);

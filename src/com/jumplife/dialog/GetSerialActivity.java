@@ -5,9 +5,9 @@ import java.util.regex.Pattern;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.TicketCenterActivity;
+import com.jumplife.tvdrama.TvDramaApplication;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Ticket;
 
@@ -48,8 +48,7 @@ public class GetSerialActivity extends Activity {
 	
 	private void initViews(){
 		ArrayList<String> emailAcoounts = getEmailAccount();
-		SharePreferenceIO shIO = new SharePreferenceIO(GetSerialActivity.this);			
-		String email = shIO.SharePreferenceO("ticket_email", "");
+		String email = TvDramaApplication.shIO.getString("ticket_email", "");
 		int spinnerPosition = emailAcoounts.indexOf(email);
 		
 		spinner = (Spinner)findViewById(R.id.spinner_email);
@@ -156,9 +155,8 @@ public class GetSerialActivity extends Activity {
             			"優惠ID:" + getIntent().getExtras().getInt("campaign_id"), 
             			"優惠重覆申請", (long)0);
             } else {
-            	SharePreferenceIO shIO = new SharePreferenceIO(GetSerialActivity.this);			
-        		String email = shIO.SharePreferenceO("ticket_email", "");            	
-            	shIO.SharePreferenceI("ticket_email", spinner.getSelectedItem().toString());
+            	String email = TvDramaApplication.shIO.getString("ticket_email", "");            	
+            	TvDramaApplication.shIO.edit().putString("ticket_email", spinner.getSelectedItem().toString()).commit();
                 
             	Toast.makeText(getApplicationContext(), "送交成功，請至我的票劵檢視", Toast.LENGTH_LONG).show();
             	EasyTracker.getTracker().trackEvent(getIntent().getExtras().getString("advertisement_type"), 
@@ -166,9 +164,9 @@ public class GetSerialActivity extends Activity {
             			"優惠申請成功", (long)0);
 				
         		if(email.equals(spinner.getSelectedItem().toString())) {            	
-	            	int count = shIO.SharePreferenceO("unread_ticket_count", 0);
+	            	int count = TvDramaApplication.shIO.getInt("unread_ticket_count", 0);
 	            	count += 1;            	
-	            	shIO.SharePreferenceI("unread_ticket_count", count);
+	            	TvDramaApplication.shIO.edit().putInt("unread_ticket_count", count).commit();
 	            	
 	            	Intent intent = new Intent();
 	            	Bundle bundle = new Bundle();

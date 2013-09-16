@@ -3,9 +3,9 @@ package com.jumplife.tvdrama.promote;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.R;
+import com.jumplife.tvdrama.TvDramaApplication;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -56,8 +56,7 @@ public class PromoteAPP {
 			}
 		}
 		
-		SharePreferenceIO shIO = new SharePreferenceIO(mActivity);
-		probability = shIO.SharePreferenceO("app_promote_probability", 4);
+		probability = TvDramaApplication.shIO.getInt("app_promote_probability", 4);
 		
 		Random promoteRate = new Random();
 		int promote = promoteRate.nextInt(probability);
@@ -88,8 +87,8 @@ public class PromoteAPP {
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-		.cacheOnDisc()
-		.cacheInMemory()
+		.cacheOnDisc(true)
+		.cacheInMemory(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
         

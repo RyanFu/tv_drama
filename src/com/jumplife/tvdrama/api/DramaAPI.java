@@ -24,8 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
+import com.jumplife.tvdrama.TvDramaApplication;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Drama;
@@ -324,6 +324,18 @@ public class DramaAPI {
 		return null;
 	}
 	
+	public String getRecommendId() {
+				
+		String message = getMessageFromServer("GET", "api/v1/dramas/hot_list.json", null);
+		String tmp = "";
+				
+		if(message != null) {
+			tmp = message.toString();
+		}
+		
+		return tmp;
+	}
+	
 	public String getMessageFromServer(String requestMethod, String apiPath, JSONObject json) {
 		URL url;
 		try {
@@ -534,8 +546,7 @@ public class DramaAPI {
 				JSONObject tmp = new JSONObject(message.toString());
 				
 				int probability = tmp.getInt("probability");
-				SharePreferenceIO shIO = new SharePreferenceIO(mActivity);
-				shIO.SharePreferenceI("app_promote_probability", probability);
+				TvDramaApplication.shIO.edit().putInt("app_promote_probability", probability).commit();
 				
 				JSONArray appArray = tmp.getJSONArray("promotions");
 				for (int i = 0; i < appArray.length() ; i++) {

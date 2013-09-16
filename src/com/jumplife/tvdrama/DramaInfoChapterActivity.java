@@ -39,7 +39,6 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Advertisement;
@@ -73,7 +72,6 @@ public class DramaInfoChapterActivity extends Activity{
 	private RefreshDataTask refreshTaskLoad;
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
-	private SharePreferenceIO shIO;
 	private int tabFlag = 1;
 	private int chapterCount = 0;
 	private int lastChapterCount = 0;
@@ -110,7 +108,7 @@ public class DramaInfoChapterActivity extends Activity{
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
-		.cacheOnDisc()
+		.cacheOnDisc(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
         
@@ -163,8 +161,7 @@ public class DramaInfoChapterActivity extends Activity{
         poster = (ImageView)findViewById(R.id.imageview_daramaposter);
         like = (ImageView)findViewById(R.id.like);
         
-        shIO = new SharePreferenceIO(DramaInfoChapterActivity.this);
-		likeDramas = shIO.SharePreferenceO("like_drama", "").split(",");
+        likeDramas = TvDramaApplication.shIO.getString("like_drama", "").split(",");
 		for(int i=0; i<likeDramas.length; i++)
 			if(likeDramas[i].equals(String.valueOf(dramaId)))
 				likeDrama = true;		
@@ -312,7 +309,7 @@ public class DramaInfoChapterActivity extends Activity{
 					for(int i=0; i<likeDramas.length; i++)
 						if(!likeDramas[i].equals(String.valueOf(dramaId)))
 							tmpLikeDramas = tmpLikeDramas + likeDramas[i] + ",";
-					shIO.SharePreferenceI("like_drama", tmpLikeDramas);
+					TvDramaApplication.shIO.edit().putString("like_drama", tmpLikeDramas).commit();
 					likeDrama = false;
 					Toast.makeText(DramaInfoChapterActivity.this, 
 							DramaInfoChapterActivity.this.getResources().getString(R.string.remove_favorite), Toast.LENGTH_LONG)
@@ -322,7 +319,7 @@ public class DramaInfoChapterActivity extends Activity{
 					for(int i=0; i<likeDramas.length; i++)
 						tmpLikeDramas = tmpLikeDramas + likeDramas[i] + ",";
 					tmpLikeDramas = tmpLikeDramas + dramaId;
-					shIO.SharePreferenceI("like_drama", tmpLikeDramas);
+					TvDramaApplication.shIO.edit().putString("like_drama", tmpLikeDramas).commit();
 					likeDrama = true;
 					Toast.makeText(DramaInfoChapterActivity.this, 
 							DramaInfoChapterActivity.this.getResources().getString(R.string.add_favorite), Toast.LENGTH_LONG)
@@ -672,7 +669,7 @@ public class DramaInfoChapterActivity extends Activity{
 	        	
 	        	DisplayImageOptions adOptions = new DisplayImageOptions.Builder()
 	    		.imageScaleType(ImageScaleType.EXACTLY)
-	    		.cacheOnDisc()
+	    		.cacheOnDisc(true)
 	    		.displayer(new SimpleBitmapDisplayer())
 	    		.build();
 	    		

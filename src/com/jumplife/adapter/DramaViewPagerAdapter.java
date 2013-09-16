@@ -26,11 +26,13 @@ public class DramaViewPagerAdapter extends PagerAdapter{
 
 	private Activity mActivty;
 	private List<ArrayList<Drama>> mDramaLists;
+	private List<Integer> mRecommendList;
 	private Animation animation;
 	
-	public DramaViewPagerAdapter(Activity activty, List<ArrayList<Drama>> dramaLists) {
+	public DramaViewPagerAdapter(Activity activty, List<ArrayList<Drama>> dramaLists, List<Integer> mRecommendList) {
 		this.mActivty = activty;
 		this.mDramaLists = dramaLists;
+		this.mRecommendList = mRecommendList;
 	}
 	
 	@Override
@@ -63,7 +65,7 @@ public class DramaViewPagerAdapter extends PagerAdapter{
         
         View view = View.inflate(mActivty, R.layout.viewpage_item, null);
         GridView varietyGridView = (GridView)view.findViewById(R.id.gridview_tvchannel);
-		DramaGridAdapter adapter = new DramaGridAdapter(mActivty, mDramaLists.get(pos),
+		DramaGridAdapter adapter = new DramaGridAdapter(mActivty, mDramaLists.get(pos), mRecommendList,
         		((screenWidth / 2)), (int) (((screenWidth / 2)) * 0.6));
         varietyGridView.setAdapter(adapter);
         itemOnClickListener itemclick = new itemOnClickListener(pos);

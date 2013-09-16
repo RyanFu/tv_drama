@@ -17,7 +17,6 @@ package com.jumplife.tvdrama;
 
 import static com.jumplife.tvdrama.CommonUtilities.TAG;
 import com.google.android.gcm.GCMRegistrar;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 
 import android.content.Context;
@@ -48,12 +47,11 @@ public final class ServerUtilities {
             Log.d(TAG, "Attempt #" + i + " to register");
 			GCMRegistrar.setRegisteredOnServer(context, true);
 			
-			SharePreferenceIO shIO = new SharePreferenceIO(context);
-            String regIdShIO = shIO.SharePreferenceO("reg_id", "");
+			String regIdShIO = TvDramaApplication.shIO.getString("reg_id", "");
             if(!regId.equals(regIdShIO)) {            	
 	            DramaAPI dramaAPI = new DramaAPI();
 				if(dramaAPI.postGcm(regId, context)) {
-	            	shIO.SharePreferenceI("reg_id", regId);
+					TvDramaApplication.shIO.edit().putString("reg_id", regId).commit();
 	            	Log.d(TAG, "Non Record");
 					return true;
 				} else {

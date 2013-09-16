@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.R;
 import com.jumplife.tvdrama.TicketCenterActivity;
+import com.jumplife.tvdrama.TvDramaApplication;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -37,8 +38,7 @@ public class ChangeAccountActivity extends Activity {
 	
 	private void initViews(){
 		ArrayList<String> emailAcoounts = getEmailAccount();
-		SharePreferenceIO shIO = new SharePreferenceIO(ChangeAccountActivity.this);			
-		String email = shIO.SharePreferenceO("ticket_email", "");
+		String email = TvDramaApplication.shIO.getString("ticket_email", "");
 		Log.d(null, email);
 		int spinnerPosition = emailAcoounts.indexOf(email);
 		if(spinnerPosition < 0)
@@ -84,8 +84,7 @@ public class ChangeAccountActivity extends Activity {
 		
 		@Override
 		public void onClick(View v) {
-			SharePreferenceIO shIO = new SharePreferenceIO(ChangeAccountActivity.this);			
-			shIO.SharePreferenceI("ticket_email", spinner.getSelectedItem().toString());
+			TvDramaApplication.shIO.edit().putString("ticket_email", spinner.getSelectedItem().toString()).commit();
 			
 			Toast.makeText(getApplicationContext(), "更換帳戶成功", Toast.LENGTH_LONG).show();
         	Intent intent = new Intent();

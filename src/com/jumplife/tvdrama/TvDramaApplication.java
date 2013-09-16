@@ -17,6 +17,8 @@ package com.jumplife.tvdrama;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -26,29 +28,25 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class TvDramaAppliccation extends Application {
+public class TvDramaApplication extends Application {
+	
+	private final String preferenceName = "Preference";
+	public static SharedPreferences shIO;
+	
 	@Override
 	public void onCreate() {
 		
 		super.onCreate();
 
+		SharePreferenceInit();
 		initImageLoader(getApplicationContext());
 	}
 
+	private void SharePreferenceInit() {
+		shIO = this.getSharedPreferences(preferenceName, 0);
+	}
+
 	public static void initImageLoader(Context context) {
-		/*int memoryCacheSize = (int) (Runtime.getRuntime().freeMemory() * 2 / 3);
-
-		MemoryCacheAware<String, Bitmap> memoryCache;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-			memoryCache = new LruMemoryCache(memoryCacheSize);
-		} else {
-			memoryCache = new LRULimitedMemoryCache(memoryCacheSize);
-		}*/
-
-		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
-		// or you can create default configuration by
-		//  ImageLoaderConfiguration.createDefault(this);
-		// method.
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
 	        .tasksProcessingOrder(QueueProcessingType.LIFO)
 			.threadPoolSize(2)

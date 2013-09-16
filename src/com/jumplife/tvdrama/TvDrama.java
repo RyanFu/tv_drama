@@ -133,6 +133,9 @@ public class TvDrama extends Activity {
 		DramaAPI api = new DramaAPI(this);
         
         ArrayList<Drama> dramas = api.getDramasIdViewsEpsV2();
+        String recommendId = api.getRecommendId();
+        TvDramaApplication.shIO.edit().putString("recommend_ids", recommendId).commit();
+        
         if(dramas != null) {
                 		
     		//SQLiteTvDrama sqlTvDrama = new SQLiteTvDrama(this);
@@ -194,15 +197,15 @@ public class TvDrama extends Activity {
 	}
 	
 	private void setData(){
-		Bundle extras = getIntent().getExtras();
+		//Bundle extras = getIntent().getExtras();
         Intent newAct = new Intent();
-        if(extras != null) {
+        /*if(extras != null) {
         	newAct.putExtra("type_id", extras.getInt("type_id", 0));
-        	newAct.putExtra("sort_id", extras.getInt("sort_id", 0));
+        	newAct.putExtra("sort_id", extras.getInt("sort_id", 2));
         } else {
         	newAct.putExtra("type_id", 0);
-        	newAct.putExtra("sort_id", 0);
-        }
+        	newAct.putExtra("sort_id", 2);
+        }*/
 		newAct.setClass( TvDrama.this, MainTabActivities.class );
 		startActivity(newAct);
     	finish();

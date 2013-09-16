@@ -8,7 +8,6 @@ import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.adapter.TicketCenterViewPagerAdapter;
 import com.jumplife.dialog.ChangeAccountActivity;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Ticket;
 
@@ -55,7 +54,6 @@ public class TicketCenterActivity extends Activity {
 	private ArrayList<Ticket> mPreferentialtList;
 	private ArrayList<Ticket> mMyTicketList;
 	private TicketCenterViewPagerAdapter viewpageradapter;
-	private SharePreferenceIO shIO;
 	
 	private LoadDataTask loadTask;
 	private RefreshTask refreshTask;
@@ -106,7 +104,7 @@ public class TicketCenterActivity extends Activity {
             	db.close();
                 instance.closeHelper();*/    	
 
-           		unReadCount = shIO.SharePreferenceO("unread_ticket_count", 0);
+           		unReadCount = TvDramaApplication.shIO.getInt("unread_ticket_count", 0);
            		
             	Ticket ticket = (Ticket) data.getSerializableExtra("new_ticket");
             	mMyTicketList.add(ticket);
@@ -115,7 +113,7 @@ public class TicketCenterActivity extends Activity {
             } else if(resultCode == GETTICKET_OTHER_ACCOUNT) {
             	
             	unReadCount = 1;
-            	shIO.SharePreferenceI("unread_ticket_count", unReadCount);
+            	TvDramaApplication.shIO.edit().putInt("unread_ticket_count", unReadCount).commit();
         		
            		if(!loadTask.isCancelled())
            			loadTask.cancel(true);
@@ -139,7 +137,7 @@ public class TicketCenterActivity extends Activity {
             	db.close();
                 instance.closeHelper();*/
         		
-        		shIO.SharePreferenceI("unread_ticket_count", 0);
+        		TvDramaApplication.shIO.edit().putInt("unread_ticket_count", 0).commit();
         		
            		if(!loadTask.isCancelled())
            			loadTask.cancel(true);
@@ -154,8 +152,6 @@ public class TicketCenterActivity extends Activity {
     }
 	
 	private void initViews() {
-		shIO = new SharePreferenceIO(this);
-		
 		topbar_text = (TextView)findViewById(R.id.topbar_text);
         topbar_text.setText(getResources().getString(R.string.counpons));
     	
@@ -204,10 +200,10 @@ public class TicketCenterActivity extends Activity {
     	
     	mPreferentialtList = dramaAPI.getCampaignList();
     	
-    	String email = shIO.SharePreferenceO("ticket_email", "");
+    	String email = TvDramaApplication.shIO.getString("ticket_email", "");
     	mMyTicketList = dramaAPI.getMyTicketList(email);
 
-   		unReadCount = shIO.SharePreferenceO("unread_ticket_count", 0);
+   		unReadCount = TvDramaApplication.shIO.getInt("unread_ticket_count", 0);
 	}
 	
 	// 設定畫面上的UI
@@ -273,7 +269,7 @@ public class TicketCenterActivity extends Activity {
 		public void onPageSelected(int index) {
 			
 			if(index == 1 && unReadCount > 0) {
-				shIO.SharePreferenceI("unread_ticket_count", 0);
+				TvDramaApplication.shIO.edit().putInt("unread_ticket_count", 0).commit();
                 if(index == 1)
                 	tvUnReadCount.setVisibility(View.GONE);
 			}

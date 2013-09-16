@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.AppProject;
@@ -54,7 +53,6 @@ public class AboutUsActivity extends Activity {
 	private ArrayList<AppProject> appProject;
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
-    private SharePreferenceIO  shIO;
     private static String updateDiary = "";
 	
 	private Activity mActivity;
@@ -85,8 +83,8 @@ public class AboutUsActivity extends Activity {
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-		.cacheOnDisc()
-		.cacheInMemory()
+		.cacheOnDisc(true)
+		.cacheInMemory(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 		
@@ -110,9 +108,7 @@ public class AboutUsActivity extends Activity {
       EasyTracker.getInstance().activityStop(mActivity);
     }
 
-	private void initView(){
-        shIO = new SharePreferenceIO(this);
-		
+	private void initView(){		
 		pbInit = (ProgressBar)findViewById(R.id.pb_about_us);
 		llAboutUs = (LinearLayout)findViewById(R.id.ll_aboutus);
         
@@ -364,7 +360,7 @@ public class AboutUsActivity extends Activity {
         	public void onClick(View arg0) {
         		String message;
         		boolean shareKey = true;;
-                shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+                shareKey = TvDramaApplication.shIO.getBoolean("notification_key", shareKey);
                 if(shareKey)
                 	message = "目前狀態 : 通知開啟";
                 else
@@ -374,12 +370,12 @@ public class AboutUsActivity extends Activity {
         		.setMessage(message)
 	            .setPositiveButton(getResources().getString(R.string.open), new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface arg0, int arg1) {
-	                	shIO.SharePreferenceI("notification_key", true);
+	                	TvDramaApplication.shIO.edit().putBoolean("notification_key", true).commit();
 	                	setNotificationDrawable();
 	                }
 	            }).setNegativeButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface arg0, int arg1) {
-	                	shIO.SharePreferenceI("notification_key", false);
+	                	TvDramaApplication.shIO.edit().putBoolean("notification_key", false).commit();
 	                	setNotificationDrawable();
 	                }
 	            })
@@ -420,7 +416,7 @@ public class AboutUsActivity extends Activity {
         	public void onClick(View arg0) {
         		String message;
         		boolean shareKey = true;;
-                shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+                shareKey = TvDramaApplication.shIO.getBoolean("notification_key", shareKey);
                 if(shareKey)
                 	message = "目前狀態 : 連續撥放開啟";
                 else
@@ -430,12 +426,12 @@ public class AboutUsActivity extends Activity {
         		.setMessage(message)
 	            .setPositiveButton(getResources().getString(R.string.open), new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface arg0, int arg1) {
-	                	shIO.SharePreferenceI("repeat_key", true);
+	                	TvDramaApplication.shIO.edit().putBoolean("repeat_key", true).commit();
 	                	setRepeatDrawable();
 	                }
 	            }).setNegativeButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface arg0, int arg1) {
-	                	shIO.SharePreferenceI("repeat_key", false);
+	                	TvDramaApplication.shIO.edit().putBoolean("repeat_key", false).commit();
 	                	setRepeatDrawable();
 	                }
 	            })
@@ -580,9 +576,8 @@ public class AboutUsActivity extends Activity {
 	}
 	
 	private void setNotificationDrawable() {
-		SharePreferenceIO shIO = new SharePreferenceIO(this);
-        boolean shareKey = true;;
-        shareKey = shIO.SharePreferenceO("notification_key", shareKey);
+		boolean shareKey = true;;
+		TvDramaApplication.shIO.getBoolean("notification_key", shareKey);
         if(shareKey)
         	ivNotification.setImageResource(R.drawable.notification);
         else
@@ -591,9 +586,8 @@ public class AboutUsActivity extends Activity {
 	}
 	
 	private void setRepeatDrawable() {
-		SharePreferenceIO shIO = new SharePreferenceIO(this);
-        boolean shareKey = true;;
-        shareKey = shIO.SharePreferenceO("repeat_key", shareKey);
+		boolean shareKey = true;;
+        shareKey = TvDramaApplication.shIO.getBoolean("repeat_key", shareKey);
         if(shareKey)
         	ivRepeat.setImageResource(R.drawable.repeat_on);
         else
@@ -780,10 +774,10 @@ public class AboutUsActivity extends Activity {
 	                }
 	            })
 	            .show();
-        		shIO.SharePreferenceI("UpdateDiary", updateDiary);
+        		TvDramaApplication.shIO.edit().putString("UpdateDiary", updateDiary).commit();
             } else {
             	new AlertDialog.Builder(AboutUsActivity.this).setTitle(getResources().getString(R.string.diary))
-        		.setMessage(Html.fromHtml(shIO.SharePreferenceO("UpdateDiary", "尚未有更新")))
+        		.setMessage(Html.fromHtml(TvDramaApplication.shIO.getString("UpdateDiary", "尚未有更新")))
 	            .setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface arg0, int arg1) {	                	
 	                }

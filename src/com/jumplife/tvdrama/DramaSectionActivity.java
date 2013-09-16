@@ -1,6 +1,7 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 
 import org.json.JSONException;
@@ -11,12 +12,10 @@ import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.adapter.DramaSectionAdapter;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Advertisement;
 import com.jumplife.tvdrama.entity.Section;
-
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 
@@ -45,6 +44,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -68,7 +68,6 @@ public class DramaSectionActivity extends Activity {
 	private int dramaId = 0;
 	private int chapterNo = 0;
     private int currentSection = -1;
-	private SharePreferenceIO shIO;
 	private DramaSectionAdapter dramaSectionAdapter;
 	private static String TAG = "DramaSectionActivity";
 	private AdView adView;
@@ -117,7 +116,7 @@ public class DramaSectionActivity extends Activity {
         if(currentPart > 0)
         	currentSection = currentPart;
         if(dramaId > 0) {
-			shIO.SharePreferenceI("views", true);
+        	TvDramaApplication.shIO.edit().putBoolean("views", true).commit();
 			SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
 	        SQLiteDatabase db = instance.getWritableDatabase();
 	        instance.updateDramaSectionRecord(db, dramaId, currentSection);
@@ -149,8 +148,6 @@ public class DramaSectionActivity extends Activity {
     }
     
     private void initViews() {
-    	shIO = new SharePreferenceIO(this);
-    	
     	Bundle extras = getIntent().getExtras();
         if(extras != null) {
         	dramaId = extras.getInt("drama_id");
@@ -229,7 +226,7 @@ public class DramaSectionActivity extends Activity {
 					currentSection = position + 1;
 	            	dramaSectionAdapter.setCurrentSection(currentSection);
 	            	dramaSectionAdapter.notifyDataSetChanged();
-	            	shIO.SharePreferenceI("views", true);
+	            	TvDramaApplication.shIO.edit().putBoolean("views", true).commit();
 	            	
 	            	if(sectionList.get(position).getUrl() == null ||
 	            			sectionList.get(position).getUrl().equalsIgnoreCase("")) {
@@ -254,8 +251,15 @@ public class DramaSectionActivity extends Activity {
 	            		int size = sectionList.size();
 	            		if(hasAdvertisment) 
 	            			size = size-1;
-	            		for(int i = 0; i < size; i++)
+	            		
+	            		Boolean hasFlv = false;
+	            		for(int i = 0; i < size; i++) {
 	            			videoIds.add(sectionList.get(i).getUrl());
+	            			if (sectionList.get(i).getUrl().toLowerCase(Locale.getDefault()).contains(".flv") || 
+	            					sectionList.get(i).getUrl().toLowerCase(Locale.getDefault()).contains("56.com") || 
+	            					sectionList.get(i).getUrl().toLowerCase(Locale.getDefault()).contains("56.pptv.com"))
+	            				hasFlv = true;
+	            		}
 	            		
 	            		SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(DramaSectionActivity.this);
 				        SQLiteDatabase db = instance.getWritableDatabase();
@@ -265,8 +269,12 @@ public class DramaSectionActivity extends Activity {
 				        db.close();
 				        instance.closeHelper();
 				        
-	            		Intent newAct = new Intent(DramaSectionActivity.this, LoaderPlayerActivity.class);
-	            		//Intent newAct = new Intent(DramaSectionActivity.this, CustomPlayerActivity.class); 
+				        Intent newAct;
+				        if (hasFlv)
+				        	newAct = new Intent(DramaSectionActivity.this, VitamioPlayerActivity.class);
+				        else
+				        	newAct = new Intent(DramaSectionActivity.this, VideoViewPlayerActivity.class);
+				        	//newAct = new Intent(DramaSectionActivity.this, MediaPlayerActivity.class); 
 						newAct.putExtra("drama_id", dramaId);           		
 	            		newAct.putExtra("current_part", (position + 1));
 	            		newAct.putStringArrayListExtra("video_ids", videoIds);
@@ -282,6 +290,76 @@ public class DramaSectionActivity extends Activity {
     	});
     }
     
+    private void setPlayerGridLongClickListener() {
+    	sectioGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
+    		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            	/*
+				 *  id = -1 is promote.
+				 */
+				if(sectionList.get(position).getId() != -1) {
+	            	currentSection = position + 1;
+	            	dramaSectionAdapter.setCurrentSection(currentSection);
+	            	dramaSectionAdapter.notifyDataSetChanged();
+	            	TvDramaApplication.shIO.edit().putBoolean("views", true).commit();
+	            	Uri uri;
+	            	if(sectionList.get(position).getUrl() == null ||
+	            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
+	            			sectionList.get(position).getUrl().contains("maplestage")) {
+	            		Builder dialog = new AlertDialog.Builder(DramaSectionActivity.this);
+	    		        dialog.setTitle(getResources().getString(R.string.no_link));
+	    		        dialog.setMessage(getResources().getString(R.string.use_google_search));
+	    		        dialog.setPositiveButton(getResources().getString(R.string.google_search), new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            	Intent search = new Intent(Intent.ACTION_WEB_SEARCH);  
+	    	            		search.putExtra(SearchManager.QUERY, dramaName + " " + getResources().getString(R.string.episode) 
+	    	            				+ chapterNo + getResources().getString(R.string.no));  
+	    	            		startActivity(search);
+	    		            }
+	    		        });
+	    		        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+	    		            public void onClick(DialogInterface dialog, int which) {
+	    		            }
+	    		        });
+	    		        dialog.show();            		 
+	            	} else {
+	            		if (sectionList.get(position).getUrl().contains("http://www.dailymotion.com/")) {
+	            			if(sectionList.get(position).getUrl().contains("embed/video/")) {
+		            			String url = sectionList.get(position).getUrl();
+		            			url = url.substring(39);
+		            			String[] tmpUrls = url.split("\\?");
+		            			String tmpId = null;
+		            			if(tmpUrls.length > 0)
+		            				tmpId = tmpUrls[0];
+		            			if(tmpId != null)
+		            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			} else {
+	            				String url = sectionList.get(position).getUrl();
+		            			url = url.substring(33);
+		            			String[] tmpUrls = url.split("&");	            			
+		            			String tmpId = null;
+		            			if(tmpUrls.length > 0)
+		            				tmpId = tmpUrls[0];
+		            			if(tmpId != null)
+		            				sectionList.get(position).setUrl("http://touch.dailymotion.com/video/" + tmpId);
+	            			}
+	            		}
+	            		
+	            		uri = Uri.parse(sectionList.get(position).getUrl());
+	            		Intent it = new Intent(Intent.ACTION_VIEW, uri);
+	            		startActivity(it);
+	            	}
+            	} else {
+					Intent newAct = new Intent();
+					newAct.putExtra("advertisement_type", "優惠活動-段落列表");
+					newAct.setClass( DramaSectionActivity.this, TicketCenterActivity.class );
+	                startActivity( newAct );
+				}
+				
+				return true;
+            }
+        });
+    }
+    
     private void setNormalGridClickListener() {
     	sectioGridView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -292,7 +370,7 @@ public class DramaSectionActivity extends Activity {
 	            	currentSection = position + 1;
 	            	dramaSectionAdapter.setCurrentSection(currentSection);
 	            	dramaSectionAdapter.notifyDataSetChanged();
-	            	shIO.SharePreferenceI("views", true);
+	            	TvDramaApplication.shIO.edit().putBoolean("views", true).commit();
 	            	Uri uri;
 	            	if(sectionList.get(position).getUrl() == null ||
 	            			sectionList.get(position).getUrl().equalsIgnoreCase("") ||
@@ -392,12 +470,12 @@ public class DramaSectionActivity extends Activity {
 			}			
 		});
     	
-    	SharePreferenceIO shIO = new SharePreferenceIO(this);
-        boolean shareKey = true;;
-        shareKey = shIO.SharePreferenceO("repeat_key", shareKey);
-        if(shareKey)
+    	boolean shareKey = true;;
+        shareKey = TvDramaApplication.shIO.getBoolean("repeat_key", shareKey);
+        if(shareKey) {
         	setPlayerGridClickListener();
-        else
+        	setPlayerGridLongClickListener();
+        } else
         	setNormalGridClickListener();
     	
     	
@@ -425,6 +503,7 @@ public class DramaSectionActivity extends Activity {
     private synchronized void fetchData() {
     	Log.d(TAG, "load data API begin");
     	DramaAPI dramaAPI = new DramaAPI(this);
+    	
     	sectionList = new ArrayList<Section>();
     	sectionList = dramaAPI.getChapterSectionNew(dramaId, chapterNo);
     	
@@ -460,7 +539,6 @@ public class DramaSectionActivity extends Activity {
 	              LoadDataTask.this.cancel(true);
 	              imageButtonRefresh.setVisibility(View.VISIBLE);
 	              finish();
-	              //DramaSectionActivity.this.overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right);
 	          }
 	      };
 
@@ -525,11 +603,11 @@ public class DramaSectionActivity extends Activity {
 
         @Override
         protected String doInBackground(Integer... params) {
-        	if(shIO.SharePreferenceO("views", false)) {
+        	if(TvDramaApplication.shIO.getBoolean("views", false)) {
         		DramaAPI dramaAPI = new DramaAPI(DramaSectionActivity.this);
         		//dramaAPI.updateViews(dramaId);
         		dramaAPI.updateViewsWithDevice(dramaId, chapterNo);
-        		shIO.SharePreferenceI("views", false);
+        		TvDramaApplication.shIO.edit().putBoolean("views", false).commit();
         	}
             return "progress end";
         }

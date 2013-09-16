@@ -16,7 +16,6 @@ import net.londatiga.android.QuickAction;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.adapter.DramaViewPagerAdapter;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.jumplife.tvdrama.entity.Advertisement;
@@ -76,13 +75,15 @@ public class TvChannelViewPagerActivity extends Activity {
     private static List<ArrayList<Drama>> thirteenDramaLists;
     private static List<ArrayList<Drama>> twelveDramaLists;
     private static List<ArrayList<Drama>> beforeDramaLists;
-    private SharePreferenceIO shIO;
+    private static List<ArrayList<Drama>> recommendDramaLists;
+	private List<Integer> mRecommendList;
     
     private final int FLAG_HOT = 0;
     private final int FLAG_NEW = 1;
     private final int FLAG_2013 = 2;
     private final int FLAG_2012 = 3;
     private final int FLAG_BEFORE = 4;
+    private final int FLAG_RECOMMEND = 5;
     
     private int functionFlag;
     
@@ -98,13 +99,18 @@ public class TvChannelViewPagerActivity extends Activity {
         catch (JSONException je){}
         //Crittercism.init(getApplicationContext(), "51ccf765558d6a0c25000003", crittercismConfig);
 		
-		Bundle extras = getIntent().getExtras();
+		/*Bundle extras = getIntent().getExtras();
 		currIndex = extras.getInt("type_id", 0);
 		if(currIndex > listnumber)
 			currIndex = 0;
 		
-		functionFlag = extras.getInt("sort_id", 0);
+		functionFlag = extras.getInt("sort_id", 2);*/
+        currIndex = TvDramaApplication.shIO.getInt("type_id", 0);
+		if(currIndex > listnumber)
+			currIndex = 0;
 		
+		functionFlag = TvDramaApplication.shIO.getInt("sort_id", 2);
+				
         initViews();
 
         loadTask = new LoadDataTask();
@@ -125,14 +131,12 @@ public class TvChannelViewPagerActivity extends Activity {
                 DramaAPI dramaAPI = new DramaAPI(TvChannelViewPagerActivity.this);
                 ArrayList<Advertisement> advertisements = dramaAPI.getAdvertisementList(0);
                 if(advertisements != null && advertisements.size() > 0) {
-                	SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
-        	    	shIO.SharePreferenceI("advertisemsent_id", -1);
-        	    	shIO.SharePreferenceI("advertisemsent_url", advertisements.get(0).getUrl());
-        	    	shIO.SharePreferenceI("advertisemsent_title", advertisements.get(0).getTitle());
-        	    	shIO.SharePreferenceI("advertisemsent_description", advertisements.get(0).getDescription());
+                	TvDramaApplication.shIO.edit().putInt("advertisemsent_id", -1).commit();
+                	TvDramaApplication.shIO.edit().putString("advertisemsent_url", advertisements.get(0).getUrl()).commit();
+                	TvDramaApplication.shIO.edit().putString("advertisemsent_title", advertisements.get(0).getTitle()).commit();
+                	TvDramaApplication.shIO.edit().putString("advertisemsent_description", advertisements.get(0).getDescription()).commit();
                 } else {
-                	SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
-        	    	shIO.SharePreferenceI("advertisemsent_id", 0);
+                	TvDramaApplication.shIO.edit().putInt("advertisemsent_id", 0).commit();
                 }
             }
         };
@@ -144,6 +148,7 @@ public class TvChannelViewPagerActivity extends Activity {
 		tvSelect = (TextView)findViewById(R.id.tv_select);
 		//Drawable icon = getResources().getDrawable(R.drawable.check);
 		
+		ActionItem commentItem = new ActionItem(FLAG_RECOMMEND, "⊕影片推薦");
     	ActionItem firstItem = new ActionItem(FLAG_HOT, "依播放次數");
         ActionItem secondItem = new ActionItem(FLAG_NEW, "依上架時間");
         ActionItem thisweekItem = new ActionItem(FLAG_2013, "2013年");
@@ -153,6 +158,7 @@ public class TvChannelViewPagerActivity extends Activity {
         quickAction = new QuickAction(this, QuickAction.VERTICAL);
 
         // add action items into QuickAction
+        quickAction.addActionItem(commentItem);
         quickAction.addActionItem(firstItem);
         quickAction.addActionItem(secondItem);
         quickAction.addActionItem(thisweekItem);
@@ -190,9 +196,6 @@ public class TvChannelViewPagerActivity extends Activity {
         topbar_text = (TextView)findViewById(R.id.topbar_text);
         topbar_text.setText(getResources().getString(R.string.app_name));
         
-		shIO = new SharePreferenceIO(this);
-        shIO.SharePreferenceO("tvchannel_flag", 1);
-    	
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		cursorWidth = dm.widthPixels / listnumber - cursorOffset * 2;
@@ -229,7 +232,7 @@ public class TvChannelViewPagerActivity extends Activity {
     	buttonJapan.setOnClickListener(new itemOnClickListener(2));
     	buttonChina.setOnClickListener(new itemOnClickListener(3));
         
-    	viewpageradapter = new DramaViewPagerAdapter(this, dramaLists);
+    	viewpageradapter = new DramaViewPagerAdapter(this, dramaLists, mRecommendList);
         viewpager.setAdapter(viewpageradapter);
 		viewpager.setCurrentItem(currIndex);
 		viewpager.getAdapter().notifyDataSetChanged();
@@ -238,12 +241,26 @@ public class TvChannelViewPagerActivity extends Activity {
 
     @SuppressWarnings("unchecked")
 	private void fetchData() {
+        /*
+         * get recommend id list
+         */
+    	String idLst = TvDramaApplication.shIO.getString("recommend_ids", "");
+        mRecommendList = new ArrayList<Integer>();
+        if(idLst != null && !idLst.equalsIgnoreCase("")) {
+	        String[] recommendIds = idLst.split(",");
+	        if(recommendIds.length > 0) {
+		        for(int i=0; i<recommendIds.length; i++)
+		        	mRecommendList.add(Integer.parseInt(recommendIds[i]));
+	        }
+        }
+    	
     	//SQLiteTvDrama sqliteTvDrama = new SQLiteTvDrama(this);
     	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
     	SQLiteDatabase db = instance.getReadableDatabase();
         db.beginTransaction();
         
     	dramaLists = new ArrayList<ArrayList<Drama>>();
+    	recommendDramaLists = new ArrayList<ArrayList<Drama>>();
     	hotDramaLists = new ArrayList<ArrayList<Drama>>();
         newDramaLists = new ArrayList<ArrayList<Drama>>();
         thirteenDramaLists = new ArrayList<ArrayList<Drama>>();
@@ -256,6 +273,7 @@ public class TvChannelViewPagerActivity extends Activity {
     	dramaList = instance.getDramaList(db, 1);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	
+    	recommendDramaLists.add(instance.getDramaList(db, idLst, 1));
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
     	newSort(newDramaList);
@@ -266,6 +284,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(3);
     	dramaList = instance.getDramaList(db, 3);
+    	recommendDramaLists.add(instance.getDramaList(db, idLst, 3));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -277,6 +296,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(4);
     	dramaList = instance.getDramaList(db, 4);
+    	recommendDramaLists.add(instance.getDramaList(db, idLst, 4));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -288,6 +308,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(2);
     	dramaList = instance.getDramaList(db, 2);
+    	recommendDramaLists.add(instance.getDramaList(db, idLst, 2));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -299,7 +320,6 @@ public class TvChannelViewPagerActivity extends Activity {
 
         setSortList();
         
-        //sqliteTvDrama.closeDB();
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
@@ -307,15 +327,17 @@ public class TvChannelViewPagerActivity extends Activity {
         
         
         //Promote Test
-        SharePreferenceIO shIO = new SharePreferenceIO(TvChannelViewPagerActivity.this);
-        int id = shIO.SharePreferenceO("advertisemsent_id", 0);
+        int id = TvDramaApplication.shIO.getInt("advertisemsent_id", 0);
         if(id == -1) {
 	    	Drama drama = new Drama();
 	    	drama.setId(-1);
-	    	drama.setPosterUrl(shIO.SharePreferenceO("advertisemsent_url", ""));
-	    	drama.setChineseName(shIO.SharePreferenceO("advertisemsent_title", ""));
-	    	drama.setIntroduction(shIO.SharePreferenceO("advertisemsent_description", ""));
+	    	drama.setPosterUrl(TvDramaApplication.shIO.getString("advertisemsent_url", ""));
+	    	drama.setChineseName(TvDramaApplication.shIO.getString("advertisemsent_title", ""));
+	    	drama.setIntroduction(TvDramaApplication.shIO.getString("advertisemsent_description", ""));
 	    	
+
+	    	for(int i=0; i<recommendDramaLists.size(); i++)
+	    		recommendDramaLists.get(i).add(3, drama);
 	    	for(int i=0; i<hotDramaLists.size(); i++)
 	    		hotDramaLists.get(i).add(3, drama);
 	    	for(int i=0; i<newDramaLists.size(); i++)
@@ -331,6 +353,9 @@ public class TvChannelViewPagerActivity extends Activity {
     
     private void setSortList() {
     	switch(functionFlag) {
+	        case FLAG_RECOMMEND:
+	        	dramaLists = recommendDramaLists;
+	        	break;
 	        case FLAG_HOT:
 	        	dramaLists = hotDramaLists;
 	        	break;
@@ -354,6 +379,10 @@ public class TvChannelViewPagerActivity extends Activity {
     
     private void setActionText(int flag) {
     	switch(flag) {
+	    	case FLAG_RECOMMEND:
+	        	tvSelect.setText("⊕影片推薦");
+	        	functionFlag = FLAG_RECOMMEND;
+	        	break;
 	        case FLAG_HOT:
 	        	tvSelect.setText("依播放次數");
 	        	functionFlag = FLAG_HOT;
@@ -375,6 +404,7 @@ public class TvChannelViewPagerActivity extends Activity {
 	        	functionFlag = FLAG_BEFORE;
 	        	break;
     	}
+        TvDramaApplication.shIO.edit().putInt("sort_id", functionFlag).commit();
     }
 	
     private void hotSort(ArrayList<Drama> dramaList) {
@@ -491,6 +521,7 @@ public class TvChannelViewPagerActivity extends Activity {
 	
 		public void onPageSelected(int index) {
 			setCursor(index);
+	        TvDramaApplication.shIO.edit().putInt("type_id", index).commit();
 		}
 		
 		public void onPageScrolled(int position, float arg1, int arg2) {

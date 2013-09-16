@@ -64,7 +64,7 @@ public class MyTicketAdapter extends BaseAdapter {
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.EXACTLY)
 		.bitmapConfig(Config.RGB_565)
-		.cacheOnDisc()
+		.cacheOnDisc(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}

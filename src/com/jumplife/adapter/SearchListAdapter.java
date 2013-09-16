@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 public class SearchListAdapter extends BaseAdapter implements Filterable{
 	
-    private Context mContext;
     private ArrayList<String> arr_sort;
     private LayoutInflater myInflater;
     private class ItemView {
@@ -24,7 +23,6 @@ public class SearchListAdapter extends BaseAdapter implements Filterable{
     
 	public SearchListAdapter(Context mContext, ArrayList<String> arr_sort){
 		this.arr_sort = arr_sort;
-		this.mContext = mContext;
 		myInflater = LayoutInflater.from(mContext);
 	}
 

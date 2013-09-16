@@ -10,7 +10,6 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.tvdrama.api.DramaAPI;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -52,7 +51,6 @@ public class MainTabActivities extends TabActivity {
 	private TabHost tabHost;
 	private TabHost.TabSpec spec;  // Resusable TabSpec for each tab
 	private TextView topbar_text;
-	private SharePreferenceIO sharepre;	
 	private LinearLayout topbarLayout;
 	private int openCount;
 	private int version;
@@ -100,10 +98,9 @@ public class MainTabActivities extends TabActivity {
         
         tabHost.setCurrentTab(0);
         
-        topbarLayout.setVisibility(View.GONE);		
-		sharepre = new SharePreferenceIO(MainTabActivities.this);
-        openCount = sharepre.SharePreferenceO("opencount", 0);
-        version = sharepre.SharePreferenceO("version", 0);
+        topbarLayout.setVisibility(View.GONE);	
+        openCount = TvDramaApplication.shIO.getInt("opencount", 0);
+        version = TvDramaApplication.shIO.getInt("version", 0);
         
         options = new DisplayImageOptions.Builder()
 		.showStubImage(R.drawable.stub)
@@ -127,7 +124,7 @@ public class MainTabActivities extends TabActivity {
         	openCount = 0;
         }
         openCount += 1;
-    	sharepre.SharePreferenceI("opencount", openCount);
+        TvDramaApplication.shIO.edit().putInt("opencount", openCount).commit();
     	long endTime = System.currentTimeMillis();
     	Log.e(TAG, "sample method took %%%%%%%%%%%%%%%%%%%%%%%%%%%%"+(endTime-startTime)+"ms");
     	
@@ -255,10 +252,10 @@ public class MainTabActivities extends TabActivity {
 		// Create an Intent to launch an Activity for the tab (to be reused)
 		// Initialize a TabSpec for each tab and add it to the TabHost
         //Intent intentTvChannel = new Intent().setClass(this, TvChannelWaterFallActivity.class);
-		Bundle extras = getIntent().getExtras();
+		//Bundle extras = getIntent().getExtras();
         Intent intentTvChannel = new Intent().setClass(this, TvChannelViewPagerActivity.class);
-        intentTvChannel.putExtra("type_id", extras.getInt("type_id", 0));
-        intentTvChannel.putExtra("sort_id", extras.getInt("sort_id", 0));
+        /*intentTvChannel.putExtra("type_id", extras.getInt("type_id", 0));
+        intentTvChannel.putExtra("sort_id", extras.getInt("sort_id", 0));*/
         spec = tabHost.newTabSpec("tab1")
         				.setIndicator(ActivitysTab)
         				.setContent(intentTvChannel);
@@ -375,7 +372,7 @@ public class MainTabActivities extends TabActivity {
 	            dialogPromotion.setOnKeyListener(new OnKeyListener(){
 	                public boolean onKey(DialogInterface dialog, int keyCode,
 	                        KeyEvent event) {
-	                	sharepre.SharePreferenceI("version", Integer.valueOf(promotion[4]));
+	                	TvDramaApplication.shIO.edit().putInt("version", Integer.valueOf(promotion[4])).commit();
 	                    if(KeyEvent.KEYCODE_BACK==keyCode)
 	                    	if(dialogPromotion != null && dialogPromotion.isShowing())
 	                    		dialogPromotion.cancel();
@@ -387,7 +384,7 @@ public class MainTabActivities extends TabActivity {
 	                new OnClickListener(){
 	                    public void onClick(View v) {
 	                        //取得文字方塊中的關鍵字字串
-	                    	sharepre.SharePreferenceI("version", Integer.valueOf(promotion[4]));
+	                    	TvDramaApplication.shIO.edit().putInt("version", Integer.valueOf(promotion[4])).commit();
 	                    	if(dialogPromotion != null && dialogPromotion.isShowing())
 	                    		dialogPromotion.cancel();
 	                    	

@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
 
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
+import com.jumplife.tvdrama.TvDramaApplication;
 import com.jumplife.tvdrama.entity.AppProject;
 import com.jumplife.tvdrama.entity.Drama;
 
@@ -62,19 +62,16 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
     }
 
     public void createDataBase() {
-
-    	SharePreferenceIO shareIO = new SharePreferenceIO(mContext);
-        if (shareIO != null) {
-        	int checkVersion = DATABASE_VERSION;
-        	if(shareIO.SharePreferenceO("checkversion", 0) < checkVersion) {
-		        File dbf = new File(DB_PATH_DATA + DB_NAME);
-				if(dbf.exists()){
-				    dbf.delete();
-				    shareIO.SharePreferenceI("checkversion", checkVersion);
-					Log.d(null, "delete dbf");
-				}
-        	}
-        }
+    	
+    	int checkVersion = DATABASE_VERSION;
+    	if(TvDramaApplication.shIO.getInt("checkversion", 0) < checkVersion) {
+	        File dbf = new File(DB_PATH_DATA + DB_NAME);
+			if(dbf.exists()){
+			    dbf.delete();
+			    TvDramaApplication.shIO.edit().putInt("checkversion", checkVersion).commit();
+				Log.d(null, "delete dbf");
+			}
+    	}
 		
     	boolean dbExist = checkDataBase();
         if(dbExist){
@@ -347,17 +344,11 @@ public class SQLiteTvDramaHelper extends SQLiteOpenHelper {
         return drama_lst;
     }
     
-    public ArrayList<Drama> getDramaList(ArrayList<Integer> dramaIds) throws SQLException {
-    	final SQLiteDatabase db = getReadableDatabase();
-        String idLst = "";
-        for (int i = 0; i < dramaIds.size(); i++)
-            idLst = dramaIds.get(i) + "," + idLst;
-        idLst = idLst.substring(0, idLst.length() - 1);
-
-        ArrayList<Drama> drama_lst = new ArrayList<Drama>();
+    public ArrayList<Drama> getDramaList(SQLiteDatabase db, String idLst, int filter) throws SQLException {
+    	ArrayList<Drama> drama_lst = new ArrayList<Drama>();
         try {
 	        Cursor cursor = null;
-	        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + idLst + ") AND is_show = 't';", null);
+	        cursor = db.rawQuery("SELECT id, name, poster_url, views FROM " + DramaTable + " WHERE id in (" + idLst + ") AND area_id = " + filter + ";", null);
 	        if (cursor != null) {
 	        	while(cursor.moveToNext()) {
 		            Drama drama = new Drama();

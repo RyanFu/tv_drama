@@ -17,6 +17,8 @@
 package com.jumplife.customplayer;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -72,8 +74,8 @@ import com.jumplife.tvdrama.R;
  *   with the boolean set to false
  * </ul>
  */
-public class VideoControllerView extends FrameLayout {
-    private static final String TAG = "VideoControllerView";
+public class VitamioControllerView extends FrameLayout {
+    private static final String TAG = "VitamioControllerView";
     
     private VideoView  			mPlayer;
     //private MediaPlayerControl  mPlayer;
@@ -89,7 +91,7 @@ public class VideoControllerView extends FrameLayout {
     private static final int    SHOW_PROGRESS = 2;
     private boolean             mUseFastForward;
     private boolean             mFromXml;
-    private boolean             mListenersSet;
+    //private boolean             mListenersSet;
     private View.OnClickListener mNextListener, mPrevListener;
     StringBuilder               mFormatBuilder;
     Formatter                   mFormatter;
@@ -104,8 +106,13 @@ public class VideoControllerView extends FrameLayout {
     public ImageButton			mYoutubeQualitySwitch;
     public ImageView 			ivNextPart;
     public ImageView 			ivPrePart;
+    
+    private RewTask				rewTask;
+	private FwdTask				fwdTask;
+	
+	private boolean mInstantSeeking = true;
 
-    public VideoControllerView(Context context, AttributeSet attrs) {
+    public VitamioControllerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mRoot = null;
         mContext = context;
@@ -115,7 +122,7 @@ public class VideoControllerView extends FrameLayout {
         Log.i(TAG, TAG);
     }
 
-    public VideoControllerView(Context context, boolean useFastForward) {
+    public VitamioControllerView(Context context, boolean useFastForward) {
         super(context);
         mContext = context;
         mUseFastForward = useFastForward;
@@ -123,7 +130,7 @@ public class VideoControllerView extends FrameLayout {
         Log.i(TAG, TAG);
     }
 
-    public VideoControllerView(Context context) {
+    public VitamioControllerView(Context context) {
         this(context, true);
 
         Log.i(TAG, TAG);
@@ -245,6 +252,16 @@ public class VideoControllerView extends FrameLayout {
 
         installPrevNextListeners();
     }
+
+	/**
+	 * Control the action when the seekbar dragged by user
+	 * 
+	 * @param seekWhenDragging
+	 *            True the media will seek periodically
+	 */
+	public void setInstantSeeking(boolean seekWhenDragging) {
+		mInstantSeeking = seekWhenDragging;
+	}
 
     /**
      * Show the controller on screen. It will go away
@@ -515,9 +532,12 @@ public class VideoControllerView extends FrameLayout {
     // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
     // we will simply apply the updated position without suspending regular updates.
     private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
-        public void onStartTrackingTouch(SeekBar bar) {
+    	
+    	public void onStartTrackingTouch(SeekBar bar) {
             show(3600000);
 
+            mPlayer.pause();
+            updatePausePlay();
             mDragging = true;
 
             // By removing these pending progress messages we make sure
@@ -529,7 +549,7 @@ public class VideoControllerView extends FrameLayout {
         }
 
         public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
-            if (mPlayer == null) {
+        	if (mPlayer == null) {
                 return;
             }
             
@@ -540,22 +560,28 @@ public class VideoControllerView extends FrameLayout {
             }
 
             long duration = mPlayer.getDuration();
-            long newposition = (duration * progress) / 1000L;
-            mPlayer.seekTo( (int) newposition);
+            long newposition = duration * progress / 1000L;
+            if (mInstantSeeking)
+				mPlayer.seekTo(newposition);
             if (mCurrentTime != null)
                 mCurrentTime.setText(stringForTime( (int) newposition));
         }
 
         public void onStopTrackingTouch(SeekBar bar) {
-            mDragging = false;
+        	if (!mInstantSeeking)
+				mPlayer.seekTo((mPlayer.getDuration() * bar.getProgress()) / 1000);
+        	
+        	mDragging = false;
             setProgress();
-            updatePausePlay();
             show(sDefaultTimeout);
 
             // Ensure that progress is properly updated in the future,
             // the call to show() does not guarantee this because it is a
             // no-op if we are already showing.
             mHandler.sendEmptyMessage(SHOW_PROGRESS);
+            
+            mPlayer.start();
+            updatePausePlay();
         }
     };
 
@@ -585,31 +611,34 @@ public class VideoControllerView extends FrameLayout {
     
     private View.OnClickListener mRewListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlayer == null) {
+        	if (mPlayer == null) {
                 return;
             }
-            
-            int pos = (int) mPlayer.getCurrentPosition();
-            pos -= 15000; // milliseconds
-            mPlayer.seekTo(pos);
-            setProgress();
 
-            show(sDefaultTimeout);
+        	if(rewTask != null && !rewTask.isCancelled())
+        		rewTask.cancel(true);
+        	rewTask = new RewTask();
+	        if(Build.VERSION.SDK_INT < 11)
+	        	rewTask.execute();
+	        else
+	        	rewTask.executeOnExecutor(RewTask.THREAD_POOL_EXECUTOR);
         }
     };
 
     private View.OnClickListener mFfwdListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlayer == null) {
+        	if (mPlayer == null) {
                 return;
             }
             
-            int pos = (int) mPlayer.getCurrentPosition();
-            pos += 15000; // milliseconds
-            mPlayer.seekTo(pos);
-            setProgress();
 
-            show(sDefaultTimeout);
+        	if(fwdTask != null && !fwdTask.isCancelled())
+        		fwdTask.cancel(true);
+        	fwdTask = new FwdTask();
+	        if(Build.VERSION.SDK_INT < 11)
+	        	fwdTask.execute();
+	        else
+	        	fwdTask.executeOnExecutor(FwdTask.THREAD_POOL_EXECUTOR);
         }
     };
 
@@ -628,7 +657,7 @@ public class VideoControllerView extends FrameLayout {
     public void setPrevNextListeners(View.OnClickListener next, View.OnClickListener prev) {
         mNextListener = next;
         mPrevListener = prev;
-        mListenersSet = true;
+        //mListenersSet = true;
 
         if (mRoot != null) {
             installPrevNextListeners();
@@ -658,14 +687,14 @@ public class VideoControllerView extends FrameLayout {
     }
     
     private static class MessageHandler extends Handler {
-        private final WeakReference<VideoControllerView> mView; 
+        private final WeakReference<VitamioControllerView> mView; 
 
-        MessageHandler(VideoControllerView view) {
-            mView = new WeakReference<VideoControllerView>(view);
+        MessageHandler(VitamioControllerView view) {
+            mView = new WeakReference<VitamioControllerView>(view);
         }
         @Override
         public void handleMessage(Message msg) {
-            VideoControllerView view = mView.get();
+            VitamioControllerView view = mView.get();
             if (view == null || view.mPlayer == null) {
                 return;
             }
@@ -684,5 +713,93 @@ public class VideoControllerView extends FrameLayout {
                     break;
             }
         }
+    }
+    
+    class RewTask extends AsyncTask<Void, Void, Void> {
+
+    	int position;
+    	int duration;
+    	
+		@Override
+		protected Void doInBackground(Void... params) {
+            
+			int pos = (int) mPlayer.getCurrentPosition();
+            pos -= 15000; // milliseconds
+            mPlayer.seekTo(pos);
+
+            if (mPlayer == null || mDragging) {
+                return null;
+            }
+            
+            position = (int) mPlayer.getCurrentPosition();
+            duration = (int) mPlayer.getDuration();
+            if (mProgress != null) {
+                if (duration > 0) {
+                    // use long to avoid overflow
+                    long pos_tmp = 1000L * position / duration;
+                    mProgress.setProgress( (int) pos_tmp);
+                }
+                int percent = mPlayer.getBufferPercentage();
+                mProgress.setSecondaryProgress(percent * 10);
+            }
+            
+            return null;
+		}
+        
+        protected void onPostExecute() {
+
+            if (mEndTime != null)
+                mEndTime.setText(stringForTime(duration));
+            if (mCurrentTime != null)
+                mCurrentTime.setText(stringForTime(position));
+            
+            show(sDefaultTimeout);
+        	super.onPostExecute(null);
+        }
+
+    }
+    
+    class FwdTask extends AsyncTask<Void, Void, Void> {
+
+    	int position;
+    	int duration;
+    	
+		@Override
+		protected Void doInBackground(Void... params) {
+            
+			int pos = (int) mPlayer.getCurrentPosition();
+            pos += 15000; // milliseconds
+            mPlayer.seekTo(pos);
+
+            if (mPlayer == null || mDragging) {
+                return null;
+            }
+            
+            position = (int) mPlayer.getCurrentPosition();
+            duration = (int) mPlayer.getDuration();
+            if (mProgress != null) {
+                if (duration > 0) {
+                    // use long to avoid overflow
+                    long pos_tmp = 1000L * position / duration;
+                    mProgress.setProgress( (int) pos_tmp);
+                }
+                int percent = mPlayer.getBufferPercentage();
+                mProgress.setSecondaryProgress(percent * 10);
+            }
+            
+            return null;
+		}
+        
+        protected void onPostExecute() {
+
+            if (mEndTime != null)
+                mEndTime.setText(stringForTime(duration));
+            if (mCurrentTime != null)
+                mCurrentTime.setText(stringForTime(position));
+            
+            show(sDefaultTimeout);
+        	super.onPostExecute(null);
+        }
+
     }
 }

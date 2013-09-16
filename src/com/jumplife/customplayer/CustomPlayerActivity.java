@@ -15,9 +15,7 @@ import com.jumplife.videoloader.DailymotionLoader;
 import com.jumplife.videoloader.YoutubeLoader;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,7 +35,6 @@ import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -54,7 +51,7 @@ import android.widget.Toast;
 
 public class CustomPlayerActivity extends Activity 
 		implements 	SurfaceHolder.Callback,
-					VideoControllerView.MediaPlayerControl,
+					VitamioControllerView.MediaPlayerControl,
 					MediaPlayer.OnPreparedListener,
 					MediaPlayer.OnCompletionListener,
 					MediaPlayer.OnErrorListener { //AdWhirlInterface
@@ -75,7 +72,6 @@ public class CustomPlayerActivity extends Activity
     protected ImageView mProgressImage;
     protected TextView mProgressMessage;
 	private AnimationDrawable animationDrawable;
-    private RelativeLayout rlAd;
 	//private AdWhirlLayout adWhirlLayout;
     
     private boolean youtubeHightQuality = false;
@@ -87,7 +83,7 @@ public class CustomPlayerActivity extends Activity
     
     SurfaceView videoSurface;
     MediaPlayer player;
-    VideoControllerView controller;
+    VitamioControllerView controller;
 
 
     @Override
@@ -168,7 +164,7 @@ public class CustomPlayerActivity extends Activity
 	private void initView() {
         
         videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
-        controller = new VideoControllerView(this);
+        controller = new VitamioControllerView(this);
         player = new MediaPlayer();
         
         SurfaceHolder videoHolder = videoSurface.getHolder();
@@ -205,7 +201,6 @@ public class CustomPlayerActivity extends Activity
         
         mProgressImage = (ImageView)mDialogLoader.findViewById(R.id.imageview_progressbar);
         mProgressMessage = (TextView)mDialogLoader.findViewById(R.id.textview_load);
-        rlAd = (RelativeLayout)mDialogLoader.findViewById(R.id.ad_layout);
 
         animationDrawable = (AnimationDrawable) mProgressImage.getBackground();        
         

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.analytics.tracking.android.AnalyticsReceiver;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -83,13 +82,12 @@ public final class GPCampaignRecevier extends BroadcastReceiver {
         	return; 
         }        
        
-    	SharePreferenceIO sharePreferenceIO = new SharePreferenceIO(ctx);
-    	sharePreferenceIO.SharePreferenceI("referrerString", referrerString);
+        TvDramaApplication.shIO.edit().putString("referrerString", referrerString).commit();
     	
         Map<String, String> getParams = getQueryMap(referrerString);
         String source = getParams.get("utm_source");
         if (source != null) {
-            sharePreferenceIO.SharePreferenceI("utm_source", source);
+        	TvDramaApplication.shIO.edit().putString("utm_source", source).commit();
         }
          
         //--------Method 0----------

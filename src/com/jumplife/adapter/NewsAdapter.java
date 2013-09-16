@@ -34,7 +34,7 @@ public class NewsAdapter extends BaseAdapter{
 		.showImageForEmptyUri(R.drawable.stub)
 		.showImageOnFail(R.drawable.stub)
 		.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-		.cacheOnDisc()
+		.cacheOnDisc(true)
 		.displayer(new SimpleBitmapDisplayer())
 		.build();
 	}

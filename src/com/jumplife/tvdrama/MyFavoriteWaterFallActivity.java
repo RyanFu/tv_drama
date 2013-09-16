@@ -1,13 +1,13 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.jumplife.adapter.DramaGridAdapter;
-import com.jumplife.sharedpreferenceio.SharePreferenceIO;
 import com.jumplife.sqlite.SQLiteTvDramaHelper;
 import com.jumplife.tvdrama.entity.Drama;
 import com.jumplife.tvdrama.promote.PromoteAPP;
@@ -51,7 +51,6 @@ public class MyFavoriteWaterFallActivity extends Activity {
     private ImageView	     imageviewHistory;
     private LoadDataTask     loadTask;
     private DramaGridAdapter adapter;
-    private SharePreferenceIO shIO;
     private ArrayList<Drama> dramaList;
 	private Animation animation;
 
@@ -171,7 +170,8 @@ public class MyFavoriteWaterFallActivity extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels;
         
-        adapter = new DramaGridAdapter(MyFavoriteWaterFallActivity.this, dramaList,
+        List<Integer> hotList = new ArrayList<Integer>(); 
+        adapter = new DramaGridAdapter(MyFavoriteWaterFallActivity.this, dramaList, hotList,
         		((screenWidth / 2)), (int) (((screenWidth / 2)) * 0.6));
         
         dramaGridView.setAdapter(adapter);
@@ -193,7 +193,6 @@ public class MyFavoriteWaterFallActivity extends Activity {
 	}
     
     private void fetchData() {
-    	shIO = new SharePreferenceIO(MyFavoriteWaterFallActivity.this);
     	dramaList = new ArrayList<Drama>(30); 	
     	
 
@@ -202,7 +201,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
     	sqlTvDrama.closeDB();*/
     	SQLiteTvDramaHelper instance = SQLiteTvDramaHelper.getInstance(this);
         SQLiteDatabase db = instance.getWritableDatabase();
-        dramaList = instance.getDramaList(db, shIO.SharePreferenceO("like_drama", ""));
+        dramaList = instance.getDramaList(db, TvDramaApplication.shIO.getString("like_drama", ""));
         db.close();
         instance.closeHelper();
     }
