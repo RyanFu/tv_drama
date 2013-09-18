@@ -28,6 +28,7 @@ public class DramaGridAdapter extends BaseAdapter{
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 	private LayoutInflater myInflater;
+	private int functionFlag;
 	
 	private int width;
 	private int height;
@@ -39,12 +40,14 @@ public class DramaGridAdapter extends BaseAdapter{
 		TextView view;
 	}
 	
-	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, List<Integer> mRecommendList, int width, int height){
+	public DramaGridAdapter(Context mContext, ArrayList<Drama> dramas, List<Integer> mRecommendList, 
+			int functionFlag, int width, int height){
 		this.dramas = dramas;
 		this.mRecommendList = mRecommendList;
 		this.mContext = mContext;
 		this.width = width;
 		this.height = height;
+		this.functionFlag = functionFlag;
 		//imageLoader=new ImageLoader(mContext, width);
 		myInflater = LayoutInflater.from(mContext);
 		
@@ -115,7 +118,7 @@ public class DramaGridAdapter extends BaseAdapter{
 			itemView.view.setText(mContext.getResources().getString(R.string.play_time) + dramas.get(position).getViews());	
 			itemView.name.setVisibility(View.VISIBLE);
 			itemView.view.setVisibility(View.VISIBLE);
-			if(mRecommendList != null && mRecommendList.contains(dramas.get(position).getId()))
+			if(mRecommendList != null && mRecommendList.contains(dramas.get(position).getId()) && functionFlag < 5)
 				itemView.recommend.setVisibility(View.VISIBLE);
 			else
 				itemView.recommend.setVisibility(View.INVISIBLE);

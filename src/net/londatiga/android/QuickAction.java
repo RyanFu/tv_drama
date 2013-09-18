@@ -203,7 +203,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 		if (mOrientation == HORIZONTAL && mChildPos != 0) {
             View separator = mInflater.inflate(R.layout.horiz_separator, null);
             
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
             
             separator.setLayoutParams(params);
             separator.setPadding(5, 0, 5, 0);
@@ -223,10 +223,11 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 	 * Show quickaction popup. Popup is automatically positioned, on top or bottom of anchor view.
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public void show (View anchor) {
 		preShow();
 		
-		int xPos, yPos = 0, arrowPos;
+		int xPos, yPos = 0;
 		
 		mDidAction 			= false;
 		
@@ -255,16 +256,12 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 			xPos 		= anchorRect.left - (rootWidth-anchor.getWidth());			
 			xPos 		= (xPos < 0) ? 0 : xPos;
 			
-			arrowPos 	= anchorRect.centerX()-xPos;
-			
 		} else {
 			if (anchor.getWidth() > rootWidth) {
 				xPos = anchorRect.centerX() - (rootWidth/2);
 			} else {
 				xPos = anchorRect.left;
 			}
-			
-			arrowPos = anchorRect.centerX()-xPos;
 		}
 		
 		int dyTop			= anchorRect.top;
@@ -342,7 +339,6 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 	 * 
 	 * @param whichArrow arrow type resource id
 	 * @param requestedX distance from left screen
-	 */
 	private void showArrow(int whichArrow, int requestedX) {
         final View showArrow = (whichArrow == R.id.arrow_up) ? mArrowUp : mArrowDown;
         final View hideArrow = (whichArrow == R.id.arrow_up) ? mArrowDown : mArrowUp;
@@ -357,6 +353,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
         
         hideArrow.setVisibility(View.INVISIBLE);
     }
+	 */
 	
 	/**
 	 * Set listener for window dismissed. This listener will only be fired if the quicakction dialog is dismissed

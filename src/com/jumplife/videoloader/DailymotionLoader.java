@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +15,7 @@ import android.util.Log;
 
 public class DailymotionLoader {
 	
-	public static String Loader(String videoId) {
+	public static ArrayList<String> Loader(String videoId) {
 		InputStream localInputStream = null;
 		Log.d("DailyMotiondownloader", "parselinkUrl link is: " + videoId);
 		try {
@@ -43,7 +45,13 @@ public class DailymotionLoader {
 	        
 		    Matcher localMatcher1 = Pattern.compile("var info = \\{(.+)\\}\\}").matcher(str1);
 		    String[] arrayOfString = null;
+		    HashMap<String, String> localHashMap1 = new HashMap<String, String>();
+		    
 		    if (localMatcher1.find())
+		    	arrayOfString = localMatcher1.group(1).split(",");
+		    
+		   
+		    /*if (localMatcher1.find())
 		    	arrayOfString = localMatcher1.group(1).split(",");
 		    if(arrayOfString != null) {
 			    for (int j = 0; ; j++) {
@@ -60,7 +68,52 @@ public class DailymotionLoader {
 			        	return localurlData;
 			        }
 			    }
+		    }*/
+		    
+		    if(arrayOfString != null) {
+			    for (int j=0; j<arrayOfString.length; j++) {
+			    	Matcher localMatcher2 = Pattern.compile("\"(.+)\":\"(.+)\"").matcher(arrayOfString[j]);
+
+			    	/*if ((localMatcher2.find()) && ((localMatcher2.group(1).equalsIgnoreCase("stream_h264_url")) || 
+			        		(localMatcher2.group(1).equalsIgnoreCase("stream_h264_hq_url")))) {
+			    		if(localHashMap1.containsKey(localMatcher2.group(1)))
+				    		  localHashMap1.remove(localMatcher2.group(1));
+			        	String str2 = localMatcher2.group(2).replace("\\/", "/");
+					    localHashMap1.put(localMatcher2.group(1), str2);
+			        }*/
+			    	while(localMatcher2.find()) {
+				        if(localMatcher2.group(1).equalsIgnoreCase("stream_h264_hd_url")) {
+				        	if(localHashMap1.containsKey(localMatcher2.group(1)))
+					    		  localHashMap1.remove(localMatcher2.group(1));
+				        	String str2 = localMatcher2.group(2).replace("\\/", "/");
+						    localHashMap1.put(localMatcher2.group(1), str2);
+				        }
+				        if(localMatcher2.group(1).equalsIgnoreCase("stream_h264_hq_url")) {
+				        	if(localHashMap1.containsKey(localMatcher2.group(1)))
+					    		  localHashMap1.remove(localMatcher2.group(1));
+				        	String str2 = localMatcher2.group(2).replace("\\/", "/");
+						    localHashMap1.put(localMatcher2.group(1), str2);
+				        }
+				        if(localMatcher2.group(1).equalsIgnoreCase("stream_h264_url")) {
+				        	if(localHashMap1.containsKey(localMatcher2.group(1)))
+					    		  localHashMap1.remove(localMatcher2.group(1));
+				        	String str2 = localMatcher2.group(2).replace("\\/", "/");
+						    localHashMap1.put(localMatcher2.group(1), str2);
+				        }
+			    	}
+			    }
 		    }
+		    
+		    ArrayList<String> qualityList = new ArrayList<String>();
+		    if(localHashMap1.containsKey("stream_h264_hd_url"))
+		    	qualityList.add(localHashMap1.get("stream_h264_hd_url"));
+		    if(localHashMap1.containsKey("stream_h264_hq_url"))
+		    	qualityList.add(localHashMap1.get("stream_h264_hq_url"));
+		    if(localHashMap1.containsKey("stream_h264_url"))
+		    	qualityList.add(localHashMap1.get("stream_h264_url"));
+		    	
+		    return qualityList;
+		    
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

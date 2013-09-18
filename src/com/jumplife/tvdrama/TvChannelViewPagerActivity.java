@@ -29,6 +29,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,6 +67,7 @@ public class TvChannelViewPagerActivity extends Activity {
     private LinearLayout     llSelect;
     private QuickAction      quickAction;
     private TextView 		 tvSelect;
+    //private ImageView 		 ivRecommend;
 	private TextView 		 topbar_text;
 	private DramaViewPagerAdapter viewpageradapter;
 	
@@ -76,7 +78,7 @@ public class TvChannelViewPagerActivity extends Activity {
     private static List<ArrayList<Drama>> twelveDramaLists;
     private static List<ArrayList<Drama>> beforeDramaLists;
     private static List<ArrayList<Drama>> recommendDramaLists;
-	private List<Integer> mRecommendList;
+	private List<Integer> mRecommendIdList;
     
     private final int FLAG_HOT = 0;
     private final int FLAG_NEW = 1;
@@ -146,9 +148,13 @@ public class TvChannelViewPagerActivity extends Activity {
 	
 	private void initViews(){
 		tvSelect = (TextView)findViewById(R.id.tv_select);
-		//Drawable icon = getResources().getDrawable(R.drawable.check);
+		//ivRecommend = (ImageView)findViewById(R.id.iv_recommend);
 		
-		ActionItem commentItem = new ActionItem(FLAG_RECOMMEND, "⊕影片推薦");
+		Drawable recommend = getResources().getDrawable(R.drawable.recommend);
+		/*Bitmap bitmap = ((BitmapDrawable)tmp).getBitmap();
+		Drawable recommend = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 35, 35, true));*/
+		
+		ActionItem commentItem = new ActionItem(FLAG_RECOMMEND, "熱門推薦", recommend);
     	ActionItem firstItem = new ActionItem(FLAG_HOT, "依播放次數");
         ActionItem secondItem = new ActionItem(FLAG_NEW, "依上架時間");
         ActionItem thisweekItem = new ActionItem(FLAG_2013, "2013年");
@@ -232,7 +238,7 @@ public class TvChannelViewPagerActivity extends Activity {
     	buttonJapan.setOnClickListener(new itemOnClickListener(2));
     	buttonChina.setOnClickListener(new itemOnClickListener(3));
         
-    	viewpageradapter = new DramaViewPagerAdapter(this, dramaLists, mRecommendList);
+    	viewpageradapter = new DramaViewPagerAdapter(this, dramaLists, mRecommendIdList, functionFlag);
         viewpager.setAdapter(viewpageradapter);
 		viewpager.setCurrentItem(currIndex);
 		viewpager.getAdapter().notifyDataSetChanged();
@@ -245,12 +251,12 @@ public class TvChannelViewPagerActivity extends Activity {
          * get recommend id list
          */
     	String idLst = TvDramaApplication.shIO.getString("recommend_ids", "");
-        mRecommendList = new ArrayList<Integer>();
+        mRecommendIdList = new ArrayList<Integer>();
         if(idLst != null && !idLst.equalsIgnoreCase("")) {
 	        String[] recommendIds = idLst.split(",");
 	        if(recommendIds.length > 0) {
 		        for(int i=0; i<recommendIds.length; i++)
-		        	mRecommendList.add(Integer.parseInt(recommendIds[i]));
+		        	mRecommendIdList.add(Integer.parseInt(recommendIds[i]));
 	        }
         }
     	
@@ -273,7 +279,7 @@ public class TvChannelViewPagerActivity extends Activity {
     	dramaList = instance.getDramaList(db, 1);
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	
-    	recommendDramaLists.add(instance.getDramaList(db, idLst, 1));
+    	recommendDramaLists.add(recommendSort(instance.getDramaList(db, idLst, 1)));
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
     	newSort(newDramaList);
@@ -284,7 +290,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(3);
     	dramaList = instance.getDramaList(db, 3);
-    	recommendDramaLists.add(instance.getDramaList(db, idLst, 3));
+    	recommendDramaLists.add(recommendSort(instance.getDramaList(db, idLst, 3)));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -296,7 +302,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(4);
     	dramaList = instance.getDramaList(db, 4);
-    	recommendDramaLists.add(instance.getDramaList(db, idLst, 4));
+    	recommendDramaLists.add(recommendSort(instance.getDramaList(db, idLst, 4)));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -308,7 +314,7 @@ public class TvChannelViewPagerActivity extends Activity {
         
     	//dramaList = sqliteTvDrama.getDramaList(2);
     	dramaList = instance.getDramaList(db, 2);
-    	recommendDramaLists.add(instance.getDramaList(db, idLst, 2));
+    	recommendDramaLists.add(recommendSort(instance.getDramaList(db, idLst, 2)));
     	newDramaList = (ArrayList<Drama>) dramaList.clone();
     	hotSort(dramaList);
     	hotDramaLists.add(dramaList);
@@ -380,33 +386,53 @@ public class TvChannelViewPagerActivity extends Activity {
     private void setActionText(int flag) {
     	switch(flag) {
 	    	case FLAG_RECOMMEND:
-	        	tvSelect.setText("⊕影片推薦");
+	        	tvSelect.setText("熱門推薦");
+	        	//ivRecommend.setVisibility(View.VISIBLE);
 	        	functionFlag = FLAG_RECOMMEND;
 	        	break;
 	        case FLAG_HOT:
 	        	tvSelect.setText("依播放次數");
+	        	//ivRecommend.setVisibility(View.INVISIBLE);
 	        	functionFlag = FLAG_HOT;
 	        	break;
 	        case FLAG_NEW:
 	        	tvSelect.setText("依上架時間");
+	        	//ivRecommend.setVisibility(View.INVISIBLE);
 	        	functionFlag = FLAG_NEW;
 	        	break;
 	        case FLAG_2013:
 	        	tvSelect.setText("2013年");
+	        	//ivRecommend.setVisibility(View.INVISIBLE);
 	        	functionFlag = FLAG_2013;
 	        	break;
 	        case FLAG_2012:
 	        	tvSelect.setText("2012年");
+	        	//ivRecommend.setVisibility(View.INVISIBLE);
 	        	functionFlag = FLAG_2012;
 	        	break;
 	        case FLAG_BEFORE:
 	        	tvSelect.setText("2011年以前");
+	        	//ivRecommend.setVisibility(View.INVISIBLE);
 	        	functionFlag = FLAG_BEFORE;
 	        	break;
     	}
         TvDramaApplication.shIO.edit().putInt("sort_id", functionFlag).commit();
     }
 	
+    private ArrayList<Drama> recommendSort(ArrayList<Drama> dramaList) {
+    	ArrayList<Drama> tmpList = new ArrayList<Drama>(dramaList.size());
+    	ArrayList<Integer> idTmpList = new ArrayList<Integer>(dramaList.size());
+    	for(int i=0; i<dramaList.size(); i++)
+    		idTmpList.add(dramaList.get(i).getId());
+    	
+    	for(int i=0; i<mRecommendIdList.size(); i++) {
+    		if(idTmpList.contains(mRecommendIdList.get(i)))
+    			tmpList.add(dramaList.get(idTmpList.indexOf(mRecommendIdList.get(i))));
+    	}
+    	
+    	return tmpList;
+    }
+    
     private void hotSort(ArrayList<Drama> dramaList) {
     	Collections.sort(dramaList, new Comparator<Drama>(){
     		public int compare(Drama obj1,Drama obj2){

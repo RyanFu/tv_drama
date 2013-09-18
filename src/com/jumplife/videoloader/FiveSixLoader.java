@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,9 +14,10 @@ import org.json.JSONObject;
 
 public class FiveSixLoader {
 	
-	public static String Loader(String videoId) {
+	public static ArrayList<String> Loader(String videoId) {
 		
-		String streamLink = null;
+		//String streamLink = null;
+		ArrayList<String> VideoQuiltyLink = new ArrayList<String>(2);
 		
 		String vId = parseVId(videoId);
 		String[] value = getSignValueTimeStamp(vId);
@@ -29,19 +31,20 @@ public class FiveSixLoader {
 			try {
 				JSONObject jsonObject = new JSONObject(message.toString());
 				JSONArray jsonArray = jsonObject.getJSONObject("info").getJSONArray("rfiles");
-				if(jsonArray.length() > 1 && 
-						(jsonArray.getJSONObject(1).getString("url").contains(".mp4") || 
-						jsonArray.getJSONObject(1).getString("url").contains(".flv")))
-					streamLink = jsonArray.getJSONObject(1).getString("url");
-				else
-					streamLink = jsonArray.getJSONObject(0).getString("url"); 
+				for(int i=0; i<jsonArray.length(); i++) {
+					String type = jsonArray.getJSONObject(i).getString("type");
+					String streamLink = jsonArray.getJSONObject(i).getString("url");
+					if(type.equals("vga") || type.equals("qvga") || type.equals("qqvga"))
+					//if((streamLink.contains(".mp4") || streamLink.contains(".flv")) && !streamLink.contains(".m3u8"))
+						VideoQuiltyLink.add(streamLink);
+				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 				return null;
 			}
 		}
 		
-		return streamLink;
+		return VideoQuiltyLink;
 	}
 	
 	private static String parseVId(String videoId) {

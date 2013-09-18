@@ -1,7 +1,6 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 import org.json.JSONException;
@@ -20,7 +19,6 @@ import com.jumplife.videoloader.YoutubeLoader;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
@@ -34,12 +32,10 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -80,8 +76,9 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
     private final static int filter = 30000;
     
     private ArrayList<String> videoIds = new ArrayList<String>();
-    private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
-    private boolean youtubeHightQuality = false;
+	ArrayList<String> VideoQuiltyLink = new ArrayList<String>(2);
+    //private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
+    private boolean hightQuality = false;
     
     private int dramaId = 0;
     private int currentPart = 1;
@@ -200,7 +197,7 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
         instance.closeHelper();
         Log.d(null, "stop position : " + stopPosition);
         
-		youtubeHightQuality = TvDramaApplication.shIO.getBoolean("youtube_quality", youtubeHightQuality);
+		hightQuality = TvDramaApplication.shIO.getBoolean("youtube_quality", hightQuality);
 
         controller = new VideoViewControllerView(this);
         mVideoView = (VideoView)findViewById(R.id.videoview);
@@ -243,8 +240,9 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
         mVideoView.setOnPreparedListener(new OnPreparedListener() {	
         	@Override
         	public void onPrepared(MediaPlayer pMp) {
-        		cancelProgressImage();
-                
+                mVideoView.start();
+                mVideoView.seekTo(stopPosition);
+        		cancelProgressImage();                
                 stopPositionHandler.post(stopPositionRunnable);
             }
         });
@@ -360,53 +358,30 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
      * Task to figure out details by calling out to YouTube GData API.  We only use public methods that
      * don't require authentication.
      */
-    private class QueryVideoTask extends AsyncTask<String, ProgressUpdateInfo, Uri> {
+    private class QueryVideoTask extends AsyncTask<String, ProgressUpdateInfo, String> {
 
         private String videoUrl = null;
         
         @Override
-        protected Uri doInBackground(String... pParams) {
+        protected String doInBackground(String... pParams) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-            
-            String lUriStr = null;
-            String lYouTubeFmtQuality = "17";            
+        	
             String videoId = null;
             
             videoUrl = pParams[0];
-            //videoUrl = "http://f8.r.56.com/f8.c93.56.com/flvdownload/13/8/sc_13723102017hd.flv?v=1&t=M5iOFNu628UQB4WCVqVwUQ&r=41564&e=1378870465&tt=2191&sz=83123116&vid=93274598";
-            //videoUrl = "http://m.tudou.com/wap/pvs?id=XNjA4NzgxMDg0&format=3gphd";
             
             if (isCancelled())
                 return null;
             publishProgress(new ProgressUpdateInfo(mMsgDetect));
             
-            WifiManager lWifiManager = (WifiManager) VideoViewPlayerActivity.this.getSystemService(Context.WIFI_SERVICE);
-            TelephonyManager lTelephonyManager = (TelephonyManager) VideoViewPlayerActivity.this.getSystemService(Context.TELEPHONY_SERVICE);
-            // if we have a fast connection (wifi or 3g), then we'll get a high quality YouTube video
-            if ((lWifiManager.isWifiEnabled() && lWifiManager.getConnectionInfo() != null && lWifiManager.getConnectionInfo().getIpAddress() != 0) ||
-                    ((lTelephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS ||
-			   /* icky... using literals to make backwards compatible with 1.5 and 1.6 */
-                            lTelephonyManager.getNetworkType() == 9 /*HSUPA*/ || 
-                            lTelephonyManager.getNetworkType() == 10 /*HSPA*/ ||
-                            lTelephonyManager.getNetworkType() == 8 /*HSDPA*/ ||
-                            lTelephonyManager.getNetworkType() == 5 /*EVDO_0*/ ||
-                            lTelephonyManager.getNetworkType() == 6 /*EVDO A*/) &&
-                            lTelephonyManager.getDataState() == TelephonyManager.DATA_CONNECTED)
-                    ) {
-                lYouTubeFmtQuality = "18";
-            }
-            
             if (isCancelled())
                 return null;
             publishProgress(new ProgressUpdateInfo("讀取中..."));
-
-            Log.d("player", "videoUrl : " + videoUrl);
+            
+            VideoQuiltyLink.clear();
             // calculate the actual URL of the video, encoded with proper YouTube token
             if (videoUrl.contains("dailymotion")) {
-            	controller.mYoutubeQualitySwitch.setVisibility(View.INVISIBLE);
-            	controller.mYoutubeQualitySwitch.setClickable(false);
-            	//lMediaController.imYoutubeQualitySwitch.setVisibility(View.GONE);
-    			if(videoUrl.contains("embed/video/")) {
+            	if(videoUrl.contains("embed/video/")) {
     				String url = videoUrl.substring(39);
         			String[] tmpUrls = url.split("\\?");	            			
         			if(tmpUrls.length > 0)
@@ -424,7 +399,7 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
     			}
     			if(videoId != null) {
     				videoUrl = "http://www.dailymotion.com/embed/video/" + videoId;
-    				lUriStr = DailymotionLoader.Loader(videoUrl);
+    				VideoQuiltyLink = DailymotionLoader.Loader(videoUrl);
     			}
     		} else if (videoUrl.contains("youtube")) {
     			if(videoUrl.contains("youtube-nocookie")) {
@@ -444,24 +419,15 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
 	    				videoId = tmpUrls[1];
     			}
     			if(videoId != null) {
-    				YoutubeQuiltyLink.clear();
-    				YoutubeQuiltyLink = YoutubeLoader.Loader(lYouTubeFmtQuality, true, videoId);
-    				if(YoutubeQuiltyLink != null && YoutubeQuiltyLink.size() > 0)
-    					lUriStr = YoutubeQuiltyLink.get("medium");
+    				VideoQuiltyLink = YoutubeLoader.Loader(true, videoId);
     			}
     		} else if (videoUrl.toLowerCase(Locale.getDefault()).contains(".mp4")) {
-    			lUriStr = videoUrl;
+    			VideoQuiltyLink.add(videoUrl);
     		} else if (videoUrl.toLowerCase(Locale.getDefault()).contains(".tudou") ||
     				videoUrl.toLowerCase(Locale.getDefault()).contains("youku")) {
-    			lUriStr = videoUrl;
+    			VideoQuiltyLink.add(videoUrl);
     		}
-            
-            if (lUriStr != null) {
-            	return Uri.parse(lUriStr);
-            } else {
-                return null;
-            }
-            
+			return null;
         }
 
         @Override
@@ -469,19 +435,21 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
             super.onProgressUpdate(pValues);
             VideoViewPlayerActivity.this.updateProgress(pValues[0].mMsg);
         }
-
+        
         @Override
-        protected void onPostExecute(Uri pResult) {
-            super.onPostExecute(pResult);
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
 
             try {
                 if (isCancelled())
                     return;
 
-                if (pResult == null) {
+                if (VideoQuiltyLink == null || VideoQuiltyLink.size() < 1) {
                     Uri uri = Uri.parse(videoUrl);
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
             		startActivity(it);
+            		
+            		cancelProgressImage();
             		
         			Bundle bundle = new Bundle();  
                     bundle.putInt("current_part", currentPart);  
@@ -492,7 +460,7 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
                     throw new RuntimeException("Invalid NULL Url.");
                 } else {
 
-                    if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1) {
+                    if(VideoQuiltyLink.size() > 1) {
                     	controller.mYoutubeQualitySwitch.setVisibility(View.VISIBLE);
                     	controller.mYoutubeQualitySwitch.setClickable(true);
                     	controller.mYoutubeQualitySwitch.setOnClickListener(new OnClickListener() {
@@ -503,23 +471,16 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
 								// show loading dialog
 								showProgressImage();
 				            	
-				            	// change quailty
-								if(!youtubeHightQuality) {
-									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_press);
+								// change quailty
+								if(!hightQuality) {
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
-									if(YoutubeQuiltyLink.containsKey("hd1080")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
-									} else if(YoutubeQuiltyLink.containsKey("hd720")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")));
-									} else if(YoutubeQuiltyLink.containsKey("large")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("large")));
-									}
+									playVideo(Uri.parse(VideoQuiltyLink.get(0)));
 								} else {
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
-									playVideo(Uri.parse(YoutubeQuiltyLink.get("medium")));
+									playVideo(Uri.parse(VideoQuiltyLink.get(VideoQuiltyLink.size()-1)));
 								}
-								youtubeHightQuality = !youtubeHightQuality;
-								TvDramaApplication.shIO.edit().putBoolean("youtube_quality", youtubeHightQuality).commit();
+								hightQuality = !hightQuality;
+								TvDramaApplication.shIO.edit().putBoolean("youtube_quality", hightQuality).commit();
 							}    						
     					});
     				} else {
@@ -592,18 +553,15 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
                 	if (isCancelled())
 	                    return;
                 	
-                	if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1 && youtubeHightQuality) {
-                		controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
-						if(YoutubeQuiltyLink.containsKey("hd1080")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
-						} else if(YoutubeQuiltyLink.containsKey("hd720")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")));
-						} else if(YoutubeQuiltyLink.containsKey("large")) {
-							playVideo(Uri.parse(YoutubeQuiltyLink.get("large")));
-						} else
-		                	playVideo(pResult);
-                	} else
-                    	playVideo(pResult);
+
+                	
+                	if(hightQuality) {
+						controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
+						playVideo(Uri.parse(VideoQuiltyLink.get(0)));
+					} else {
+						controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
+						playVideo(Uri.parse(VideoQuiltyLink.get(VideoQuiltyLink.size()-1)));
+					}
                 	
                 	timeToast();
                 }
@@ -622,8 +580,6 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
         mVideoView.setSaveEnabled(true);
     	mVideoView.setVideoURI(uri);    
         mVideoView.requestFocus();
-        mVideoView.start();
-        mVideoView.seekTo(stopPosition);
      }
     
     private void timeToast() {
@@ -656,8 +612,9 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
     protected void onResume() {
         showProgressImage();
     	if(mVideoView != null) {
-    	    mVideoView.seekTo(stopPosition);    
-    	    mVideoView.start();
+    	    /*mVideoView.seekTo(stopPosition);    
+    	    mVideoView.start();*/
+    		mVideoView.requestFocus();
     	}
     	super.onResume();
     }
@@ -704,8 +661,10 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
         // clear the flag that keeps the screen ON
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        this.mQueryVideoTask = null;
+        if(this.mVideoView != null && this.mVideoView.isFocused())
+        	this.mVideoView.clearFocus();
         this.mVideoView = null;
+        this.mQueryVideoTask = null;
         
         if (adView != null) {
             adView.destroy();
@@ -727,18 +686,22 @@ public class VideoViewPlayerActivity extends Activity implements VideoViewContro
     }
     
     private void showProgressImage() {
-    	mProgressImage.post(new Runnable() {
-		    @Override
-		    public void run() {
-		        animationDrawable.start();
-		    }
-		});
-    	VideoViewPlayerActivity.this.mDialogLoader.show();  
+    	if(VideoViewPlayerActivity.this.mDialogLoader != null && !VideoViewPlayerActivity.this.mDialogLoader.isShowing()) {
+    		mProgressImage.post(new Runnable() {
+			    @Override
+			    public void run() {
+			        animationDrawable.start();
+			    }
+			});
+	    	VideoViewPlayerActivity.this.mDialogLoader.show();
+    	}
     }
     
     private void cancelProgressImage() {
-    	VideoViewPlayerActivity.this.mDialogLoader.cancel();
-    	VideoViewPlayerActivity.this.animationDrawable.stop();
+    	if(VideoViewPlayerActivity.this.mDialogLoader != null && VideoViewPlayerActivity.this.mDialogLoader.isShowing()) {
+	    	VideoViewPlayerActivity.this.mDialogLoader.cancel();
+	    	VideoViewPlayerActivity.this.animationDrawable.stop();
+    	}
     }
 
 

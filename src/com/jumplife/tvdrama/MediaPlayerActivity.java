@@ -1,7 +1,6 @@
 package com.jumplife.tvdrama;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 import org.json.JSONException;
@@ -20,7 +19,6 @@ import com.jumplife.videoloader.YoutubeLoader;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
@@ -36,12 +34,10 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -87,8 +83,9 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
     private final static int filter = 30000;
     
     private ArrayList<String> videoIds = new ArrayList<String>();
-    private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
-    private boolean youtubeHightQuality = false;
+	ArrayList<String> VideoQuiltyLink = new ArrayList<String>(2);
+    //private HashMap<String, String> YoutubeQuiltyLink = new HashMap<String, String>();;
+    private boolean hightQuality = false;
     
     private int dramaId = 0;
     private int currentPart = 1;
@@ -243,7 +240,7 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
         instance.closeHelper();
         Log.d(TAG, "stop position : " + stopPosition);
         
-		youtubeHightQuality = TvDramaApplication.shIO.getBoolean("youtube_quality", youtubeHightQuality);
+		hightQuality = TvDramaApplication.shIO.getBoolean("youtube_quality", hightQuality);
 		
         player = new MediaPlayer();        
         controller = new MediaControllerView(this);
@@ -469,16 +466,14 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
      * Task to figure out details by calling out to YouTube GData API.  We only use public methods that
      * don't require authentication.
      */
-    private class QueryVideoTask extends AsyncTask<String, ProgressUpdateInfo, Uri> {
+    class QueryVideoTask extends AsyncTask<String, ProgressUpdateInfo, Void> {
 
         private String videoUrl = null;
         
         @Override
-        protected Uri doInBackground(String... pParams) {
+        protected Void doInBackground(String... pParams) {
         	Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-            
-            String lUriStr = null;
-            String lYouTubeFmtQuality = "17";            
+        	
             String videoId = null;
             
             videoUrl = pParams[0];
@@ -487,32 +482,14 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
                 return null;
             publishProgress(new ProgressUpdateInfo(mMsgDetect));
             
-            WifiManager lWifiManager = (WifiManager) MediaPlayerActivity.this.getSystemService(Context.WIFI_SERVICE);
-            TelephonyManager lTelephonyManager = (TelephonyManager) MediaPlayerActivity.this.getSystemService(Context.TELEPHONY_SERVICE);
-            // if we have a fast connection (wifi or 3g), then we'll get a high quality YouTube video
-            if ((lWifiManager.isWifiEnabled() && lWifiManager.getConnectionInfo() != null && lWifiManager.getConnectionInfo().getIpAddress() != 0) ||
-                    ((lTelephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS ||
-			   /* icky... using literals to make backwards compatible with 1.5 and 1.6 */
-                            lTelephonyManager.getNetworkType() == 9 /*HSUPA*/ || 
-                            lTelephonyManager.getNetworkType() == 10 /*HSPA*/ ||
-                            lTelephonyManager.getNetworkType() == 8 /*HSDPA*/ ||
-                            lTelephonyManager.getNetworkType() == 5 /*EVDO_0*/ ||
-                            lTelephonyManager.getNetworkType() == 6 /*EVDO A*/) &&
-                            lTelephonyManager.getDataState() == TelephonyManager.DATA_CONNECTED)
-                    ) {
-                lYouTubeFmtQuality = "18";
-            }
-            
             if (isCancelled())
                 return null;
             publishProgress(new ProgressUpdateInfo("讀取中..."));
 
             Log.d(TAG, "videoUrl : " + videoUrl);
+            VideoQuiltyLink.clear();
             // calculate the actual URL of the video, encoded with proper YouTube token
             if (videoUrl.contains("dailymotion")) {
-            	controller.mYoutubeQualitySwitch.setVisibility(View.INVISIBLE);
-            	controller.mYoutubeQualitySwitch.setClickable(false);
-            	//lMediaController.imYoutubeQualitySwitch.setVisibility(View.GONE);
     			if(videoUrl.contains("embed/video/")) {
     				String url = videoUrl.substring(39);
         			String[] tmpUrls = url.split("\\?");	            			
@@ -531,7 +508,7 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
     			}
     			if(videoId != null) {
     				videoUrl = "http://www.dailymotion.com/embed/video/" + videoId;
-    				lUriStr = DailymotionLoader.Loader(videoUrl);
+    				VideoQuiltyLink = DailymotionLoader.Loader(videoUrl);
     			}
     		} else if (videoUrl.contains("youtube")) {
     			if(videoUrl.contains("youtube-nocookie")) {
@@ -551,21 +528,15 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
 	    				videoId = tmpUrls[1];
     			}
     			if(videoId != null) {
-    				YoutubeQuiltyLink.clear();
-    				YoutubeQuiltyLink = YoutubeLoader.Loader(lYouTubeFmtQuality, true, videoId);
-    				if(YoutubeQuiltyLink != null && YoutubeQuiltyLink.size() > 0)
-    					lUriStr = YoutubeQuiltyLink.get("medium");
+    				VideoQuiltyLink = YoutubeLoader.Loader(true, videoId);
     			}
     		} else if (videoUrl.toLowerCase(Locale.getDefault()).contains(".mp4")) {
-    			lUriStr = videoUrl;
+    			VideoQuiltyLink.add(videoUrl);
+    		} else if (videoUrl.toLowerCase(Locale.getDefault()).contains(".tudou") ||
+    				videoUrl.toLowerCase(Locale.getDefault()).contains("youku")) {
+    			VideoQuiltyLink.add(videoUrl);
     		}
-            
-            if (lUriStr != null) {
-            	return Uri.parse(lUriStr);
-            } else {
-                return null;
-            }
-            
+			return null;            
         }
 
         @Override
@@ -575,15 +546,14 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
             MediaPlayerActivity.this.updateProgress(pValues[0].mMsg);
         }
 
-        @Override
-        protected void onPostExecute(Uri pResult) {
-            super.onPostExecute(pResult);
+        protected void onPostExecute() {
+            super.onPostExecute(null);
 
             try {
                 if (isCancelled())
                     return;
 
-                if (pResult == null) {
+                if (VideoQuiltyLink == null || VideoQuiltyLink.size() < 1) {
                     Uri uri = Uri.parse(videoUrl);
             		Intent it = new Intent(Intent.ACTION_VIEW, uri);
             		startActivity(it);
@@ -597,34 +567,25 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
                     throw new RuntimeException("Invalid NULL Url.");
                 } else {
 
-                    if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1) {
+                    if(VideoQuiltyLink.size() > 1) {
                     	controller.mYoutubeQualitySwitch.setVisibility(View.VISIBLE);
                     	controller.mYoutubeQualitySwitch.setClickable(true);
                     	controller.mYoutubeQualitySwitch.setOnClickListener(new OnClickListener() {
-    					/*lMediaController.imYoutubeQualitySwitch.setVisibility(View.VISIBLE);
-    					lMediaController.imYoutubeQualitySwitch.setOnClickListener(new OnClickListener() {*/
 							@Override
 							public void onClick(View arg0) {
 								// show loading dialog
 								showProgressImage();
 				            	
 				            	// change quailty
-								if(!youtubeHightQuality) {
-									//lMediaController.imYoutubeQualitySwitch.setBackgroundResource(R.drawable.hq_press);
+								if(!hightQuality) {
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
-									if(YoutubeQuiltyLink.containsKey("hd1080")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
-									} else if(YoutubeQuiltyLink.containsKey("hd720")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("hd720")));
-									} else if(YoutubeQuiltyLink.containsKey("large")) {
-										playVideo(Uri.parse(YoutubeQuiltyLink.get("large")));
-									}
+									playVideo(Uri.parse(VideoQuiltyLink.get(0)));
 								} else {
 									controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
-									playVideo(Uri.parse(YoutubeQuiltyLink.get("medium")));
+									playVideo(Uri.parse(VideoQuiltyLink.get(VideoQuiltyLink.size()-1)));
 								}
-								youtubeHightQuality = !youtubeHightQuality;
-								TvDramaApplication.shIO.edit().putBoolean("youtube_quality", youtubeHightQuality).commit();
+								hightQuality = !hightQuality;
+								TvDramaApplication.shIO.edit().putBoolean("youtube_quality", hightQuality).commit();
 							}    						
     					});
     				} else {
@@ -700,7 +661,8 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
                 	if (isCancelled())
 	                    return;
                 	
-                	if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1 && youtubeHightQuality) {
+                	/*
+                	if(videoUrl.contains("youtube") && YoutubeQuiltyLink.size() > 1 && hightQuality) {
                 		controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
 						if(YoutubeQuiltyLink.containsKey("hd1080")) {
 							playVideo(Uri.parse(YoutubeQuiltyLink.get("hd1080")));
@@ -712,6 +674,15 @@ public class MediaPlayerActivity extends Activity implements MediaControllerView
 		                	playVideo(pResult);
                 	} else
                     	playVideo(pResult);
+                	*/
+                	
+                	if(hightQuality) {
+						controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_press);
+						playVideo(Uri.parse(VideoQuiltyLink.get(0)));
+					} else {
+						controller.mYoutubeQualitySwitch.setImageResource(R.drawable.hq_normal);
+						playVideo(Uri.parse(VideoQuiltyLink.get(VideoQuiltyLink.size()-1)));
+					}
                 	
                 	timeToast();
                 }

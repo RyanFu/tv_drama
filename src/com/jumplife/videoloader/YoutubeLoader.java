@@ -34,7 +34,7 @@ public class YoutubeLoader {
 	static final String YOUTUBE_VIDEO_INFORMATION_URL = "http://www.youtube.com/get_video_info?video_id=";
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static HashMap<String, String> Loader(String pYouTubeFmtQuality, boolean pFallback, String pYouTubeVideoId) {
+	public static ArrayList<String> Loader(boolean pFallback, String pYouTubeVideoId) {
 		InputStream ins = null;
 		List<NameValuePair> params = new ArrayList();
 		String video_info = "";
@@ -58,7 +58,7 @@ public class YoutubeLoader {
 	      Log.e("PostHttp", "request e:" + localException);
 	    }
 	    
-	    HashMap localHashMap1 = new HashMap();
+	    HashMap<String, String> localHashMap1 = new HashMap<String, String>();
 	    HashMap tmp = parse_str(video_info);
 	    String currentType = "";
 	    String currentQuality = "";
@@ -79,7 +79,7 @@ public class YoutubeLoader {
 			    	  str1 = arrayOfString2[0];
 			      if(Build.VERSION.SDK_INT < 11) {
 				      if (((str1.equals("video/mp4")) || (str1.equals("video/3gpp"))) && 
-				    		  ((str2.equals("hd1080")) || (str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")))) {
+				    		  ((str2.equals("large")) || (str2.equals("medium")))) {
 				    	  if(str2.equals(currentQuality) && (currentType.equals("video/mp4") || currentType.equals("video/3gpp"))) {
 			    			  
 			    		  } else {
@@ -90,13 +90,11 @@ public class YoutubeLoader {
 					    	  if(localHashMap1.containsKey(str3))
 					    		  localHashMap1.remove(str3);
 						      localHashMap1.put(str3, str4);
-						      
-						      Log.d("player", "quality : " + str3 + " url : " + str4);
 			    		  }
 				      }
 			      } else {
 			    	  if (((str1.equals("video/mp4")) || (str1.equals("video/webm")) || (str1.equals("video/3gpp"))) && 
-				    		  ((str2.equals("hd1080")) || (str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")))) {
+				    		  ((str2.equals("hd720")) || (str2.equals("large")) || (str2.equals("medium")))) {
 			    		  if(str2.equals(currentQuality) && (currentType.equals("video/mp4") || currentType.equals("video/webm") || currentType.equals("video/3gpp"))) {
 			    			  
 			    		  } else {
@@ -107,15 +105,22 @@ public class YoutubeLoader {
 					    	  if(localHashMap1.containsKey(str3))
 					    		  localHashMap1.remove(str3);
 						      localHashMap1.put(str3, str4);
-						      
-						      Log.d("player", "quality : " + str3 + " url : " + str4);
 			    		  }
 				      }
 			      }
 		      }
 		    }
 	    }
-	    return localHashMap1;
+	    
+	    ArrayList<String> qualityList = new ArrayList<String>();
+	    if(localHashMap1.containsKey("hd720"))
+	    	qualityList.add(localHashMap1.get("hd720"));
+	    if(localHashMap1.containsKey("large"))
+	    	qualityList.add(localHashMap1.get("large"));
+	    if(localHashMap1.containsKey("medium"))
+	    	qualityList.add(localHashMap1.get("medium"));
+	    	
+	    return qualityList;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

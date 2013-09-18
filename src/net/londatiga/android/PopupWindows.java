@@ -64,6 +64,7 @@ public class PopupWindows {
 	/**
 	 * On pre show
 	 */
+	@SuppressWarnings("deprecation")
 	protected void preShow() {
 		if (mRootView == null) 
 			throw new IllegalStateException("setContentView was not called with a view to display.");

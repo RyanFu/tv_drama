@@ -171,7 +171,7 @@ public class MyFavoriteWaterFallActivity extends Activity {
         int screenWidth = displayMetrics.widthPixels;
         
         List<Integer> hotList = new ArrayList<Integer>(); 
-        adapter = new DramaGridAdapter(MyFavoriteWaterFallActivity.this, dramaList, hotList,
+        adapter = new DramaGridAdapter(MyFavoriteWaterFallActivity.this, dramaList, hotList, 5,
         		((screenWidth / 2)), (int) (((screenWidth / 2)) * 0.6));
         
         dramaGridView.setAdapter(adapter);
